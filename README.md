@@ -76,7 +76,7 @@ Project-Forum/
 ### 1. Clone repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Hieu200405/Website_Forum
 cd Project-Forum
 ```
 
@@ -253,7 +253,7 @@ This project is licensed under the ISC License.
 
 ## 👥 Authors
 
-- **Your Name** - Initial work
+- **23520472 - Đỗ Hoàng Hiếu** - Initial work
 
 ## 🙏 Acknowledgments
 
