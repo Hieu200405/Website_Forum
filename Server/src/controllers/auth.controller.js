@@ -21,6 +21,7 @@ exports.register = async (req, res) => {
       data: result,
     });
   } catch (error) {
+    console.error('Register Error:', error);
     const status = error.status || 500;
     const message = error.message || 'Lỗi server';
     
