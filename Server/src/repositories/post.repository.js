@@ -33,9 +33,10 @@ class PostRepository {
    * @param {number} [params.categoryId] - ID danh mục
    * @param {number} [params.page=1] - Trang hiện tại
    * @param {number} [params.limit=10] - Số lượng mỗi trang
+   * @param {string} [params.sortBy='newest'] - 'newest' | 'mostLiked'
    * @returns {Promise<{rows: Post[], count: number}>}
    */
-  async findAll({ status, categoryId, page = 1, limit = 10 } = {}) {
+  async findAll({ status, categoryId, page = 1, limit = 10, sortBy = 'newest' } = {}) {
     const offset = (page - 1) * limit;
     const where = {};
 
@@ -46,11 +47,19 @@ class PostRepository {
       where.category_id = categoryId;
     }
 
+    // Determine Sort Order
+    let order = [['created_at', 'DESC']]; // Default: newest
+    if (sortBy === 'mostLiked') {
+      order = [['like_count', 'DESC'], ['created_at', 'DESC']];
+    } else if (sortBy === 'oldest') {
+      order = [['created_at', 'ASC']];
+    }
+
     return await Post.findAndCountAll({
       where,
       limit,
       offset,
-      order: [['created_at', 'DESC']],
+      order,
       include: [
         { model: User, as: 'author', attributes: ['id', 'username'] },
         { model: Category, as: 'category', attributes: ['id', 'name'] }
