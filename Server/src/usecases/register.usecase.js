@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user.model');
 const LoggingService = require('../services/logging.service');
+const ROLES = require('../constants/roles');
 
 /**
  * Register UseCase - Xử lý logic đăng ký tài khoản
@@ -79,7 +80,7 @@ class RegisterUseCase {
       username,
       email,
       password: hashedPassword,
-      role: 'user', // Role mặc định
+      role: ROLES.USER, // Role mặc định
     });
 
     // 6. Ghi log hành động REGISTER
