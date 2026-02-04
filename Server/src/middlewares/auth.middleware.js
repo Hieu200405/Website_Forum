@@ -1,28 +1,43 @@
 const jwt = require('jsonwebtoken');
 const jwtConfig = require('../config/jwt');
+const util = require('util');
 
-const authMiddleware = (req, res, next) => {
+// Promisify jwt.verify để dùng với async/await
+const verifyToken = util.promisify(jwt.verify);
+
+const authMiddleware = async (req, res, next) => {
   try {
+    // 1. Đọc header Authorization
     const authHeader = req.headers['authorization'];
-    if (!authHeader) {
-      return res.status(401).json({ message: 'Không tìm thấy token xác thực' });
+
+    // 2. Kiểm tra header tồn tại và đúng format "Bearer <token>"
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    // Bearer <token>
+    // Lấy token từ header
     const token = authHeader.split(' ')[1];
     if (!token) {
-      return res.status(401).json({ message: 'Token không hợp lệ' });
+      return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    jwt.verify(token, jwtConfig.secret, (err, decoded) => {
-      if (err) {
-        return res.status(403).json({ message: 'Token đã hết hạn hoặc không hợp lệ' });
-      }
-      req.user = decoded; // Lưu thông tin user vào request
-      next();
-    });
+    // 3. Verify token (Dùng async/await)
+    // Nếu token sai hoặc hết hạn, hàm này sẽ throw error -> nhảy xuống verify catch
+    const decoded = await verifyToken(token, jwtConfig.secret);
+
+    // 4. Token hợp lệ: Gán user info vào request
+    req.user = {
+      userId: decoded.userId,
+      role: decoded.role,
+    };
+
+    // 5. Chuyển tiếp request
+    next();
+
   } catch (error) {
-    return res.status(500).json({ message: 'Lỗi xác thực hệ thống' });
+    // 6. Xử lý lỗi: Thiếu token, Token sai, Token hết hạn
+    // Không trả lỗi chi tiết, chỉ trả 401 Unauthorized
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 };
 
