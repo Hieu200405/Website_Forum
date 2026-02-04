@@ -24,6 +24,7 @@ require('./models/user.model');
 require('./models/systemLog.model');
 require('./models/category.model');
 require('./models/post.model');
+require('./models/comment.model');
 
 // Apply Rate Limit Global
 const { limiter } = require('./middlewares/rateLimit.middleware');
