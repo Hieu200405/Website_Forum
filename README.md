@@ -27,9 +27,11 @@ Route → Controller → UseCase → Service → Model → Database
 
 - **Framework:** Node.js + Express
 - **Database:** MySQL (Sequelize ORM)
-- **Cache/Logging:** Redis
+- **Cache:** Redis
+- **Logging:** MySQL (Primary) + Redis (Optional)
 - **Authentication:** JWT + bcrypt
 - **Validation:** express-validator
+- **Security:** express-rate-limit
 
 #### Frontend (Forum/)
 
@@ -157,12 +159,29 @@ Import file `Testing/Forum_Register_API.postman_collection.json` vào Postman đ
 | created_at | TIMESTAMP    | AUTO                        |
 | updated_at | TIMESTAMP    | AUTO                        |
 
+### Table: system_logs
+
+| Column     | Type        | Constraints                 |
+| ---------- | ----------- | --------------------------- |
+| id         | INTEGER     | PRIMARY KEY, AUTO_INCREMENT |
+| user_id    | INTEGER     | ALLOW NULL, FK -> users(id) |
+| action     | VARCHAR(50) | NOT NULL                    |
+| ip         | VARCHAR(45) | ALLOW NULL                  |
+| data       | TEXT        | ALLOW NULL (JSON)           |
+| level      | VARCHAR(20) | DEFAULT 'INFO'              |
+| created_at | TIMESTAMP   | AUTO                        |
+
 ## 🔌 API Endpoints
 
 ### Authentication
 
 - `POST /api/auth/register` - Đăng ký tài khoản
+- `POST /api/auth/register` - Đăng ký tài khoản
 - `POST /api/auth/login` - Đăng nhập
+
+### Admin (Phân quyền)
+
+- `PUT /api/admin/users/:id/role` - Thay đổi quyền hạn User (Admin only)
 
 ### Posts (Coming soon)
 
@@ -179,13 +198,14 @@ Import file `Testing/Forum_Register_API.postman_collection.json` vào Postman đ
 
 ## 🎯 Roadmap
 
-### Phase 1: Forum Khởi luận ✅ (60% Complete)
+### Phase 1: Forum Khởi luận ✅ (Completed)
 
 - [x] User registration & login
 - [x] Database setup (MySQL)
 - [x] Redis integration
-- [x] Logging service
-- [ ] Moderation service
+- [x] Logging service (MySQL + Redis)
+- [x] Authentication & Authorization (JWT + RBAC)
+- [x] Middleware (Auth, Role, Rate Limit, Validate)
 - [ ] Frontend UI
 
 ### Phase 2: Use Case 🔄 (In Progress)
@@ -207,10 +227,10 @@ Import file `Testing/Forum_Register_API.postman_collection.json` vào Postman đ
 - [ ] Error logs
 - [ ] Analytics
 
-### Phase 5: Bảo mật ⏳
+### Phase 5: Bảo mật 🔄
 
-- [ ] Rate limiting
-- [ ] Input sanitization
+- [x] Rate limiting
+- [x] Input sanitization (via Sequelize & Validator)
 - [ ] CSRF protection
 - [ ] XSS protection
 
@@ -220,12 +240,18 @@ Import file `Testing/Forum_Register_API.postman_collection.json` vào Postman đ
 - ✅ JWT authentication
 - ✅ Input validation
 - ✅ SQL injection prevention (Sequelize ORM)
-- 🔄 Rate limiting (Coming soon)
+- ✅ Rate limiting (express-rate-limit)
 - 🔄 CSRF protection (Coming soon)
 
 ## 📝 Logging
 
-Hệ thống sử dụng Redis để lưu trữ logs với các tính năng:
+Hệ thống sử dụng **MySQL** làm kho lưu trữ logs chính (bảng `system_logs`) để đảm bảo tính bền vững và dễ dàng truy vấn. Redis có thể được sử dụng như một lớp đệm hoặc cache.
+
+- **Storage:** MySQL Table `system_logs`
+- **Fields:** `userId`, `action`, `ip`, `data`, `level`
+- **Queries:** Hỗ trợ SQL queries để lọc log theo user, action, time.
+
+(Cũ - Optional) Redis Logs:
 
 - Auto-expiration (30 ngày)
 - Key pattern: `log:{ACTION}:{timestamp}`
