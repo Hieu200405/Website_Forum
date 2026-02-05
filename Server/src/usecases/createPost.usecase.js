@@ -28,9 +28,24 @@ class CreatePostUseCase {
       throw { status: 404, message: 'Category not found' };
     }
 
-    // 3. Kiểm duyệt nội dung (Moderation)
-    const isViolation = ModerationService.checkContent(title, content);
-    const status = isViolation ? 'pending' : 'active';
+    // 3. Moderation Check (Async DB)
+    const checkTitle = await ModerationService.check(title);
+    const checkContent = await ModerationService.check(content);
+
+    let status = 'active';
+    let violationReason = '';
+    const isViolation = !checkTitle.isValid || !checkContent.isValid;
+
+    if (isViolation) {
+        status = 'pending';
+        const violations = [
+            ...checkTitle.bannedWordsFound, 
+            ...checkContent.bannedWordsFound
+        ];
+        // Unique violations only
+        const uniqueViolations = [...new Set(violations)];
+        violationReason = `Found banned words: ${uniqueViolations.join(', ')}`;
+    }
 
     // 4. Lưu bài viết
     const newPost = await PostRepository.create({
@@ -46,7 +61,12 @@ class CreatePostUseCase {
       userId,
       'CREATE_POST',
       ip,
-      { postId: newPost.id, title: newPost.title, status }
+      { 
+        postId: newPost.id, 
+        title: newPost.title, 
+        status,
+        violationReason: status === 'pending' ? violationReason : null
+      }
     );
 
     return {

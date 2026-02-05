@@ -82,6 +82,26 @@ class PostRepository {
   }
 
   /**
+   * Cập nhật trạng thái bài viết (cho Moderation)
+   * @param {number} id 
+   * @param {string} status 
+   * @param {string} hideReason 
+   * @returns {Promise<boolean>}
+   */
+  async updateModerationStatus(id, status, hideReason = null) {
+    const updateData = { status };
+    if (hideReason !== null) {
+      updateData.hide_reason = hideReason;
+    }
+    
+    const [updated] = await Post.update(
+      updateData,
+      { where: { id } }
+    );
+    return updated > 0;
+  }
+
+  /**
    * Tăng lượt like
    * @param {number} id 
    * @returns {Promise<void>}

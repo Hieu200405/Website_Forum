@@ -2,6 +2,7 @@ const router = require('express').Router();
 const PostController = require('../controllers/post.controller');
 const CommentController = require('../controllers/comment.controller');
 const LikeController = require('../controllers/like.controller');
+const ReportController = require('../controllers/report.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 
 // Middleware optional auth: Thử decode token, nếu lỗi hoặc không có thì next() với guest
@@ -38,6 +39,9 @@ router.post('/:postId/comments', authMiddleware, CommentController.commentOnPost
 // Auth required: Like / Unlike
 router.post('/:postId/like', authMiddleware, LikeController.like);
 router.delete('/:postId/like', authMiddleware, LikeController.unlike);
+
+// Auth required: Report
+router.post('/:postId/report', authMiddleware, ReportController.reportPost);
 
 // Routes cho Post
 // Yêu cầu đăng nhập để tạo bài viết

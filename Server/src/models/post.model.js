@@ -58,6 +58,11 @@ const Post = sequelize.define('Post', {
     defaultValue: 0,
     allowNull: false,
   },
+  // Lý do ẩn bài (cho Moderation)
+  hide_reason: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  }
 }, {
   tableName: 'posts',
   timestamps: true,
