@@ -5,7 +5,8 @@ class ReportController {
   static async report(req, res) {
     try {
       const userId = req.user.userId;
-      const { postId, reason } = req.body; // Body chứa cả postId
+      const postId = req.params.postId || req.body.postId;
+      const { reason } = req.body;
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
 
       const result = await ReportPostUseCase.execute(userId, postId, reason, ip);

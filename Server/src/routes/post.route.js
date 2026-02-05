@@ -4,47 +4,40 @@ const CommentController = require('../controllers/comment.controller');
 const LikeController = require('../controllers/like.controller');
 const ReportController = require('../controllers/report.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
+const rateLimit = require('../middlewares/rateLimit.middleware');
 
 // Middleware optional auth: Thử decode token, nếu lỗi hoặc không có thì next() với guest
-// Tạm thời dùng custom middleware nhỏ tại đây hoặc tách file
 const optionalAuth = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    // Gọi authMiddleware logic nhưng bắt lỗi để không return 401
-    // Để đơn giản tôi sẽ dùng trực tiếp authMiddleware nếu cần bảo vệ chặt, 
-    // còn đây là public route. Tôi sẽ để controller tự check req.user nếu có middleware chạy trước.
-    // Cách tốt nhất là dùng authMiddleware cho route cần login. Route này public.
-    // Tuy nhiên UseCase cần biết user để check quyền xem bài hidden.
-    // Nên ta cần middleware: "ExtractUserIfPresent"
     try {
        const token = authHeader.split(' ')[1];
-       const jwt = require('jsonwebtoken'); // Lazy load
+       const jwt = require('jsonwebtoken');
        const config = require('../config/jwt');
        const decoded = jwt.verify(token, config.secret);
        req.user = decoded;
-    } catch (e) { /* Ignore invalid token for guest view */ }
+    } catch (e) { /* Ignore invalid token */ }
   }
   next();
 };
 
 // Public: Get all posts
-router.get('/', PostController.getList);
+router.get('/', PostController.getPosts);
 
 // Public (with optional auth for viewing hidden posts): Get Detail
-router.get('/:id', optionalAuth, PostController.getDetail);
+router.get('/:id', optionalAuth, PostController.getPostDetail);
 
 // Auth required: Comment on Post
-router.post('/:postId/comments', authMiddleware, CommentController.commentOnPost);
+router.post('/:postId/comments', authMiddleware, rateLimit, CommentController.commentOnPost);
 
 // Auth required: Like / Unlike
 router.post('/:postId/like', authMiddleware, LikeController.like);
 router.delete('/:postId/like', authMiddleware, LikeController.unlike);
 
 // Auth required: Report
-router.post('/:postId/report', authMiddleware, ReportController.reportPost);
+router.post('/:postId/report', authMiddleware, ReportController.report);
 
-// Routes cho Post
-// Yêu cầu đăng nhập để tạo bài viết
-router.post('/', authMiddleware, PostController.create);
+// Auth required: Create Post (with Rate Limit)
+router.post('/', authMiddleware, rateLimit, PostController.create);
 
 module.exports = router;

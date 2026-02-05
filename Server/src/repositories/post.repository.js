@@ -126,6 +126,57 @@ class PostRepository {
   async decreaseLikeCount(id) {
     await Post.decrement('like_count', { where: { id } });
   }
+
+  /**
+   * Lấy danh sách bài viết có sắp xếp (Join Likes & Count)
+   * @param {object} params
+   */
+  async getPostsWithSort({ page, limit, sort }) {
+    const offset = (page - 1) * limit;
+    const { QueryTypes } = require('sequelize');
+    const sequelize = require('../config/database');
+
+    let orderByClause = 'p.created_at DESC'; // default newest
+
+    if (sort === 'most_liked') {
+      orderByClause = 'likeCount DESC, p.created_at DESC';
+    }
+
+    // SQL Query:
+    // 1. Join Posts left join Likes
+    // 2. Group by Post.id
+    // 3. Count likes
+    // 4. Sort
+    // 5. Paginate
+    
+    const sql = `
+      SELECT 
+        p.id, 
+        p.title, 
+        p.created_at as createdAt,
+        p.user_id as authorId,
+        COUNT(l.post_id) as likeCount
+      FROM posts p
+      LEFT JOIN likes l ON p.id = l.post_id
+      WHERE p.status = 'active'
+      GROUP BY p.id
+      ORDER BY ${orderByClause}
+      LIMIT :limit OFFSET :offset
+    `;
+
+    const rows = await sequelize.query(sql, {
+      replacements: { limit, offset },
+      type: QueryTypes.SELECT
+    });
+
+    // Count Total (để phân trang)
+    // Query count distinct post active
+    const countSql = `SELECT COUNT(*) as total FROM posts WHERE status = 'active'`;
+    const countResult = await sequelize.query(countSql, { type: QueryTypes.SELECT });
+    const total = countResult[0].total;
+
+    return { rows, count: total };
+  }
 }
 
 module.exports = new PostRepository();
