@@ -69,6 +69,10 @@ class CreatePostUseCase {
       }
     );
 
+    // 6. Invalidate Cache
+    const RedisService = require('../services/redis.service'); 
+    await RedisService.delPattern('posts:*');
+
     return {
       id: newPost.id,
       title: newPost.title,
