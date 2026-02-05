@@ -1,24 +1,39 @@
 const Comment = require('../models/comment.model');
-const User = require('../models/user.model');
 
 class CommentRepository {
   /**
-   * Lấy danh sách comment của một bài viết
+   * Tạo comment mới
+   * @param {object} data
+   * @returns {Promise<Model>}
+   */
+  async create(data) {
+    return await Comment.create(data);
+  }
+
+  /**
+   * Tìm comment theo ID
+   * @param {number} id 
+   * @returns {Promise<Comment|null>}
+   */
+  async findById(id) {
+    return await Comment.findByPk(id);
+  }
+
+  /**
+   * Lấy danh sách comment của một bài viết (Flat list)
    * @param {number} postId 
-   * @param {number} limit 
    * @returns {Promise<Comment[]>}
    */
-  async findByPostId(postId, limit = 50) {
+  async findAllByPostId(postId) {
     return await Comment.findAll({
       where: { 
         post_id: postId,
         status: 'active' 
       },
-      limit,
-      order: [['created_at', 'ASC']], // Cũ nhất trước
+      order: [['created_at', 'ASC']], 
       include: [
         { 
-          model: User, 
+          model: require('../models/user.model'), 
           as: 'author', 
           attributes: ['id', 'username', 'role'] 
         }

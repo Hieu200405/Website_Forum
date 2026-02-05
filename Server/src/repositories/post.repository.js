@@ -98,6 +98,14 @@ class PostRepository {
   async increaseCommentCount(id) {
     await Post.increment('comment_count', { where: { id } });
   }
+
+  /**
+   * Giảm lượt like (Khi unlike)
+   * @param {number} id 
+   */
+  async decreaseLikeCount(id) {
+    await Post.decrement('like_count', { where: { id } });
+  }
 }
 
 module.exports = new PostRepository();
