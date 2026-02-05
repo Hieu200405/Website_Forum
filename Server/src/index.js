@@ -38,8 +38,8 @@ require('./models/bannedWord.model');
 require('./models/report.model');
 
 // Apply Rate Limit Global
-const { limiter } = require('./middlewares/rateLimit.middleware');
-app.use(limiter);
+const rateLimit = require('./middlewares/rateLimit.middleware');
+app.use(rateLimit);
 
 sequelize.sync()
   .then(() => console.log('Database synced'))
