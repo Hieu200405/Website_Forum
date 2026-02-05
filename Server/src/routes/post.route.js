@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const PostController = require('../controllers/post.controller');
+const CommentController = require('../controllers/comment.controller');
+const LikeController = require('../controllers/like.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 
 // Middleware optional auth: Thử decode token, nếu lỗi hoặc không có thì next() với guest
@@ -29,6 +31,13 @@ router.get('/', PostController.getList);
 
 // Public (with optional auth for viewing hidden posts): Get Detail
 router.get('/:id', optionalAuth, PostController.getDetail);
+
+// Auth required: Comment on Post
+router.post('/:postId/comments', authMiddleware, CommentController.commentOnPost);
+
+// Auth required: Like / Unlike
+router.post('/:postId/like', authMiddleware, LikeController.like);
+router.delete('/:postId/like', authMiddleware, LikeController.unlike);
 
 // Routes cho Post
 // Yêu cầu đăng nhập để tạo bài viết
