@@ -31,6 +31,22 @@ const authMiddleware = async (req, res, next) => {
       role: decoded.role,
     };
 
+    // Check Banned Status (Bổ sung security)
+    const User = require('../models/user.model');
+    const user = await User.findByPk(decoded.userId);
+    
+    if (!user) {
+        return res.status(401).json({ message: 'User no longer exists' });
+    }
+    
+    if (user.status === 'banned') {
+        const reason = user.banned_reason || 'Vi phạm điều khoản';
+        return res.status(403).json({ message: `Tài khoản của bạn đã bị khóa. Lý do: ${reason}` });
+    }
+    
+    // Refresh role from DB (Để đảm bảo role mới nhất)
+    req.user.role = user.role;
+
     // 5. Chuyển tiếp request
     next();
 

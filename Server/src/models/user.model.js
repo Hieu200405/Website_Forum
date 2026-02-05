@@ -33,6 +33,18 @@ const User = sequelize.define('User', {
     defaultValue: ROLES.USER,
     allowNull: false,
   },
+  status: {
+    type: DataTypes.ENUM('active', 'banned'),
+    defaultValue: 'active',
+  },
+  banned_reason: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  banned_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  }
 }, {
   tableName: 'users',
   timestamps: true,
