@@ -26,19 +26,9 @@ class CreateCommentUseCase {
     }
 
     // 3. Moderation Check
-    // Lưu ý: ModerationService.checkContent trả về true nếu vi phạm (theo yêu cầu đề bài UseCase 1: "Nếu false -> pending, true -> active" ??? 
-    // KHÔNG, Đề bài ghi: "Nếu false -> status = pending". 
-    // Thông thường checkContent(text) trả về true nếu có badword. 
-    // Logic của user: "Nếu false [tức là check pass?] -> status = pending" ??? Có vẻ user viết ngược hoặc ý là "Check OK? -> False (ko ok)".
-    // Tuy nhiên ở đoạn CreatePostUseCase trước đó: `const isViolation = ModerationService.checkContent`. 
-    // -> Nếu isViolation = true (có vi phạm) -> Pending.
-    // -> User yêu cầu ở đây: "Nếu false -> status = pending". Tôi sẽ hiểu là kết quả kiểm duyệt (IsSafe).
-    // Nhưng để nhất quán với ModerationService hiện tại: checkContent trả về isViolation.
-    // -> Nếu isViolation (true) -> Pending. Nếu OK (false) -> Active.
-    // Tôi sẽ follow logic chuẩn: Có từ cấm -> Pending.
-    
-    const isViolation = ModerationService.checkContent(content);
-    const status = isViolation ? 'pending' : 'active';
+    // Note: checkContent trả về Promise<{isValid, bannedWordsFound}> do load DB
+    const modResult = await ModerationService.check(content);
+    const status = modResult.isValid ? 'active' : 'pending';
 
     // 4. Create Comment
     const newComment = await CommentRepository.create({

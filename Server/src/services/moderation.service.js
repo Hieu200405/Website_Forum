@@ -1,29 +1,70 @@
+const PostRepository = require('../repositories/post.repository');
+const BannedWordRepository = require('../repositories/bannedWord.repository');
+
 class ModerationService {
   constructor() {
-    // List cứng demo, trong thực tế sẽ load từ DB hoặc file json
-    this.bannedWords = ['badword', 'vi phạm', 'cấm', 'spam'];
+    this.cache = [];
+    this.lastUpdate = 0;
+    this.CACHE_TSL = 60000; // 1 phút refresh cache 1 lần
+  }
+
+  async loadBannedWords() {
+    const now = Date.now();
+    // Cache expiry check
+    if (now - this.lastUpdate > this.CACHE_TSL || this.cache.length === 0) {
+      const words = await BannedWordRepository.findAllWords(); 
+      // Normalize cache to lowercase
+      this.cache = words.map(w => w.toLowerCase());
+      this.lastUpdate = now;
+    }
+    return this.cache;
   }
 
   /**
-   * Kiểm tra nội dung có chứa từ cấm hay không
-   * @param {string} text - Nội dung cần kiểm tra
-   * @returns {boolean} - True nếu vi phạm
+   * Kiểm tra văn bản có chứa từ cấm không
+   * @param {string} text 
+   * @returns {Promise<{isValid: boolean, bannedWordsFound: string[]}>}
    */
-  check(text) {
-    if (!text) return false;
-    const lowerText = text.toLowerCase();
+  async check(text) {
+    if (!text) {
+      return { isValid: true, bannedWordsFound: [] };
+    }
     
-    return this.bannedWords.some(word => lowerText.includes(word.toLowerCase()));
+    const lowerText = text.toLowerCase();
+    const bannedWords = await this.loadBannedWords();
+    
+    // Tìm tất cả các từ cấm xuất hiện trong text
+    const found = bannedWords.filter(word => lowerText.includes(word));
+
+    return {
+      isValid: found.length === 0,
+      bannedWordsFound: found
+    };
   }
 
   /**
-   * Kiểm tra cả tiêu đề và nội dung
-   * @param {string} title 
-   * @param {string} content 
-   * @returns {boolean}
+   * Ẩn bài viết nếu vượt quá số lượng report cho phép
+   * @param {number} postId 
    */
-  checkContent(title, content) {
-    return this.check(title) || this.check(content);
+  async hidePostIfExceededReports(postId) {
+    const { REPORT_THRESHOLD } = require('../config/constants');
+    const ReportRepository = require('../repositories/report.repository'); // Lazy load avoid circular ref
+    const LoggingService = require('../services/logging.service');
+    
+    // 1. Get count
+    const count = await ReportRepository.countByPostId(postId);
+
+    // 2. Check threshold
+    if (count > REPORT_THRESHOLD) {
+      const post = await PostRepository.findById(postId);
+      // Chỉ ẩn nếu bài đang active
+      if (post && post.status === 'active') {
+        await PostRepository.updateStatus(postId, 'hidden');
+        await LoggingService.log(null, 'AUTO_HIDE_POST', 'SYSTEM', { postId, reportCount: count });
+        return true;
+      }
+    }
+    return false;
   }
 }
 

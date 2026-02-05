@@ -40,8 +40,8 @@ class ReplyCommentUseCase {
     }
 
     // 4. Moderation Check
-    const isViolation = ModerationService.checkContent(content);
-    const status = isViolation ? 'pending' : 'active';
+    const modResult = await ModerationService.check(content);
+    const status = modResult.isValid ? 'active' : 'pending';
 
     // 5. Create Reply
     const reply = await CommentRepository.create({
