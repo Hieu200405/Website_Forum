@@ -8,8 +8,12 @@ const ROLES = require('../constants/roles');
 router.use(authMiddleware, roleMiddleware([ROLES.ADMIN]));
 
 // User Management Routes
+router.get('/users', AdminController.getUsers);
 router.patch('/users/:id/ban', AdminController.banUser);
 router.patch('/users/:id/unban', AdminController.unbanUser);
+
+// Report Management
+router.get('/reports', AdminController.getReports);
 
 // System Logs Route
 const LogController = require('../controllers/log.controller');

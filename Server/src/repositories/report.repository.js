@@ -33,6 +33,22 @@ class ReportRepository {
       where: { post_id: postId }
     });
   }
+
+  async findAll({ limit, offset, order = [['createdAt', 'DESC']] }) {
+      // Lazy load models to avoid circular dependency issues if any
+      const User = require('../models/user.model');
+      const Post = require('../models/post.model');
+
+      return await Report.findAndCountAll({
+          limit,
+          offset,
+          order,
+          include: [
+              { model: User, as: 'reporter', attributes: ['id', 'username', 'email'] },
+              { model: Post, as: 'post', attributes: ['id', 'title', 'status'] }
+          ]
+      });
+  }
 }
 
 module.exports = new ReportRepository();

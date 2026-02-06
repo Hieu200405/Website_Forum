@@ -1,5 +1,7 @@
 const BanUserUseCase = require('../usecases/banUser.usecase');
 const UnbanUserUseCase = require('../usecases/unbanUser.usecase');
+const UserRepository = require('../repositories/user.repository');
+const ReportRepository = require('../repositories/report.repository');
 
 class AdminController {
   
@@ -27,6 +29,52 @@ class AdminController {
       res.status(200).json({ success: true, message: result.message });
     } catch (error) {
       res.status(error.status || 500).json({ success: false, message: error.message });
+    }
+  }
+
+  static async getUsers(req, res) {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await UserRepository.findAll({ limit, offset });
+
+        res.status(200).json({
+            success: true,
+            data: rows,
+            pagination: {
+                total: count,
+                page,
+                limit,
+                totalPages: Math.ceil(count / limit)
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  static async getReports(req, res) {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await ReportRepository.findAll({ limit, offset });
+
+        res.status(200).json({
+            success: true,
+            data: rows,
+            pagination: {
+                total: count,
+                page,
+                limit,
+                totalPages: Math.ceil(count / limit)
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
   }
 }
