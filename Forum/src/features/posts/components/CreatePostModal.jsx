@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createPost } from '../api/postService';
+import { createPost, updatePost } from '../api/postService';
 import useModalStore from '@/components/hooks/useModalStore';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
@@ -8,20 +8,44 @@ import toast from 'react-hot-toast';
 import { Image, X } from 'lucide-react';
 
 const CreatePostModal = () => {
-  const { onClose } = useModalStore();
+  const { onClose, data: editPost } = useModalStore();
   const queryClient = useQueryClient();
-  const [formData, setFormData] = useState({ title: '', content: '', categoryId: 1 }); // Default category 1 for now
+  const [formData, setFormData] = useState({ 
+      title: editPost?.title || '', 
+      content: editPost?.content || '', 
+      categoryId: editPost?.categoryId || 1 
+  });
+
+  // Reset form when editPost changes (e.g. opening modal for different post or new post)
+  React.useEffect(() => {
+      if (editPost) {
+          setFormData({
+              title: editPost.title,
+              content: editPost.content,
+              categoryId: editPost.categoryId || 1
+          });
+      } else {
+          setFormData({ title: '', content: '', categoryId: 1 });
+      }
+  }, [editPost]);
 
   const mutation = useMutation({
-    mutationFn: createPost,
+    mutationFn: (data) => {
+        if (editPost) {
+            return updatePost({ id: editPost.id, data });
+        }
+        return createPost(data);
+    },
     onSuccess: () => {
-      toast.success('Bài viết đã được đăng!');
-      queryClient.invalidateQueries({ queryKey: ['posts'] }); // Refresh Feed
-      setFormData({ title: '', content: '', categoryId: 1 });
+      toast.success(editPost ? 'Đã cập nhật bài viết!' : 'Bài viết đã được đăng!');
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      if (editPost) {
+         queryClient.invalidateQueries({ queryKey: ['post', editPost.id] });
+      }
       onClose();
     },
     onError: (error) => {
-      toast.error(error.message || 'Đăng bài thất bại');
+      toast.error(error.message || 'Thao tác thất bại');
     }
   });
 
@@ -32,7 +56,7 @@ const CreatePostModal = () => {
   };
 
   return (
-    <Modal type="create-post" title="Tạo bài viết mới">
+    <Modal type="create-post" title={editPost ? "Chỉnh sửa bài viết" : "Tạo bài viết mới"}>
       <form onSubmit={handleSubmit} className="space-y-4">
          <div>
              <input 
@@ -66,7 +90,7 @@ const CreatePostModal = () => {
 
          <div className="flex justify-end pt-2">
              <Button type="submit" isLoading={mutation.isPending} className="w-full sm:w-auto px-8 rounded-full">
-                Đăng bài
+                {editPost ? 'Lưu thay đổi' : 'Đăng bài'}
              </Button>
          </div>
       </form>

@@ -2,12 +2,25 @@ import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Heart, MessageSquare, Share2, MoreHorizontal } from 'lucide-react';
 
+import { useNavigate } from 'react-router-dom';
+import PostMenu from './PostMenu';
+import { useDeletePost } from '../hooks/useDeletePost';
+import useModalStore from '@/components/hooks/useModalStore';
+
 const PostCard = ({ post, onLike }) => {
+  const navigate = useNavigate();
+  const deleteMutation = useDeletePost();
+  const { onOpen } = useModalStore();
+
+  const handlePostClick = () => {
+    navigate(`/posts/${post.id}`);
+  };
+
   return (
     <div className="group bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-200 transition-all duration-300">
       {/* Header Info */}
       <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 cursor-pointer" onClick={handlePostClick}>
             <div className="relative">
                 <div className="h-11 w-11 rounded-full bg-gradient-to-br from-indigo-500 to-primary-500 text-white flex items-center justify-center font-bold text-lg shadow-sm">
                     {post.author?.username?.[0]?.toUpperCase() || 'U'}
@@ -28,14 +41,20 @@ const PostCard = ({ post, onLike }) => {
             </p>
             </div>
         </div>
-        <button className="p-2 text-slate-400 hover:bg-slate-50 rounded-full transition-colors">
-            <MoreHorizontal className="w-5 h-5" />
-        </button>
+        <PostMenu 
+            post={post}
+            onEdit={() => onOpen('create-post', post)}
+            onDelete={() => {
+                if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+                    deleteMutation.mutate(post.id);
+                }
+            }}
+        />
       </div>
 
       {/* Content */}
-      <div className="pl-14"> 
-          <h3 className="text-lg font-bold text-slate-900 mb-2 leading-snug cursor-pointer hover:text-primary-600 transition-colors">
+      <div className="pl-14 cursor-pointer" onClick={handlePostClick}> 
+          <h3 className="text-lg font-bold text-slate-900 mb-2 leading-snug hover:text-primary-600 transition-colors">
             {post.title}
           </h3>
           <p className="text-slate-600 leading-relaxed text-[15px] mb-4 line-clamp-3">

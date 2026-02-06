@@ -13,6 +13,16 @@ export const createPost = async (postData) => {
   return await api.post('/posts', postData);
 };
 
+// Xóa bài viết
+export const deletePost = async (id) => {
+  return await api.delete(`/posts/${id}`);
+};
+
+// Cập nhật bài viết
+export const updatePost = async ({ id, data }) => {
+  return await api.put(`/posts/${id}`, data);
+};
+
 export const likePost = async (postId) => {
   return await api.post(`/posts/${postId}/like`);
 };

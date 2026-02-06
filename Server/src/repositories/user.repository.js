@@ -26,6 +26,15 @@ class UserRepository {
     const [updated] = await User.update(updateData, { where: { id } });
     return updated > 0;
   }
+
+  async findAll({ limit, offset, order = [['createdAt', 'DESC']] }) {
+    return await User.findAndCountAll({
+      limit,
+      offset,
+      order,
+      attributes: { exclude: ['password'] } // Security: Don't return passwords
+    });
+  }
 }
 
 module.exports = new UserRepository();
