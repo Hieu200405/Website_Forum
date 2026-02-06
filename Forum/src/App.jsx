@@ -10,12 +10,17 @@ import ModalProvider from './components/providers/ModalProvider';
 
 const queryClient = new QueryClient();
 
+import PostDetailPage from './pages/PostDetailPage';
+
+// ...
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/posts/:id" element={<PostDetailPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

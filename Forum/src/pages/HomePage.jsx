@@ -36,10 +36,10 @@ const HomePage = () => {
                 <div className="flex items-center space-x-12">
                     <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
                          <div className="h-10 w-10 bg-gradient-to-tr from-primary-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
-                            <span className="text-white font-extrabold text-xl">K</span>
+                            <span className="text-white font-extrabold text-xl">F</span>
                          </div>
                          <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 hidden sm:block">
-                            Khởi Luận
+                            Forum
                          </span>
                     </div>
                     {/* Search Bar - Hidden on mobile */}
