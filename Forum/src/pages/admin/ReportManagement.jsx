@@ -1,17 +1,37 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getReports } from './api/adminService';
-import { Flag, Eye, AlertTriangle } from 'lucide-react';
+import { Flag, Eye, AlertTriangle, Ban, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 
+import { moderatePost } from '@/features/moderation/api/moderationService';
+import toast from 'react-hot-toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 const ReportManagement = () => {
   const [page, setPage] = useState(1);
+  const queryClient = useQueryClient();
   
   const { data, isLoading } = useQuery({
     queryKey: ['admin-reports', page],
     queryFn: () => getReports({ page, limit: 10 }),
   });
+
+  const moderateMutation = useMutation({
+      mutationFn: ({ postId, action }) => moderatePost(postId, { action, reason: 'Admin Action' }),
+      onSuccess: () => {
+          toast.success('Đã xử lý bài viết');
+          queryClient.invalidateQueries({ queryKey: ['admin-reports'] });
+      },
+      onError: (err) => toast.error(err.response?.data?.message || 'Lỗi xử lý')
+  });
+
+  const handleAction = (postId, action) => {
+      if (window.confirm(`Bạn có chắc muốn ${action === 'delete' ? 'xóa' : 'ẩn'} bài viết này?`)) {
+          moderateMutation.mutate({ postId, action });
+      }
+  };
 
   const reports = data?.data || [];
   const pagination = data?.pagination;
@@ -47,6 +67,7 @@ const ReportManagement = () => {
                                      <div className="max-w-xs">
                                         <p className="font-medium text-slate-900 truncate">{report.post?.title || 'Bài viết đã bị xóa'}</p>
                                         <p className="text-xs text-slate-500">ID: {report.post?.id}</p>
+                                        <p className="text-xs text-red-500 font-semibold mt-1">Status: {report.post?.status}</p>
                                      </div>
                                 </td>
                                 <td className="px-6 py-4">
@@ -62,15 +83,33 @@ const ReportManagement = () => {
                                     {report.createdAt ? format(new Date(report.createdAt), 'dd/MM/yyyy HH:mm') : '-'}
                                 </td>
                                 <td className="px-6 py-4 text-right">
-                                    {report.post && (
-                                        <Link 
-                                            to={`/posts/${report.post.id}`} 
-                                            target="_blank"
-                                            className="inline-flex items-center space-x-1 text-primary-600 hover:text-primary-700 hover:bg-primary-50 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-                                        >
-                                            <Eye className="w-4 h-4" />
-                                            <span>Xem bài</span>
-                                        </Link>
+                                    {report.post && report.post.status !== 'deleted' && (
+                                        <div className="flex items-center justify-end space-x-2">
+                                            <Link 
+                                                to={`/posts/${report.post.id}`} 
+                                                target="_blank"
+                                                className="p-1.5 text-slate-500 hover:bg-slate-100 rounded"
+                                                title="Xem bài viết"
+                                            >
+                                                <Eye className="w-4 h-4" />
+                                            </Link>
+                                            
+                                            <button 
+                                                onClick={() => handleAction(report.post.id, 'hide')}
+                                                className="p-1.5 text-orange-600 hover:bg-orange-50 rounded"
+                                                title="Ẩn bài viết"
+                                            >
+                                                <Ban className="w-4 h-4" />
+                                            </button>
+
+                                            <button 
+                                                onClick={() => handleAction(report.post.id, 'delete')}
+                                                className="p-1.5 text-red-600 hover:bg-red-50 rounded"
+                                                title="Xóa bài viết"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     )}
                                 </td>
                             </tr>
@@ -94,9 +133,9 @@ const ReportManagement = () => {
                             Previous
                         </button>
                         <button 
-                             disabled={page >= pagination.totalPages}
-                             onClick={() => setPage(page + 1)}
-                             className="px-3 py-1 border border-slate-200 rounded text-sm disabled:opacity-50 hover:bg-slate-50"
+                            disabled={page >= pagination.totalPages}
+                            onClick={() => setPage(page + 1)}
+                            className="px-3 py-1 border border-slate-200 rounded text-sm disabled:opacity-50 hover:bg-slate-50"
                         >
                             Next
                         </button>

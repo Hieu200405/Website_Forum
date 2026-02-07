@@ -3,19 +3,24 @@ import useAuthStore from '../features/auth/store/authStore';
 import Button from '../components/ui/Button';
 import PostList from '../features/posts/components/PostList';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, PenSquare, Search, Bell, Home, Hash, Award, Menu } from 'lucide-react';
+import { LogOut, PenSquare, Search, Bell, Home, Hash, Award, Menu, TrendingUp } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { getCategories } from '@/features/categories/api/categoryService';
+import { getPosts } from '@/features/posts/api/postService';
+import useModalStore from '../components/hooks/useModalStore';
 
-const NavItem = ({ icon, label, active }) => {
+const NavItem = ({ icon, label, active, onClick }) => {
     const Icon = icon;
     return (
-        <div className={`flex items-center space-x-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group ${active ? 'bg-primary-50 text-primary-700 font-bold' : 'hover:bg-slate-100 text-slate-600'}`}>
+        <div 
+            onClick={onClick}
+            className={`flex items-center space-x-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group ${active ? 'bg-primary-50 text-primary-700 font-bold' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
             <Icon className={`w-6 h-6 ${active ? 'text-primary-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
             <span className="text-base">{label}</span>
         </div>
     );
 };
-
-import useModalStore from '../components/hooks/useModalStore';
 
 const HomePage = () => {
   const { user, logout } = useAuthStore();
@@ -26,6 +31,19 @@ const HomePage = () => {
     logout();
     navigate('/login');
   };
+
+  // 1. Fetch Categories
+  const { data: categories = [] } = useQuery({
+      queryKey: ['categories'],
+      queryFn: getCategories
+  });
+
+  // 2. Fetch Trending Posts (Most Liked)
+  const { data: trendingData } = useQuery({
+      queryKey: ['posts', 'trending'],
+      queryFn: () => getPosts({ sort: 'most_liked', limit: 5 }),
+  });
+  const trendingPosts = trendingData?.data || [];
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
@@ -42,25 +60,12 @@ const HomePage = () => {
                             Forum
                          </span>
                     </div>
-                    {/* Search Bar - Hidden on mobile */}
-                    <div className="hidden md:flex relative group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary-500 transition-colors" />
-                        <input 
-                            type="text" 
-                            placeholder="Tìm kiếm bài viết..." 
-                            className="bg-slate-100 border-none rounded-full py-2.5 pl-10 pr-4 w-72 text-sm focus:ring-2 focus:ring-primary-500/30 focus:bg-white transition-all placeholder:text-slate-400"
-                        />
-                    </div>
                 </div>
 
                 {/* Right Actions */}
                 <div className="flex items-center space-x-3">
                     {user ? (
                         <>
-                            <button className="p-2.5 text-slate-500 hover:bg-slate-100 rounded-full relative transition-colors">
-                                <Bell className="w-6 h-6" />
-                                <span className="absolute top-2 right-2.5 h-2 w-2 bg-red-500 rounded-full border border-white"></span>
-                            </button>
                             <div className="flex items-center pl-2 space-x-3">
                                 <span className="text-sm font-bold text-slate-700 hidden lg:block">
                                     {user.username}
@@ -85,16 +90,22 @@ const HomePage = () => {
 
         <div className="grid grid-cols-12 max-w-7xl mx-auto pt-[90px] px-4 gap-8">
             {/* LEFT SIDEBAR (Sticky) */}
-            <aside className="hidden lg:block col-span-3 sticky top-[90px] h-[calc(100vh-90px)]">
+            <aside className="hidden lg:block col-span-3 sticky top-[90px] h-[calc(100vh-90px)] overflow-y-auto custom-scrollbar pr-2">
                 <nav className="space-y-1">
-                    <NavItem icon={Home} label="Trang chủ" active />
-                    <NavItem icon={Hash} label="Khám phá" />
-                    <NavItem icon={Award} label="Bảng xếp hạng" />
+                    <NavItem icon={Home} label="Trang chủ" active onClick={() => navigate('/')} />
                     <div className="pt-6 pb-2">
                         <p className="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Danh mục</p>
                     </div>
-                    <NavItem icon={Menu} label="Công nghệ" />
-                    <NavItem icon={Menu} label="Đời sống" />
+                    {categories.length > 0 ? categories.map(cat => (
+                        <NavItem 
+                            key={cat.id} 
+                            icon={Hash} 
+                            label={cat.name} 
+                            onClick={() => { /* Filter by category logic later */ }}
+                        />
+                    )) : (
+                        <div className="px-4 text-sm text-slate-400 italic">Chưa có danh mục</div>
+                    )}
                 </nav>
             </aside>
 
@@ -114,43 +125,38 @@ const HomePage = () => {
                                 <PenSquare className="w-4 h-4 ml-auto opacity-50" />
                             </button>
                         </div>
-                         {/* Quick Actions (Fake) */}
-                         <div className="flex justify-between items-center mt-4 pt-3 border-t border-slate-50 px-2">
-                            <button className="flex items-center space-x-2 text-sm font-medium text-slate-500 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors">
-                                <span className="text-green-500">📷</span> <span>Ảnh/Video</span>
-                            </button>
-                             <button className="flex items-center space-x-2 text-sm font-medium text-slate-500 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors">
-                                <span className="text-yellow-500">😊</span> <span>Cảm xúc</span>
-                            </button>
-                        </div>
                     </div>
                 )}
                 
                 <PostList />
             </main>
 
-            {/* RIGHT SIDEBAR (Trending Tags/Suggestions) */}
+            {/* RIGHT SIDEBAR (Trending Posts) */}
             <aside className="hidden lg:block col-span-3 sticky top-[90px] h-[calc(100vh-90px)] space-y-6">
                 <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                    <h3 className="font-bold text-slate-800 mb-4 text-lg">Chủ đề nổi bật</h3>
-                    <div className="flex flex-wrap gap-2">
-                        {['Javascript', 'ReactJS', 'Tuyển dụng', 'Drama', 'Review'].map(tag => (
-                            <span key={tag} className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-sm font-medium rounded-lg cursor-pointer transition-colors border border-slate-200/50">
-                                #{tag}
-                            </span>
-                        ))}
+                    <h3 className="font-bold text-slate-800 mb-4 text-lg flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5 text-primary-600" />
+                        Nổi bật nhất
+                    </h3>
+                    <div className="space-y-4">
+                        {trendingPosts.length > 0 ? trendingPosts.map(post => (
+                            <div key={post.id} className="group cursor-pointer" onClick={() => navigate(`/posts/${post.id}`)}>
+                                <h4 className="font-medium text-slate-700 group-hover:text-primary-600 text-[15px] leading-snug line-clamp-2 transition-colors">
+                                    {post.title}
+                                </h4>
+                                <div className="flex items-center text-xs text-slate-400 mt-2 space-x-2">
+                                     <span>{post.author?.username}</span>
+                                     <span>•</span>
+                                     <span className="flex items-center text-rose-500 font-medium">
+                                        <TrendingUp className="w-3 h-3 mr-1" />
+                                        {post.likeCount}
+                                     </span>
+                                </div>
+                            </div>
+                        )) : (
+                            <p className="text-slate-400 text-sm">Chưa có bài viết nổi bật</p>
+                        )}
                     </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-primary-600 to-indigo-700 rounded-2xl p-5 shadow-lg text-white relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-3 opacity-10">
-                        <Award className="w-24 h-24 rotate-12" />
-                    </div>
-                    <h3 className="font-bold text-lg mb-2 relative z-10">Trở thành Premium</h3>
-                    <p className="text-primary-100 text-sm mb-4 relative z-10">Mở khóa tính năng đăng bài không giới hạn và huy hiệu độc quyền.</p>
-                    <button className="w-full py-2.5 bg-white text-primary-700 font-bold rounded-xl text-sm hover:bg-primary-50 transition-colors shadow-sm relative z-10">
-                        Nâng cấp ngay
-                    </button>
                 </div>
             </aside>
         </div>

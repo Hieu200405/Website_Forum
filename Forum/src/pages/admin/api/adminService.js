@@ -19,3 +19,10 @@ export const getReports = async (params) => {
     const response = await axios.get('/admin/reports', { params });
     return response.data;
 };
+
+export const getSystemLogs = async (params) => {
+    // API log logs
+    const response = await axios.get('/admin/logs', { params });
+    return response.data;
+};
+
