@@ -9,192 +9,192 @@ const Category = require('./models/category.model');
 const Comment = require('./models/comment.model');
 const Like = require('./models/like.model');
 const Report = require('./models/report.model');
+const SystemLog = require('./models/systemLog.model');
+const BannedWord = require('./models/bannedWord.model');
 const ROLES = require('./constants/roles');
 
 const run = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('DB Connected');
-    
-    sequelize.options.logging = false; // Disable SQL logging for cleaner output
+    try {
+        await sequelize.authenticate();
+        console.log('DB Connected');
+        
+        sequelize.options.logging = false; 
 
-    // WARNING: This drops all tables and recreates them
-    await sequelize.sync({ force: true }); 
-    console.log('Database Schema Re-synced (Tables Dropped & Recreated)');
+        await sequelize.sync({ force: true });
+        console.log('--- Database schema refreshed ---');
 
-    const passwordHash = await bcrypt.hash('12345678', 10);
+        const passwordHash = await bcrypt.hash('12345678', 10);
+        const now = new Date();
+        const oneDay = 24 * 60 * 60 * 1000;
 
-    // 1. Create Users
-    const usersData = [
-        { username: 'admin', email: 'admin@gmail.com', password: passwordHash, role: ROLES.ADMIN, isVerified: true },
-        { username: 'moderator', email: 'mod@gmail.com', password: passwordHash, role: ROLES.MODERATOR, isVerified: true },
-        { username: 'user1', email: 'user1@gmail.com', password: passwordHash, role: ROLES.USER, isVerified: true }, // Active user
-        { username: 'user2', email: 'user2@gmail.com', password: passwordHash, role: ROLES.USER, isVerified: true }, // Active user
-        { username: 'spammer', email: 'spam@gmail.com', password: passwordHash, role: ROLES.USER, isVerified: true, status: 'banned', banned_reason: 'Spamming' }, // Banned User
-    ];
+        // 1. Create a diverse set of users
+        // Users include: Admin, Mod, Regular users with different activity levels, and a Banned user.
+        console.log('Seeding Users...');
+        const usersData = [
+            { username: 'admin', email: 'admin@gmail.com', password: passwordHash, role: ROLES.ADMIN, isVerified: true },
+            { username: 'moderator', email: 'mod@gmail.com', password: passwordHash, role: ROLES.MODERATOR, isVerified: true },
+            { username: 'dev_guru', email: 'dev@gmail.com', password: passwordHash, role: ROLES.USER, isVerified: true }, // High reputation
+            { username: 'newbie_coder', email: 'new@gmail.com', password: passwordHash, role: ROLES.USER, isVerified: true }, // Asks questions
+            { username: 'tech_reviewer', email: 'review@gmail.com', password: passwordHash, role: ROLES.USER, isVerified: true }, // Reviews
+            { username: 'drama_queen', email: 'drama@gmail.com', password: passwordHash, role: ROLES.USER, isVerified: true }, // Controversial
+            { username: 'inactive_user', email: 'ghost@gmail.com', password: passwordHash, role: ROLES.USER, isVerified: true, status: 'active' }, // No posts
+            { username: 'spammer_bot', email: 'spam@gmail.com', password: passwordHash, role: ROLES.USER, isVerified: true, status: 'banned', banned_reason: 'Spamming excessive links', banned_at: new Date(now - 2 * oneDay) },
+        ];
+        
+        const createdUsers = await User.bulkCreate(usersData, { returning: true });
+        // Map created users for easy access by username
+        const users = {};
+        createdUsers.forEach(u => users[u.username] = u);
 
-    const users = await User.bulkCreate(usersData, { returning: true });
-    // Map usage: users[0] is admin, users[1] is mod, users[2] is user1...
-    const [adminUser, modUser, user1, user2, spammer] = users;
-    console.log('Users created');
+        // 2. Create Categories
+        console.log('Seeding Categories...');
+        const categoriesData = [
+            { name: 'Lập trình', description: 'Thảo luận về code, thuật toán, ngôn ngữ lập trình' },
+            { name: 'Phần cứng', description: 'Review linh kiện, build PC, laptop' },
+            { name: 'Crypto & Blockchain', description: 'Bitcoin, Ethereum, Web3' },
+            { name: 'Review Phim/Game', description: 'Đánh giá các tựa game, phim hot' },
+            { name: 'Chuyện nghề nghiệp', description: 'Tâm sự chuyện đi làm, phỏng vấn, lương thưởng' },
+            { name: 'Off-topic', description: 'Chém gió linh tinh ngoài lề' },
+        ];
+        const createdCats = await Category.bulkCreate(categoriesData, { returning: true });
+        const cats = {};
+        createdCats.forEach(c => cats[c.name] = c);
 
-    // 2. Create Categories
-    const categoriesData = [
-        { name: 'Thảo luận chung', description: 'Nơi thảo luận về mọi chủ đề' },
-        { name: 'Công nghệ', description: 'Tin tức, chia sẻ về công nghệ, lập trình' },
-        { name: 'Đời sống', description: 'Chia sẻ chuyện đời thường, tâm sự' },
-        { name: 'Hỏi đáp', description: 'Nơi đặt câu hỏi và nhận câu trả lời' },
-        { name: 'Review', description: 'Đánh giá sản phẩm, dịch vụ, phim ảnh' },
-    ];
-    
-    // Use .map to get instances if needed, or just insert
-    const categories = await Category.bulkCreate(categoriesData, { returning: true });
-    const [catGeneral, catTech, catLife, catQA, catReview] = categories;
-    console.log('Categories created');
+        // 3. Create Posts (Mixed timestamps for timeline feel)
+        console.log('Seeding Posts...');
+        const postsData = [
+            // Lập trình
+            { 
+                title: 'Nên học React hay Vue trong năm 2024?', 
+                content: 'Mình mới bắt đầu học Frontend, thấy React phổ biến nhưng Vue có vẻ dễ hơn. Mọi người tư vấn giúp với!', 
+                user_id: users['newbie_coder'].id, category_id: cats['Lập trình'].id, status: 'active', 
+                created_at: new Date(now - 5 * oneDay), 
+                like_count: 15, comment_count: 3 
+            },
+            { 
+                title: 'Chia sẻ roadmap trở thành Backend Developer', 
+                content: 'Chào anh em, đây là lộ trình mình đã tự học để đạt mức lương 2k$. 1. Học Go/NodeJS. 2. Database SQL/NoSQL. 3. System Design...', 
+                user_id: users['dev_guru'].id, category_id: cats['Lập trình'].id, status: 'active', 
+                created_at: new Date(now - 3 * oneDay), 
+                like_count: 45, comment_count: 10 
+            },
+            // Phần cứng
+            { 
+                title: 'RTX 5090 khi nào ra mắt?', 
+                content: 'Nghe đồn cuối năm nay ra mắt, anh em đã chuẩn bị thận chưa :))', 
+                user_id: users['tech_reviewer'].id, category_id: cats['Phần cứng'].id, status: 'active', 
+                created_at: new Date(now - 1 * oneDay), 
+                like_count: 8, comment_count: 2 
+            },
+            // Chuyện nghề nghiệp
+            { 
+                title: 'Phỏng vấn FPT Software khó không?', 
+                content: 'Mình sắp phỏng vấn vị trí Junior Java, ai có kinh nghiệm review quy trình với ạ.', 
+                user_id: users['newbie_coder'].id, category_id: cats['Chuyện nghề nghiệp'].id, status: 'active', 
+                created_at: new Date(now - 2 * oneDay), 
+                like_count: 5, comment_count: 1 
+            },
+            { 
+                title: 'Lương Dev giờ thấp quá vậy?', 
+                content: 'Thấy tuyển Senior mà lương có 15tr, bèo bọt quá thể.', 
+                user_id: users['drama_queen'].id, category_id: cats['Chuyện nghề nghiệp'].id, status: 'active', 
+                created_at: new Date(now - 4 * oneDay), 
+                like_count: 2, comment_count: 5 
+            },
+            // Reported/Spam content
+            { 
+                title: 'Kiếm $1000 mỗi ngày không cần làm gì', 
+                content: 'Chỉ cần tải app này về và nạp 500k: http://scam-link.com', 
+                user_id: users['spammer_bot'].id, category_id: cats['Off-topic'].id, status: 'active', 
+                created_at: new Date(now - 6 * oneDay), 
+                like_count: 0, comment_count: 0 
+            },
+            // Hidden content
+            { 
+                title: 'Bài viết chửi bới xúc phạm (Đã ẩn)', 
+                content: '*** **** **** (Nội dung thô tục)', 
+                user_id: users['drama_queen'].id, category_id: cats['Off-topic'].id, status: 'hidden', 
+                hide_reason: 'Ngôn từ đả kích, xúc phạm',
+                created_at: new Date(now - 10 * oneDay), 
+                like_count: 0, comment_count: 0 
+            }
+        ];
+        
+        const createdPosts = await Post.bulkCreate(postsData, { returning: true });
+        
+        // 4. Create Comments (Threading simulation)
+        console.log('Seeding Comments...');
+        // Post 0: React vs Vue
+        const comm1 = await Comment.create({ content: 'React đi bạn, job nhiều hơn hẳn.', user_id: users['dev_guru'].id, post_id: createdPosts[0].id });
+        await Comment.create({ content: 'Nhưng Vue dễ học hơn mà, code clean nữa.', user_id: users['tech_reviewer'].id, post_id: createdPosts[0].id, parent_id: comm1.id }); // Reply
+        await Comment.create({ content: 'Cảm ơn mọi người, chắc mình theo React.', user_id: users['newbie_coder'].id, post_id: createdPosts[0].id });
 
-    // 3. Create Posts
-    const postsData = [
-        // Tech Posts
-        { 
-            title: 'Tại sao React lạ vậy?', 
-            content: 'Mình mới học React và thấy nó khác hẳn jQuery. Mọi người có tips gì không?', 
-            user_id: user1.id, 
-            category_id: catTech.id,
-            status: 'active',
-            like_count: 5,
-            comment_count: 2
-        },
-        { 
-            title: 'Review laptop Gaming mới ra', 
-            content: 'Con máy này chiến game ngon, tản nhiệt tốt nhưng pin hơi hẻo.', 
-            user_id: user2.id, 
-            category_id: catTech.id, 
-            status: 'active',
-            like_count: 12,
-            comment_count: 1
-        },
-        // Life Posts
-        { 
-            title: 'Hôm nay trời đẹp quá', 
-            content: 'Sáng dậy thấy nắng đẹp, xách xe đi lượn một vòng hồ Tây chill phết.', 
-            user_id: user1.id, 
-            category_id: catLife.id, 
-            status: 'active',
-            like_count: 20,
-            comment_count: 3
-        },
-        { 
-            title: 'Chuyện công sở: Deadline dí', 
-            content: 'Cuối năm rồi mà deadline ngập đầu, sếp thì hối liên tục. Có ai đồng cảm không?', 
-            user_id: user2.id, 
-            category_id: catLife.id, 
-            status: 'active',
-            like_count: 8,
-            comment_count: 0
-        },
-        // QA
-        { 
-            title: 'Lỗi không đăng nhập được?', 
-            content: 'Mình thử đăng nhập nhưng toàn báo lỗi 500. Admin check giúp với.', 
-            user_id: user1.id, 
-            category_id: catQA.id, 
-            status: 'active',
-            like_count: 1,
-            comment_count: 1
-        },
-        // Spam/Reported Post
-        { 
-            title: 'Kiếm tiền online nhanh chóng!!!', 
-            content: 'Click vào link này để nhận 1 tỷ đồng ngay lập tức: http://scam.com', 
-            user_id: spammer.id, 
-            category_id: catGeneral.id, 
-            status: 'active', // Will be reported
-            like_count: 0,
-            comment_count: 0
-        },
-        // Hidden Post (Moderated)
-        { 
-            title: 'Bài viết vi phạm (Đã ẩn)', 
-            content: 'Nội dung này vi phạm tiêu chuẩn cộng đồng nên đã bị ẩn.', 
-            user_id: spammer.id, 
-            category_id: catGeneral.id, 
-            status: 'hidden',
-            hide_reason: 'Vi phạm chính sách nội dung',
-            like_count: 0,
-            comment_count: 0
-        }
-    ];
+        // Post 1: Roadmap
+        await Comment.create({ content: 'Bài viết quá chất lượng, thanks bác!', user_id: users['newbie_coder'].id, post_id: createdPosts[1].id });
+        const comm2 = await Comment.create({ content: 'Phần System Design học nguồn nào bác?', user_id: users['tech_reviewer'].id, post_id: createdPosts[1].id });
+        await Comment.create({ content: 'Đọc "Desigining Data-Intensive Applications" nhé.', user_id: users['dev_guru'].id, post_id: createdPosts[1].id, parent_id: comm2.id });
 
-    const posts = await Post.bulkCreate(postsData, { returning: true });
-    // posts[0] -> React, posts[5] -> Spam
-    console.log('Posts created');
+        // Post 4: Salary Drama
+        await Comment.create({ content: 'Tùy công ty thôi, dìm hàng nhau làm gì.', user_id: users['moderator'].id, post_id: createdPosts[4].id });
 
-    // 4. Create Comments
-    const commentsData = [
-        { content: 'Học React thì phải nắm vững JS ES6 trước nhé bác.', user_id: user2.id, post_id: posts[0].id, status: 'active' },
-        { content: 'Chuẩn rồi, nhất là arrow function và destructuring.', user_id: modUser.id, post_id: posts[0].id, status: 'active', parent_id: 1 }, // Reply to above logic (assuming ID 1 if auto-inc starts at 1, but safe to fetch parent if not bulk)
-        // Wait, bulkCreate IDs might not be sequential reliably across DBs or if forced. 
-        // For accurate parent_id, I should create comments sequentially or fetch them.
-        // For simplicity in seed, let's create top-level comments first, then replies.
-    ];
+        // 5. Create Likes (Bulk)
+        console.log('Seeding Likes...');
+        const likesData = [];
+        // Dev guru gets lots of likes
+        [users['newbie_coder'], users['tech_reviewer'], users['moderator'], users['admin'], users['user1']].forEach(u => {
+            if(u) likesData.push({ user_id: u.id, post_id: createdPosts[1].id });
+        });
+        // Like other posts randomly
+        likesData.push({ user_id: users['dev_guru'].id, post_id: createdPosts[0].id });
+        likesData.push({ user_id: users['admin'].id, post_id: createdPosts[1].id });
+        likesData.push({ user_id: users['moderator'].id, post_id: createdPosts[2].id });
+        
+        await Like.bulkCreate(likesData, { ignoreDuplicates: true }); // Safe insert
 
-    // Create top level comments
-    const comment1 = await Comment.create({ content: 'Học React thì phải nắm vững JS ES6 trước nhé bác.', user_id: user2.id, post_id: posts[0].id });
-    const comment2 = await Comment.create({ content: 'Mình cũng đang hóng con này.', user_id: user1.id, post_id: posts[1].id });
-    const comment3 = await Comment.create({ content: 'Chill thế, rủ mình đi với :v', user_id: user2.id, post_id: posts[2].id });
-    const comment4 = await Comment.create({ content: 'Admin đang fix nhé bạn.', user_id: modUser.id, post_id: posts[4].id });
+        // 6. Create Reports
+        console.log('Seeding Reports...');
+        await Report.bulkCreate([
+            { reason: 'Spam/Lừa đảo', user_id: users['dev_guru'].id, post_id: createdPosts[5].id, status: 'pending' },
+            { reason: 'Nội dung rác', user_id: users['tech_reviewer'].id, post_id: createdPosts[5].id, status: 'pending' },
+            { reason: 'Gây war', user_id: users['dev_guru'].id, post_id: createdPosts[4].id, status: 'reviewed' }
+        ]);
 
-    // Create replies
-    await Comment.create({ content: 'Chuẩn rồi, nhất là arrow function.', user_id: modUser.id, post_id: posts[0].id, parent_id: comment1.id });
-    
-    console.log('Comments created');
+        // 7. Create System Logs (Administrative actions)
+        console.log('Seeding System Logs...');
+        await SystemLog.bulkCreate([
+            { userId: users['admin'].id, action: 'LOGIN', ip: '192.168.1.1', level: 'INFO', created_at: new Date(now - 10 * 60 * 1000) },
+            { userId: users['moderator'].id, action: 'HIDE_POST', data: JSON.stringify({ postId: createdPosts[6].id, reason: 'Toxic' }), ip: '192.168.1.25', level: 'WARN', created_at: new Date(now - 2 * oneDay) },
+            { userId: users['spammer_bot'].id, action: 'REGISTER', ip: '14.155.22.11', level: 'INFO', created_at: new Date(now - 7 * oneDay) },
+            { userId: users['admin'].id, action: 'BAN_USER', data: JSON.stringify({ targetUser: 'spammer_bot', reason: 'Spam' }), ip: '192.168.1.1', level: 'WARN', created_at: new Date(now - 2 * oneDay) },
+            { userId: users['newbie_coder'].id, action: 'CREATE_POST', data: JSON.stringify({ postId: createdPosts[0].id }), ip: '10.0.0.5', level: 'INFO', created_at: new Date(now - 5 * oneDay) },
+        ]);
 
-    // 5. Create Likes
-    // User1 likes User2's post and own post (why not)
-    // Mod likes legit posts
-    await Like.bulkCreate([
-        { user_id: user2.id, post_id: posts[0].id }, // User2 likes Post 0
-        { user_id: modUser.id, post_id: posts[0].id },
-        { user_id: adminUser.id, post_id: posts[0].id },
-        { user_id: user1.id, post_id: posts[1].id },
-        { user_id: modUser.id, post_id: posts[1].id },
-        // ... more likes
-    ]);
-    console.log('Likes created');
+        // 8. Create Banned Words
+        console.log('Seeding Banned Words...');
+        await BannedWord.bulkCreate([
+            { word: 'scam' },
+            { word: 'lừa đảo' },
+            { word: 'bet88' },
+            { word: 'nhà cái' }
+        ]);
 
-    // 6. Create Reports
-    // User1 reports Spammer's post (posts[5])
-    await Report.create({
-        reason: 'Spam quảng cáo lừa đảo',
-        user_id: user1.id,
-        post_id: posts[5].id, // The spam post
-        status: 'pending'
-    });
-    
-    // User2 also reports it
-    await Report.create({
-        reason: 'Link độc hại',
-        user_id: user2.id,
-        post_id: posts[5].id,
-        status: 'pending'
-    });
+        console.log('\n================================================');
+        console.log('SEEDING COMPLETED SUCCESSFULLY!');
+        console.log('================================================');
+        console.log('Login Credentials (Password: 12345678):');
+        console.log('1. Admin:       admin@gmail.com');
+        console.log('2. Moderator:   mod@gmail.com');
+        console.log('3. Dev Guru:    dev@gmail.com     (High rep user)');
+        console.log('4. Newbie:      new@gmail.com     (Standard user)');
+        console.log('5. Drama:       drama@gmail.com   (User with issues)');
+        console.log('6. Spammer:     spam@gmail.com    (Banned)');
+        console.log('================================================');
 
-    console.log('Reports created');
-    
-    console.log('SEED COMPLETE Data Ready!');
-    console.log('------------------------------------------------');
-    console.log('Accounts:');
-    console.log('  Admin: admin@gmail.com / 12345678');
-    console.log('  Mod:   mod@gmail.com / 12345678');
-    console.log('  User1: user1@gmail.com / 12345678');
-    console.log('  User2: user2@gmail.com / 12345678');
-    console.log('------------------------------------------------');
-
-    process.exit(0);
-  } catch (error) {
-    console.error('SEED ERROR:', error);
-    process.exit(1);
-  }
+        process.exit(0);
+    } catch (error) {
+        console.error('SEED ERROR:', error);
+        process.exit(1);
+    }
 };
 
 run();
