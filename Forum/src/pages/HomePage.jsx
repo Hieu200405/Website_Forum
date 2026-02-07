@@ -32,6 +32,12 @@ const HomePage = () => {
     navigate('/login');
   };
 
+  React.useEffect(() => {
+    if (user && (user.role === 'admin' || user.role === 'moderator')) {
+        navigate('/admin');
+    }
+  }, [user, navigate]);
+
   // 1. Fetch Categories
   const { data: categories = [] } = useQuery({
       queryKey: ['categories'],

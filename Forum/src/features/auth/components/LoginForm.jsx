@@ -18,7 +18,12 @@ const LoginForm = () => {
       // Backend returns { success: true, accessToken, user }
       setAuth(data.user, data.accessToken);
       toast.success('Đăng nhập thành công!');
-      navigate('/');
+      
+      if (data.user.role === 'admin' || data.user.role === 'moderator') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     },
     onError: (error) => {
         // Error from axios interceptor: { message, ... }
