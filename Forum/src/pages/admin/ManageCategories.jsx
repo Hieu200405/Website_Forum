@@ -5,7 +5,7 @@ import { getCategories, createCategory, updateCategory, deleteCategory } from '@
 import { Plus, Edit2, Trash2, X, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const CategoryManagement = () => {
+const ManageCategories = () => {
     const [isEditing, setIsEditing] = useState(null); // id of category being edited
     const [editName, setEditName] = useState('');
     const [editDesc, setEditDesc] = useState('');
@@ -213,4 +213,4 @@ const CategoryManagement = () => {
     );
 };
 
-export default CategoryManagement;
+export default ManageCategories;

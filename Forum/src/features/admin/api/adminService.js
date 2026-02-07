@@ -1,7 +1,13 @@
+
 import axios from '@/lib/axios';
 
 export const getUsers = async (params) => {
     const response = await axios.get('/admin/users', { params });
+    return response.data;
+};
+
+export const getPosts = async (params) => {
+    const response = await axios.get('/admin/posts', { params });
     return response.data;
 };
 
@@ -25,4 +31,3 @@ export const getSystemLogs = async (params) => {
     const response = await axios.get('/admin/logs', { params });
     return response.data;
 };
-

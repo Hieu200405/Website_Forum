@@ -16,13 +16,16 @@ const LoginForm = () => {
     mutationFn: login,
     onSuccess: (data) => {
       // Backend returns { success: true, accessToken, user }
-      setAuth(data.user, data.accessToken);
+      const user = { ...data.user, role: data.user.role.toLowerCase() };
+      setAuth(user, data.accessToken);
       toast.success('Đăng nhập thành công!');
       
-      if (data.user.role === 'admin' || data.user.role === 'moderator') {
+      if (user.role === 'admin') {
         navigate('/admin');
+      } else if (user.role === 'moderator') {
+        navigate('/moderator');
       } else {
-        navigate('/');
+        navigate('/user');
       }
     },
     onError: (error) => {
