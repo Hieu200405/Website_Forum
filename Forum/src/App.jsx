@@ -16,6 +16,7 @@ import PostDetailPage from './pages/PostDetailPage';
 // ...
 
 import AdminLayout from '@/components/layouts/AdminLayout';
+import UserLayout from '@/components/layouts/UserLayout';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import UserManagement from '@/pages/admin/UserManagement';
 import CategoryManagement from '@/pages/admin/CategoryManagement';
@@ -29,8 +30,12 @@ function App() {
       <Router>
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/posts/:id" element={<PostDetailPage />} />
+
+          <Route element={<UserLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/posts/:id" element={<PostDetailPage />} />
+          </Route>
+          
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           
