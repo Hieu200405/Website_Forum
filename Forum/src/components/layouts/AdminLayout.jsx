@@ -17,7 +17,7 @@ const AdminLayout = () => {
     const menuItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
         { icon: Users, label: 'Quản lý người dùng', path: '/admin/users', roles: ['admin'] },
-        { icon: FileText, label: 'Quản lý nội dung', path: '/admin/posts', roles: ['admin', 'moderator'] },
+        { icon: FileText, label: 'Quản lý danh mục', path: '/admin/categories', roles: ['admin'] },
         { icon: Ban, label: 'Báo cáo vi phạm', path: '/admin/reports', roles: ['admin', 'moderator'] },
     ];
 

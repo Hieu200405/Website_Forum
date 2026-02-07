@@ -17,6 +17,7 @@ import PostDetailPage from './pages/PostDetailPage';
 import AdminLayout from '@/components/layouts/AdminLayout';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import UserManagement from '@/pages/admin/UserManagement';
+import CategoryManagement from '@/pages/admin/CategoryManagement';
 import ReportManagement from '@/pages/admin/ReportManagement';
 
 // ...
@@ -36,6 +37,7 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="users" element={<UserManagement />} />
+              <Route path="categories" element={<CategoryManagement />} />
               <Route path="reports" element={<ReportManagement />} />
           </Route>
 
