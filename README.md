@@ -1,37 +1,157 @@
-# Forum Web App
+# 🌐 Forum Web Application
 
-This is a modern forum application built with:
+A comprehensive forum application built with React, Node.js, and MySQL, featuring a robust Role-Based Access Control (RBAC) system for Admins, Moderators, and standard Users.
 
-- **Frontend**: React, Vite, Tailwind CSS v4, Zustand, React Query.
-- **Backend**: Node.js, Express, MySQL, Redis.
+---
 
-## Features
+## 🚀 Key Features
 
-- **Authentication**: JWT-based Login/Register with status handling.
-- **Feed**: Interactive post feed with sorting (Newest, Most Liked) and pagination.
-- **Create Post**: Modal-based post creation with instant feed update.
-- **Interactions**: Optimistic UI updates for Liking/Unliking posts.
-- **UI/UX**: Glassy modern design, responsive layout, loading skeletons, toast notifications.
+### 1. **Role-Based Access Control (RBAC)**
 
-## Getting Started
+The application strictly separates functionalities and layouts based on user roles:
 
-### Backend
+- **Admin**:
+  - Dashboard with system statistics.
+  - User Management (Ban/Unban/View).
+  - Category Management (Create/Update/Delete).
+  - Banned Words Management (Content moderation filters).
+  - System Logs (View critical actions like Logins, Bans, Edits).
+- **Moderator**:
+  - Content Moderation (Approve/Reject pending posts).
+  - Report Management (Handle reported posts).
+- **User**:
+  - Personalized Feed (Newest/Trending).
+  - Create, Like, and Comment on posts.
+  - View detailed post pages.
 
-1. `cd Server`
-2. `npm install`
-3. Check `.env` (DB Credentials, JWT Secret).
-4. `npm run dev`
+### 2. **Modern UX/UI**
 
-### Frontend
+- **Tailwind CSS v4**: High-performance utility-first styling.
+- **Responsive Design**: Fully adaptable to mobile and desktop.
+- **Interactive Components**: Modals, Toast Notifications, Loading Skeletons.
+- **Glassmorphism**: Modern aesthetic throughout the application.
 
-1. `cd Forum`
-2. `npm install`
-3. `npm run dev`
-4. Visit `http://localhost:5175`
+### 3. **Tech Stack**
 
-## Tech Stack Details
+- **Frontend**: React (Vite), Zustand (State Management), React Query (Server State), React Router v6.
+- **Backend**: Node.js, Express.js.
+- **Database**: MySQL with Sequelize ORM.
+- **Authentication**: JWT (JSON Web Tokens) with secure cookie/localStorage handling.
 
-- **Tailwind CSS v4**: Setup with Vite plugin for high performance.
-- **React Query**: Handles all server state (caching, deduplication, optimistic updates).
-- **Zustand**: Manages client state (Auth, UI/Modal).
-- **Headless UI Concepts**: Custom accessible modal implementation.
+---
+
+## 🛠️ Installation & Setup
+
+### Prerequisites
+
+- **Node.js**: v18+ recommended.
+- **MySQL**: Running instance.
+
+### 1. Database Setup
+
+Ensure your MySQL server is running and create a database (e.g., `forum_db`). Update the `.env` file in the `Server` directory with your credentials.
+
+### 2. Backend Setup
+
+Navigate to the `Server` directory:
+
+```bash
+cd Server
+npm install
+```
+
+Configure your `.env` file (example):
+
+```env
+PORT=3000
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=your_password
+DB_NAME=forum_db
+JWT_SECRET=your_jwt_secret_key
+```
+
+**Seed the Database (Create Tables & Default Data):**
+This is crucial for setting up the initial Admin/Mod accounts.
+
+```bash
+node src/seed.js
+```
+
+_Note: This script will drop existing tables and recreate them with sample data._
+
+**Start the Server:**
+
+```bash
+npm run dev
+```
+
+### 3. Frontend Setup
+
+Navigate to the `Forum` directory (in a new terminal):
+
+```bash
+cd Forum
+npm install
+```
+
+**Start the Client:**
+
+```bash
+npm run dev
+```
+
+Access the application at: `http://localhost:5173` (or the port shown in terminal).
+
+---
+
+## 🔐 Default Test Accounts
+
+Use these accounts to explore different roles (password is `12345678` for all):
+
+| Role            | Email             | Privileges                                             |
+| :-------------- | :---------------- | :----------------------------------------------------- |
+| **Admin**       | `admin@gmail.com` | Full System Access (Users, Categories, Logs, Settings) |
+| **Moderator**   | `mod@gmail.com`   | Content Moderation (Reports, Approvals)                |
+| **User (Guru)** | `dev@gmail.com`   | Standard User (Create Posts, Comment, Like)            |
+| **User (New)**  | `new@gmail.com`   | Standard User                                          |
+| **Banned User** | `spam@gmail.com`  | Restricted Access (Cannot post/comment)                |
+
+---
+
+## 📂 Project Structure
+
+```
+Project-Forum/
+├── 📁 Server/              # Backend (Node.js + Express)
+│   ├── src/
+│   │   ├── config/         # DB & App Config
+│   │   ├── controllers/    # Request Handlers
+│   │   ├── models/         # Sequelize Models
+│   │   ├── routes/         # API Routes
+│   │   ├── middleware/     # Auth & Error Handling
+│   │   └── seed.js         # Database Seeding Script
+│   └── .env                # Environment Variables
+│
+├── 📁 Forum/               # Frontend (React + Vite)
+│   ├── src/
+│   │   ├── components/     # Reusable UI Components
+│   │   ├── features/       # Feature-based Modules (Auth, Posts, Admin, etc.)
+│   │   ├── layouts/        # Layout Wrappers (AdminLayout, UserLayout, etc.)
+│   │   ├── pages/          # Page Components
+│   │   │   ├── admin/      # Admin Pages (ManageUsers, Dashboard...)
+│   │   │   ├── auth/       # Login/Register Pages
+│   │   │   ├── moderator/  # Moderator Pages (Reports...)
+│   │   │   └── user/       # User Pages (Home, PostDetail...)
+│   │   ├── routes/         # App Routing Configuration
+│   │   └── store/          # Global State (Zustand)
+│   └── index.css           # Global Styles (Tailwind)
+│
+└── README.md               # Project Documentation
+```
+
+## 🐛 Troubleshooting
+
+- **Login 403 Forbidden**: Ensure you ran `node src/seed.js` to create the correct user roles. The system distinguishes between `admin`, `moderator`, and `user`.
+- **Database Connection Error**: Check your MySQL credentials in `Server/.env`.
+- **Module Not Found**: Try deleting `node_modules` and running `npm install` again.
