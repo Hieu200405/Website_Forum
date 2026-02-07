@@ -26,7 +26,7 @@ const AdminLayout = () => {
             {/* Sidebar */}
             <aside className="w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col fixed inset-y-0 left-0 z-50">
                 <div className="h-16 flex items-center px-6 border-b border-slate-800">
-                    <Link to="/" className="flex items-center space-x-2">
+                    <Link to="/admin" className="flex items-center space-x-2">
                         <div className="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center font-bold">F</div>
                         <span className="text-xl font-bold tracking-tight">Forum Admin</span>
                     </Link>

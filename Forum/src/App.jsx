@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import RequireRole from './features/auth/components/RequireRole';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import LoginPage from './pages/LoginPage';
@@ -36,8 +37,8 @@ function App() {
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
-              <Route path="users" element={<UserManagement />} />
-              <Route path="categories" element={<CategoryManagement />} />
+              <Route path="users" element={<RequireRole roles={['admin']}><UserManagement /></RequireRole>} />
+              <Route path="categories" element={<RequireRole roles={['admin']}><CategoryManagement /></RequireRole>} />
               <Route path="reports" element={<ReportManagement />} />
           </Route>
 
