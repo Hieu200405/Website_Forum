@@ -12,15 +12,7 @@ export const useLikePost = () => {
 
     return useMutation({
         mutationFn: async ({ postId, isLiked }) => {
-            console.log('[useLikePost] Mutation triggered:', { 
-                postId, 
-                isLiked, 
-                isAuthenticated,
-                token: token ? `${token.substring(0, 20)}...` : 'null'
-            });
-            
             if (!isAuthenticated) {
-                console.warn('[useLikePost] Throwing UNAUTHENTICATED error');
                 // Return a fake error to stop mutation logic and trigger login modal
                 throw new Error('UNAUTHENTICATED');
             }

@@ -13,12 +13,8 @@ api.interceptors.request.use(
   (config) => {
     // Get token directly from Store (Single Source of Truth)
     const token = useAuthStore.getState().token;
-    console.log('[Axios] Token from store:', token ? `${token.substring(0, 20)}...` : 'null');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('[Axios] Authorization header set');
-    } else {
-      console.warn('[Axios] No token found in store');
     }
     return config;
   },
@@ -32,9 +28,6 @@ api.interceptors.response.use(
     const message = error.response?.data?.message || 'Something went wrong';
     
     if (error.response?.status === 401) {
-      console.error('[Axios] 401 Unauthorized - Logging out');
-      console.error('[Axios] Request URL:', error.config?.url);
-      console.error('[Axios] Response:', error.response?.data);
       // Auto logout using store action
       useAuthStore.getState().logout();
     }

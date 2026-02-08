@@ -7,15 +7,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
     const user = useAuthStore((state) => state.user);
     const token = useAuthStore((state) => state.token);
 
-    console.log('[ProtectedRoute] Checking auth:', { 
-        hasUser: !!user, 
-        hasToken: !!token,
-        userRole: user?.role,
-        allowedRoles 
-    });
-
     if (!token || !user) {
-        console.warn('[ProtectedRoute] Redirecting to /login - Missing token or user');
         return <Navigate to="/login" replace />;
     }
 
