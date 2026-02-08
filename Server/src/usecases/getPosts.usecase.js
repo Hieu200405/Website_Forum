@@ -29,7 +29,10 @@ class GetPostsUseCase {
         title: row.title,
         likeCount: parseInt(row.likeCount), 
         createdAt: row.createdAt,
-        authorId: row.authorId,
+        author: {
+          id: row.authorId,
+          username: row.authorName || 'Người dùng ẩn danh'
+        },
         isLiked: !!parseInt(row.isLiked) // Convert to boolean
       }))
     };
