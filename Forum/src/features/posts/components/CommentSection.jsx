@@ -12,7 +12,8 @@ const CommentSection = ({ postId }) => {
     const [content, setContent] = useState('');
     const [replyTo, setReplyTo] = useState(null); // the comment being replied to
     
-    const { isAuthenticated } = useAuthStore();
+    const token = useAuthStore((state) => state.token);
+    const isAuthenticated = !!token;
     const { onOpen } = useModalStore();
     const queryClient = useQueryClient();
 

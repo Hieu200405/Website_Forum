@@ -13,7 +13,7 @@ const PostCard = ({ post, onLike }) => {
   const { onOpen } = useModalStore();
 
   const handlePostClick = () => {
-    navigate(`/posts/${post.id}`);
+    navigate(`/user/posts/${post.id}`);
   };
 
   return (
