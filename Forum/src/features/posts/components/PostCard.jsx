@@ -64,7 +64,10 @@ const PostCard = ({ post, onLike }) => {
           {/* Action Bar */}
           <div className="flex items-center space-x-6 pt-4 border-t border-slate-50">
             <button 
-                onClick={() => onLike(post.id)}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onLike(post.id);
+                }}
                 className="flex items-center group/btn space-x-2 text-slate-500 hover:text-red-500 transition-colors"
             >
                 <div className="p-2 rounded-full group-hover/btn:bg-red-50 transition-colors">

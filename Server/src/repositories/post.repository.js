@@ -159,12 +159,14 @@ class PostRepository {
         p.title, 
         p.created_at as createdAt,
         p.user_id as authorId,
+        u.username as authorName,
         COUNT(l.post_id) as likeCount,
         MAX(CASE WHEN l.user_id = :userId THEN 1 ELSE 0 END) as isLiked
       FROM posts p
+      LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN likes l ON p.id = l.post_id
       WHERE p.status = 'active'
-      GROUP BY p.id
+      GROUP BY p.id, u.username
       ORDER BY ${orderByClause}
       LIMIT :limit OFFSET :offset
     `;
