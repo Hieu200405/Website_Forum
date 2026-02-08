@@ -22,7 +22,7 @@ const optionalAuth = (req, res, next) => {
 };
 
 // Public: Get all posts
-router.get('/', PostController.getPosts);
+router.get('/', optionalAuth, PostController.getPosts);
 
 // Public (with optional auth for viewing hidden posts): Get Detail
 router.get('/:id', optionalAuth, PostController.getPostDetail);

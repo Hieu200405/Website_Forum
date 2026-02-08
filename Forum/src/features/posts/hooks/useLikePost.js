@@ -6,7 +6,8 @@ import useModalStore from '@/components/hooks/useModalStore';
 
 export const useLikePost = () => {
     const queryClient = useQueryClient();
-    const { isAuthenticated } = useAuthStore();
+    const token = useAuthStore((state) => state.token);
+    const isAuthenticated = !!token;
     const { onOpen } = useModalStore();
 
     return useMutation({

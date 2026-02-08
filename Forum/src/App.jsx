@@ -4,16 +4,19 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import AppRoutes from '@/routes/AppRoutes';
 import ModalProvider from '@/components/providers/ModalProvider';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <AppRoutes />
-        <ModalProvider />
-      </Router>
+      <ErrorBoundary>
+        <Router>
+          <AppRoutes />
+          <ModalProvider />
+        </Router>
+      </ErrorBoundary>
       <Toaster position="top-right" />
     </QueryClientProvider>
   );

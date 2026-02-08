@@ -1,5 +1,6 @@
 const PostRepository = require('../repositories/post.repository');
 const CommentRepository = require('../repositories/comment.repository');
+const LikeRepository = require('../repositories/like.repository');
 const ROLES = require('../constants/roles');
 
 class GetPostDetailUseCase {
@@ -27,10 +28,16 @@ class GetPostDetailUseCase {
       }
     }
 
-    // 3. Lấy comments (Có thể tối ưu bằng cách cho Client fetch riêng API comments, nhưng theo yêu cầu gộp chung)
+    // 3. Lấy comments
     const comments = await CommentRepository.findByPostId(postId);
 
-    // 4. Format kết quả
+    // 4. Check Like Status
+    let isLiked = false;
+    if (user && user.userId) {
+      isLiked = await LikeRepository.exists(user.userId, postId);
+    }
+
+    // 5. Format kết quả
     return {
       id: post.id,
       title: post.title,
@@ -38,7 +45,8 @@ class GetPostDetailUseCase {
       status: post.status,
       createdAt: post.created_at,
       likesCount: post.like_count,
-      commentsCount: post.comment_count, // Có thể dùng số realtime từ DB hoặc số cached trong post
+      commentsCount: post.comment_count, 
+      isLiked, // Added
       author: {
         id: post.author.id,
         username: post.author.username,
