@@ -131,7 +131,7 @@ class PostRepository {
    * Lấy danh sách bài viết có sắp xếp (Join Likes & Count)
    * @param {object} params
    */
-  async getPostsWithSort({ page, limit, sort }) {
+  async getPostsWithSort({ page, limit, sort, userId = null }) {
     const offset = (page - 1) * limit;
     const { QueryTypes } = require('sequelize');
     const sequelize = require('../config/database');
@@ -148,14 +148,19 @@ class PostRepository {
     // 3. Count likes
     // 4. Sort
     // 5. Paginate
+    // 6. Check if current user liked (MAX because aggregate)
     
+    // Note: userId replacement handles NULL gracefully
+    const currentUserId = userId || null; 
+
     const sql = `
       SELECT 
         p.id, 
         p.title, 
         p.created_at as createdAt,
         p.user_id as authorId,
-        COUNT(l.post_id) as likeCount
+        COUNT(l.post_id) as likeCount,
+        MAX(CASE WHEN l.user_id = :userId THEN 1 ELSE 0 END) as isLiked
       FROM posts p
       LEFT JOIN likes l ON p.id = l.post_id
       WHERE p.status = 'active'
@@ -165,7 +170,7 @@ class PostRepository {
     `;
 
     const rows = await sequelize.query(sql, {
-      replacements: { limit, offset },
+      replacements: { limit, offset, userId: currentUserId },
       type: QueryTypes.SELECT
     });
 

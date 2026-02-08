@@ -1,7 +1,7 @@
 const PostRepository = require('../repositories/post.repository');
 
 class GetPostsUseCase {
-  static async execute({ page, limit, sort }) {
+  static async execute({ page, limit, sort, userId }) {
     // 1. Default Values
     const p = parseInt(page) || 1;
     const l = parseInt(limit) || 10;
@@ -15,7 +15,8 @@ class GetPostsUseCase {
     const result = await PostRepository.getPostsWithSort({
       page: p,
       limit: l,
-      sort: finalSort
+      sort: finalSort,
+      userId
     });
 
     // 4. Format Output
@@ -26,9 +27,10 @@ class GetPostsUseCase {
       data: result.rows.map(row => ({
         id: row.id,
         title: row.title,
-        likeCount: parseInt(row.likeCount), // SQL count returns string/bigint usually
+        likeCount: parseInt(row.likeCount), 
         createdAt: row.createdAt,
-        authorId: row.authorId
+        authorId: row.authorId,
+        isLiked: !!parseInt(row.isLiked) // Convert to boolean
       }))
     };
   }

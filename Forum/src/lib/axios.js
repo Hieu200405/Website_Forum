@@ -1,4 +1,5 @@
 import axios from 'axios';
+import useAuthStore from '@/features/auth/store/authStore';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000/api', // Backend URL
@@ -10,7 +11,8 @@ const api = axios.create({
 // Request Interceptor: Attach Token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    // Get token directly from Store (Single Source of Truth)
+    const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -21,16 +23,13 @@ api.interceptors.request.use(
 
 // Response Interceptor: Handle Errors (401, etc)
 api.interceptors.response.use(
-  (response) => response.data, // Return data directly for easier consumption
+  (response) => response.data,
   (error) => {
     const message = error.response?.data?.message || 'Something went wrong';
     
     if (error.response?.status === 401) {
-      // Auto logout if 401 (Token Expired)
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      // Redirect to login handled by AuthGuard component usually
-      // window.location.href = '/login'; // Optional: force redirect
+      // Auto logout using store action
+      useAuthStore.getState().logout();
     }
     
     return Promise.reject({ ...error, message });
