@@ -27,6 +27,9 @@ router.get('/', optionalAuth, PostController.getPosts);
 // Public (with optional auth for viewing hidden posts): Get Detail
 router.get('/:id', optionalAuth, PostController.getPostDetail);
 
+// Public: Get comments for a post
+router.get('/:postId/comments', CommentController.getByPost);
+
 // Auth required: Comment on Post
 router.post('/:postId/comments', authMiddleware, rateLimit, CommentController.commentOnPost);
 

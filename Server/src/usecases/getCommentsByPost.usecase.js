@@ -20,10 +20,14 @@ class GetCommentsByPostUseCase {
         content: c.content,
         createdAt: c.created_at,
         parentId: c.parent_id,
-        author: {
+        author: c.author ? {
           id: c.author.id,
           username: c.author.username,
           role: c.author.role
+        } : {
+          id: null,
+          username: 'Người dùng ẩn danh',
+          role: 'user'
         },
         replies: []
       };

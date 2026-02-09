@@ -31,7 +31,8 @@ const CommentSection = ({ postId }) => {
             setContent('');
             toast.success('Đã bình luận!');
             queryClient.invalidateQueries({ queryKey: ['comments', postId] });
-            queryClient.invalidateQueries({ queryKey: ['post', postId] }); // Update comment count
+            queryClient.invalidateQueries({ queryKey: ['post', postId] }); // Update comment count in detail
+            queryClient.invalidateQueries({ queryKey: ['posts'] }); // Update comment count in list
         },
         onError: () => toast.error('Lỗi khi bình luận')
     });
@@ -45,6 +46,7 @@ const CommentSection = ({ postId }) => {
             toast.success('Đã trả lời!');
             queryClient.invalidateQueries({ queryKey: ['comments', postId] });
             queryClient.invalidateQueries({ queryKey: ['post', postId] });
+            queryClient.invalidateQueries({ queryKey: ['posts'] }); // Update comment count in list
         },
         onError: () => toast.error('Lỗi khi trả lời')
     });

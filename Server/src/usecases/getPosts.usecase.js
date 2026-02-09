@@ -28,6 +28,7 @@ class GetPostsUseCase {
         id: row.id,
         title: row.title,
         likeCount: parseInt(row.likeCount), 
+        commentCount: parseInt(row.commentCount) || 0,
         createdAt: row.createdAt,
         category: row.categoryName || 'Thảo luận',
         author: {

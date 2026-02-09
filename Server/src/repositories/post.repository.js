@@ -161,12 +161,14 @@ class PostRepository {
         p.user_id as authorId,
         u.username as authorName,
         c.name as categoryName,
-        COUNT(l.post_id) as likeCount,
+        COUNT(DISTINCT l.id) as likeCount,
+        COUNT(DISTINCT cm.id) as commentCount,
         MAX(CASE WHEN l.user_id = :userId THEN 1 ELSE 0 END) as isLiked
       FROM posts p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN categories c ON p.category_id = c.id
       LEFT JOIN likes l ON p.id = l.post_id
+      LEFT JOIN comments cm ON p.id = cm.post_id AND cm.status = 'active'
       WHERE p.status = 'active'
       GROUP BY p.id, u.username, c.name
       ORDER BY ${orderByClause}
