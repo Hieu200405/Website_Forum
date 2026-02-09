@@ -2,7 +2,8 @@ import axios from "@/services/api";
 
 export const getCategories = async () => {
   const response = await axios.get("/categories");
-  return response.data;
+  // Response after interceptor: { success: true, data: [...categories] }
+  return response?.data || [];
 };
 
 export const createCategory = async (data) => {

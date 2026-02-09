@@ -2,7 +2,8 @@ import axios from '@/lib/axios';
 
 export const getPostDetail = async (id) => {
     const response = await axios.get(`/posts/${id}`);
-    return response.data;
+    // Response after interceptor: { success: true, data: {...post} }
+    return response;
 };
 
 export const getCommentsByPost = async (postId) => {

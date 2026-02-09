@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { createPost, updatePost } from '../api/postService';
+import { getCategories } from '@/features/categories/api/categoryService';
 import useModalStore from '@/components/hooks/useModalStore';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
@@ -13,19 +14,25 @@ const CreatePostModal = () => {
   const [formData, setFormData] = useState({ 
       title: editPost?.title || '', 
       content: editPost?.content || '', 
-      categoryId: editPost?.categoryId || 1 
+      categoryId: editPost?.categoryId || '' 
   });
 
-  // Reset form when editPost changes (e.g. opening modal for different post or new post)
+  // Fetch categories
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
+  });
+
+  // Reset form when editPost changes
   React.useEffect(() => {
       if (editPost) {
           setFormData({
               title: editPost.title,
               content: editPost.content,
-              categoryId: editPost.categoryId || 1
+              categoryId: editPost.categoryId || ''
           });
       } else {
-          setFormData({ title: '', content: '', categoryId: 1 });
+          setFormData({ title: '', content: '', categoryId: '' });
       }
   }, [editPost]);
 
@@ -51,7 +58,10 @@ const CreatePostModal = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.content.trim()) return;
+    if (!formData.title.trim() || !formData.content.trim() || !formData.categoryId) {
+      toast.error('Vui lòng điền đầy đủ thông tin và chọn danh mục');
+      return;
+    }
     mutation.mutate(formData);
   };
 
@@ -68,6 +78,24 @@ const CreatePostModal = () => {
                 autoFocus
              />
          </div>
+         
+         {/* Category Selector */}
+         <div>
+             <select
+                value={formData.categoryId}
+                onChange={(e) => setFormData({...formData, categoryId: parseInt(e.target.value)})}
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-slate-700"
+                disabled={categoriesLoading}
+             >
+                <option value="">-- Chọn danh mục --</option>
+                {Array.isArray(categories) && categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+             </select>
+         </div>
+
          <div className="h-px bg-slate-100 w-full my-2"></div>
          <div>
              <textarea 
