@@ -10,22 +10,27 @@ const CommentItem = ({ comment, onReply }) => {
         <div className={`flex space-x-3 ${isReply ? 'ml-12 mt-3' : 'mt-4'}`}>
             <div className="flex-shrink-0">
                 <div className={`rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600 ${isReply ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm'}`}>
-                    {comment.user?.username?.[0]?.toUpperCase() || 'U'}
+                    {comment.author?.username?.[0]?.toUpperCase() || 'U'}
                 </div>
             </div>
             <div className="flex-1">
                 <div className="bg-slate-50 p-3 rounded-2xl rounded-tl-none">
                     <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-slate-900 text-sm">{comment.user?.username}</span>
+                        <span className="font-bold text-slate-900 text-sm">{comment.author?.username || 'Người dùng ẩn danh'}</span>
                         <span className="text-xs text-slate-400">
-                             {comment.created_at ? formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: vi }) : 'Vừa xong'}
+                             {comment.createdAt ? formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: vi }) : 'Vừa xong'}
                         </span>
                     </div>
                     <p className="text-slate-700 text-[15px] leading-relaxed">{comment.content}</p>
                 </div>
                 
                 <div className="flex items-center space-x-4 mt-1 ml-2">
-                    <button className="text-xs font-semibold text-slate-500 hover:text-primary-600 transition-colors flex items-center space-x-1">
+                    {/* Note: Like comment functionality requires backend API implementation */}
+                    <button 
+                        className="text-xs font-semibold text-slate-500 hover:text-primary-600 transition-colors flex items-center space-x-1"
+                        disabled
+                        title="Chức năng đang phát triển"
+                    >
                         <ThumbsUp className="w-3 h-3" />
                         <span>Thích</span>
                     </button>
