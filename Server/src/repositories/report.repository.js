@@ -34,20 +34,25 @@ class ReportRepository {
     });
   }
 
-  async findAll({ limit, offset, order = [['createdAt', 'DESC']] }) {
-      // Lazy load models to avoid circular dependency issues if any
-      const User = require('../models/user.model');
-      const Post = require('../models/post.model');
+  async findAll({ limit, offset, order = [['created_at', 'DESC']] }) {
+      try {
+          // Lazy load models to avoid circular dependency issues if any
+          const User = require('../models/user.model');
+          const Post = require('../models/post.model');
 
-      return await Report.findAndCountAll({
-          limit,
-          offset,
-          order,
-          include: [
-              { model: User, as: 'reporter', attributes: ['id', 'username', 'email'] },
-              { model: Post, as: 'post', attributes: ['id', 'title', 'status'] }
-          ]
-      });
+          return await Report.findAndCountAll({
+              limit,
+              offset,
+              order,
+              include: [
+                  { model: User, as: 'reporter', attributes: ['id', 'username', 'email'] },
+                  { model: Post, as: 'post', attributes: ['id', 'title', 'status', 'content'] }
+              ]
+          });
+      } catch (error) {
+          console.error('[ReportRepository] findAll error:', error);
+          throw error;
+      }
   }
 }
 

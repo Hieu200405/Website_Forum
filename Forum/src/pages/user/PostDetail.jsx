@@ -53,26 +53,32 @@ const UserPostDetail = () => {
           <article className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-8">
               {/* Post Header */}
               <div className="p-6 md:p-8 border-b border-slate-50">
-                  <div className="flex items-center space-x-4 mb-6">
-                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-primary-500 text-white flex items-center justify-center font-bold text-xl shadow-md overflow-hidden">
-                            {post.author?.username ? (
-                                <img src={`https://ui-avatars.com/api/?name=${post.author.username}&background=random`} alt="Avatar" className="h-full w-full object-cover" />
-                            ) : (
-                                <span>{post.author?.username?.[0]?.toUpperCase()}</span>
-                            )}
-                      </div>
-                      <div>
-                          <h1 className="text-xl md:text-2xl font-bold text-slate-900 leading-snug">
-                              {post.title}
-                          </h1>
-                          <div className="flex items-center text-sm text-slate-500 mt-1 space-x-3">
-                              <span className="font-semibold text-primary-600">{post.author?.username}</span>
-                              <span>•</span>
-                              <span>{post.createdAt ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: vi }) : ''}</span>
-                              <span>•</span>
-                              <span className="bg-slate-100 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide">{post.category?.name || 'General'}</span>
+                  <div className="flex items-start justify-between mb-6">
+                      <div className="flex items-center space-x-4">
+                          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-primary-500 text-white flex items-center justify-center font-bold text-xl shadow-md overflow-hidden">
+                                {post.author?.username ? (
+                                    <img src={`https://ui-avatars.com/api/?name=${post.author.username}&background=random`} alt="Avatar" className="h-full w-full object-cover" />
+                                ) : (
+                                    <span>{post.author?.username?.[0]?.toUpperCase()}</span>
+                                )}
+                          </div>
+                          <div>
+                              <h1 className="text-xl md:text-2xl font-bold text-slate-900 leading-snug">
+                                  {post.title}
+                              </h1>
+                              <div className="flex items-center text-sm text-slate-500 mt-1 space-x-3">
+                                  <span className="font-semibold text-primary-600">{post.author?.username}</span>
+                                  <span>•</span>
+                                  <span>{post.createdAt ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: vi }) : ''}</span>
+                                  <span>•</span>
+                                  <span className="bg-slate-100 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide">{post.category?.name || 'General'}</span>
+                              </div>
                           </div>
                       </div>
+                      
+                      {/* Edit/Delete Menu - Only show for post author */}
+                      {/* TODO: Add authentication check and implement edit/delete functionality */}
+                      {/* Example: {user?.id === post.author?.id && <PostMenu postId={post.id} />} */}
                   </div>
 
                   {/* Post Body */}

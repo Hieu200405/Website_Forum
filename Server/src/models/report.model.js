@@ -52,9 +52,9 @@ const Report = sequelize.define('Report', {
 
 // Associations
 User.hasMany(Report, { foreignKey: 'user_id' });
-Report.belongsTo(User, { foreignKey: 'user_id' });
+Report.belongsTo(User, { foreignKey: 'user_id', as: 'reporter' });
 
 Post.hasMany(Report, { foreignKey: 'post_id' });
-Report.belongsTo(Post, { foreignKey: 'post_id' });
+Report.belongsTo(Post, { foreignKey: 'post_id', as: 'post' });
 
 module.exports = Report;

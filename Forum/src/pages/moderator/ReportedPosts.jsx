@@ -52,7 +52,9 @@ const ReportedPosts = () => {
                                                 {report.reason}
                                             </span>
                                             <span className="text-xs text-slate-400">
-                                                {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true, locale: vi })}
+                                                {report.createdAt || report.created_at ? 
+                                                    formatDistanceToNow(new Date(report.createdAt || report.created_at), { addSuffix: true, locale: vi }) 
+                                                    : 'Không rõ thời gian'}
                                             </span>
                                         </div>
                                         <h3 className="text-lg font-bold text-slate-800 mb-1">
