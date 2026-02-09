@@ -57,7 +57,7 @@ const CommentSection = ({ postId }) => {
         if (!content.trim()) return;
 
         if (replyTo) {
-            replyMutation.mutate({ parentId: replyTo.id, content });
+            replyMutation.mutate({ postId, parentId: replyTo.id, content });
         } else {
             createMutation.mutate({ postId, content });
         }
