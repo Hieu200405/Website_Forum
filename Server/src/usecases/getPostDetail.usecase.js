@@ -29,7 +29,7 @@ class GetPostDetailUseCase {
     }
 
     // 3. Lấy comments
-    const comments = await CommentRepository.findByPostId(postId);
+    const comments = await CommentRepository.findAllByPostId(postId);
 
     // 4. Check Like Status
     let isLiked = false;

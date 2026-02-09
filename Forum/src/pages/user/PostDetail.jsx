@@ -29,12 +29,14 @@ const UserPostDetail = () => {
       </div>
   );
 
-  if (isError || !post) return (
+  if (isError || !post) {
+      return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center">
           <h2 className="text-2xl font-bold text-slate-800">Không tìm thấy bài viết</h2>
           <button onClick={() => navigate('/user')} className="mt-4 text-primary-600 hover:underline">Quay về bảng tin</button>
       </div>
   );
+  }
 
   return (
       <div className="max-w-4xl mx-auto">
@@ -68,7 +70,7 @@ const UserPostDetail = () => {
                               <span>•</span>
                               <span>{post.createdAt ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: vi }) : ''}</span>
                               <span>•</span>
-                              <span className="bg-slate-100 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide">{post.category || 'General'}</span>
+                              <span className="bg-slate-100 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide">{post.category?.name || 'General'}</span>
                           </div>
                       </div>
                   </div>
@@ -91,14 +93,14 @@ const UserPostDetail = () => {
                             <div className="p-2 bg-white rounded-full shadow-sm group-hover:shadow border border-slate-100 group-hover:bg-red-50">
                                 <Heart className={`w-5 h-5 ${post.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
                             </div>
-                            <span className="font-bold text-lg">{post.likeCount}</span>
+                            <span className="font-bold text-lg">{post.likesCount || 0}</span>
                         </button>
                         
                         <div className="flex items-center space-x-2 text-slate-500">
                             <div className="p-2 bg-white rounded-full shadow-sm border border-slate-100">
                                 <MessageSquare className="w-5 h-5" />
                             </div>
-                            <span className="font-bold text-lg">{post.commentCount}</span>
+                            <span className="font-bold text-lg">{post.commentsCount || 0}</span>
                         </div>
                     </div>
 
