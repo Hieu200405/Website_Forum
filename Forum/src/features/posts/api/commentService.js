@@ -7,20 +7,22 @@ export const getPostDetail = async (id) => {
 };
 
 export const getCommentsByPost = async (postId) => {
-    // Backend: router.get('/post/:postId', CommentController.getByPost);
-    // Assuming prefix is /comments
-    const response = await axios.get(`/comments/post/${postId}`);
-    return response.data;
+    // Updated to match new route: GET /api/posts/:postId/comments
+    const response = await axios.get(`/posts/${postId}/comments`);
+    // Response: { success: true, data: [...comments] }
+    return response.data || [];
 };
 
 export const createComment = async ({ postId, content }) => {
-    // Backend: router.post('/:postId/comments', ...)
+    // POST /api/posts/:postId/comments
     const response = await axios.post(`/posts/${postId}/comments`, { content });
-    return response.data;
+    // Response: { success: true, data: {...comment} }
+    return response;
 };
 
 export const replyComment = async ({ parentId, content }) => {
-    // Backend: router.post('/reply', ...)
+    // POST /api/comments/reply
     const response = await axios.post(`/comments/reply`, { parent_id: parentId, content });
-    return response.data;
+    // Response: { success: true, data: {...comment} }
+    return response;
 };

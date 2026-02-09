@@ -57,7 +57,7 @@ class CreateCommentUseCase {
       content: newComment.content,
       status: newComment.status,
       createdAt: newComment.created_at,
-      message: isViolation 
+      message: !modResult.isValid 
         ? 'Bình luận đang chờ duyệt' 
         : 'Bình luận thành công'
     };
