@@ -76,7 +76,7 @@ class ReplyCommentUseCase {
       status: reply.status,
       parentId: reply.parent_id,
       createdAt: reply.created_at,
-      message: isViolation ? 'Trả lời đang chờ duyệt' : 'Trả lời thành công'
+      message: !modResult.isValid ? 'Trả lời đang chờ duyệt' : 'Trả lời thành công'
     };
   }
 }

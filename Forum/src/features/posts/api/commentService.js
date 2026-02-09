@@ -20,9 +20,13 @@ export const createComment = async ({ postId, content }) => {
     return response;
 };
 
-export const replyComment = async ({ parentId, content }) => {
+export const replyComment = async ({ postId, parentId, content }) => {
     // POST /api/comments/reply
-    const response = await axios.post(`/comments/reply`, { parent_id: parentId, content });
+    const response = await axios.post(`/comments/reply`, { 
+        postId, 
+        parentCommentId: parentId, 
+        content 
+    });
     // Response: { success: true, data: {...comment} }
     return response;
 };
