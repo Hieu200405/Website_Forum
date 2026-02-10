@@ -34,6 +34,12 @@ class ReportRepository {
     });
   }
 
+  async countByStatus(status) {
+    return await Report.count({
+        where: { status }
+    });
+  }
+
   async findAll({ limit, offset, order = [['created_at', 'DESC']] }) {
       try {
           // Lazy load models to avoid circular dependency issues if any

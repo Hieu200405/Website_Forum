@@ -28,6 +28,7 @@ import ViewLogs from '@/pages/admin/ViewLogs';
 // Moderator Pages
 import ModeratePosts from '@/pages/moderator/ModeratePosts';
 import ReportedPosts from '@/pages/moderator/ReportedPosts';
+import ModeratorDashboard from '@/pages/moderator/Dashboard';
 
 const AppRoutes = () => {
   return (
@@ -64,8 +65,7 @@ const AppRoutes = () => {
       {/* Moderator Routes (Only Moderator Role) */}
       <Route path="/moderator" element={<ProtectedRoute allowedRoles={['moderator']} />}>
           <Route element={<ModeratorLayout />}>
-              {/* Default to reports as moderate is empty */}
-              <Route index element={<Navigate to="/moderator/reports" replace />} />
+              <Route index element={<ModeratorDashboard />} />
               <Route path="moderate" element={<ModeratePosts />} />
               <Route path="reports" element={<ReportedPosts />} />
           </Route>
