@@ -60,8 +60,9 @@ class AdminController {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
         const offset = (page - 1) * limit;
+        const status = req.query.status || 'pending';
 
-        const { count, rows } = await ReportRepository.findAll({ limit, offset });
+        const { count, rows } = await ReportRepository.findAll({ limit, offset, status });
 
         res.status(200).json({
             success: true,

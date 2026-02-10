@@ -59,6 +59,10 @@ class ModeratePostUseCase {
     // 4. Update DB (chỉ áp dụng cho approve/hide)
     await PostRepository.updateModerationStatus(postId, newStatus, hideReason);
 
+    // Update Report status to 'reviewed'
+    const ReportRepository = require('../repositories/report.repository');
+    await ReportRepository.updateStatusByPostId(postId, 'reviewed');
+
     // 5. Logging
     await LoggingService.log(
       userId,

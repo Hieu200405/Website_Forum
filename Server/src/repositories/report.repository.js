@@ -40,13 +40,26 @@ class ReportRepository {
     });
   }
 
-  async findAll({ limit, offset, order = [['created_at', 'DESC']] }) {
+  async updateStatusByPostId(postId, status) {
+    return await Report.update(
+        { status },
+        { where: { post_id: postId } }
+    );
+  }
+
+  async findAll({ limit, offset, order = [['created_at', 'DESC']], status }) {
       try {
           // Lazy load models to avoid circular dependency issues if any
           const User = require('../models/user.model');
           const Post = require('../models/post.model');
 
+          const where = {};
+          if (status) {
+              where.status = status;
+          }
+
           return await Report.findAndCountAll({
+              where,
               limit,
               offset,
               order,
