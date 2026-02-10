@@ -38,7 +38,7 @@ const ModeratorDashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard 
-          title="Báo cáo chờ xử lý" 
+          title="Đang chờ xử lý" 
           value={stats?.data?.pendingReports || stats?.pendingReports || 0} 
           icon={AlertTriangle} 
           color="bg-orange-500"
