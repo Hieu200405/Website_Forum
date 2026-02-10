@@ -17,3 +17,8 @@ export const reportPost = async (postId, { reason }) => {
     const response = await api.post(`/posts/${postId}/report`, { reason });
     return response.data;
 };
+
+export const getModerationStats = async () => {
+    const response = await api.get('/moderation/stats');
+    return response.data;
+};

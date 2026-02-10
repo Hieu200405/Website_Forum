@@ -10,6 +10,7 @@ const ROLES = require('../constants/roles');
 // Do code cũ dùng roleMiddleware([ROLES.ADMIN]) -> Array support.
 const allowedRoles = [ROLES.ADMIN, ROLES.MODERATOR];
 
+router.get('/stats', authMiddleware, roleMiddleware(allowedRoles), ModerationController.getStats);
 router.patch('/posts/:postId', authMiddleware, roleMiddleware(allowedRoles), ModerationController.moderatePost);
 
 module.exports = router;

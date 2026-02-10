@@ -1,4 +1,5 @@
 const ModeratePostUseCase = require('../usecases/moderatePost.usecase');
+const GetModerationStatsUseCase = require('../usecases/getModerationStats.usecase');
 
 class ModerationController {
   
@@ -18,6 +19,18 @@ class ModerationController {
       res.status(200).json({ success: true, data: result });
     } catch (error) {
       res.status(error.status || 500).json({ success: false, message: error.message });
+    }
+  }
+  /**
+   * GET /api/moderation/stats
+   * Lấy thống kê cho moderator
+   */
+  static async getStats(req, res) {
+    try {
+      const result = await GetModerationStatsUseCase.execute();
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 }
