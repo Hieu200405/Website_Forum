@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const SystemLog = require('../models/systemLog.model');
 
 class SystemLogRepository {
@@ -11,6 +12,22 @@ class SystemLogRepository {
       offset,
       order
     });
+  }
+
+  async countModerationActionsToday() {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const actions = ['APPROVE_POST', 'HIDE_POST', 'DELETE_POST'];
+
+    const count = await SystemLog.count({
+        where: {
+            action: { [Op.in]: actions },
+            created_at: { [Op.gte]: startOfDay }
+        }
+    });
+
+    return count;
   }
 }
 

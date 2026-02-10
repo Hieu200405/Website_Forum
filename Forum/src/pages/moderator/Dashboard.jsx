@@ -45,7 +45,7 @@ const ModeratorDashboard = () => {
           link="/moderator/reports"
         />
         <StatCard 
-          title="Báo cáo đã xử lý" 
+          title="Đã xử lý hôm nay" 
           value={stats?.data?.reviewedReports || stats?.reviewedReports || 0} 
           icon={CheckCircle} 
           color="bg-green-500"

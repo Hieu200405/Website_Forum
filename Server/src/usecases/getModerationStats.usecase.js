@@ -1,18 +1,16 @@
 const ReportRepository = require('../repositories/report.repository');
-// const PostRepository = require('../repositories/post.repository'); // Uncomment if needed
+const SystemLogRepository = require('../repositories/systemLog.repository');
 
 class GetModerationStatsUseCase {
   static async execute() {
     const pendingReports = await ReportRepository.countByStatus('pending');
-    const reviewedReports = await ReportRepository.countByStatus('reviewed');
     
-    // Nếu có Post status 'pending' (post cần duyệt), thêm logic ở đây
-    // const pendingPosts = await PostRepository.countByStatus('pending');
+    // Đếm số lượng hành động xử lý trong ngày (Approve, Hide, Delete)
+    const reviewedReportsToday = await SystemLogRepository.countModerationActionsToday();
 
     return {
       pendingReports,
-      reviewedReports,
-      // pendingPosts
+      reviewedReports: reviewedReportsToday, // Hiển thị số lượng xử lý trong ngày
     };
   }
 }
