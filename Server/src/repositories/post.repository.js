@@ -1,3 +1,4 @@
+const sequelize = require('../config/database');
 const Post = require('../models/post.model');
 const User = require('../models/user.model');
 const Category = require('../models/category.model');
@@ -10,6 +11,43 @@ class PostRepository {
    */
   async create(postData) {
     return await Post.create(postData);
+  }
+
+  /**
+   * Xóa bài viết (Hard delete)
+   * @param {number} id 
+   * @returns {Promise<boolean>}
+   */
+  async delete(id) {
+    const transaction = await sequelize.transaction();
+    try {
+      const Comment = require('../models/comment.model');
+      const Like = require('../models/like.model');
+      const Report = require('../models/report.model');
+
+      // 1. Delete Reports
+      await Report.destroy({ where: { post_id: id }, transaction });
+
+      // 2. Delete Likes
+      await Like.destroy({ where: { post_id: id }, transaction });
+
+      // 3. Delete Comments
+      // Pre-update parent_id to null avoid self-referencing issues if deleting parent comments
+      // (Optional depending on DB engine but safer)
+      await Comment.update({ parent_id: null }, { where: { post_id: id }, transaction });
+      await Comment.destroy({ where: { post_id: id }, transaction });
+
+      const deleted = await Post.destroy({
+        where: { id },
+        transaction
+      });
+
+      await transaction.commit();
+      return deleted > 0;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }
 
   /**
