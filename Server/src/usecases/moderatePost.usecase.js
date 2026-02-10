@@ -36,11 +36,27 @@ class ModeratePostUseCase {
       newStatus = 'hidden';
       logAction = 'HIDE_POST';
       hideReason = reason || 'Vi phạm điều khoản cộng đồng';
+    } else if (action === 'delete') {
+      // Action Delete: Xóa luôn khỏi DB
+      await PostRepository.delete(postId);
+      
+      await LoggingService.log(
+        userId,
+        'DELETE_POST',
+        ip,
+        { postId, reason: reason || 'Vi phạm nghiêm trọng', previousStatus: post.status }
+      );
+
+      return {
+        message: 'Đã xóa bài viết vĩnh viễn',
+        postId,
+        status: 'deleted'
+      };
     } else {
       throw { status: 400, message: 'Hành động không hợp lệ' };
     }
 
-    // 4. Update DB
+    // 4. Update DB (chỉ áp dụng cho approve/hide)
     await PostRepository.updateModerationStatus(postId, newStatus, hideReason);
 
     // 5. Logging
