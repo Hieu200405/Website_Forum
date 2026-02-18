@@ -1,0 +1,79 @@
+name: Forum Project CI
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  frontend-build:
+    name: Frontend (Build & Lint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Forum
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "./Forum/package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  backend-test:
+    name: Backend (Integration Test)
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: forum_test_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    defaults:
+      run:
+        working-directory: ./Server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "./Server/package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Test (Auth Flow)
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASS: root
+          DB_NAME: forum_test_db
+          DB_PORT: 3306
+          # Point Node to Server/node_modules to resolve supertest and others
+          NODE_PATH: ${{ github.workspace }}/Server/node_modules
+        run: |
+          echo "Running integration tests..."
+          # Execute the test script located in Testing/ using dependencies from Server/
+          node ../Testing/verify_auth_flow.js
