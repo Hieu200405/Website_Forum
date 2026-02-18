@@ -148,7 +148,48 @@ Project-Forum/
 │   └── index.css           # Global Styles (Tailwind)
 │
 └── README.md               # Project Documentation
+├── 📁 Testing/             # Integration & API Flow Verification Scripts
 ```
+
+## 🧪 Testing
+
+The project includes a suite of integration verification scripts in the `Testing/` directory. These scripts verify critical flows like Authentication, Posting, and Moderation using the registered backend routes.
+
+**To run tests locally:**
+
+1. Ensure the Backend Server is **NOT** running (the tests start their own mock app instance or connect solely via DB/Supertest).
+   _Note: Some tests might require the server to be running if they fetch against localhost, but the current scripts use `supertest` with the Express app instance._ -> _Correction: The scripts import `app` or routes, so they likely start their own instance._
+2. Navigate to the `Server` directory:
+   ```bash
+   cd Server
+   ```
+3. Run a specific verification script (ensure `NODE_PATH` includes `Server/node_modules`):
+   _Linux/Mac/Git Bash:_
+   ```bash
+   export NODE_PATH=$(pwd)/node_modules
+   node ../Testing/verify_auth_flow.js
+   ```
+   _Windows PowerShell:_
+   ```powershell
+   $env:NODE_PATH="$pwd\node_modules"
+   node ..\Testing\verify_auth_flow.js
+   ```
+
+## 🔄 Continuous Integration (CI)
+
+This project uses **GitHub Actions** for CI/CD.
+
+- **Workflow File**: `.github/workflows/ci.yml`
+- **Triggers**: Push and Pull Request to `main` or `master` branches.
+- **Jobs**:
+  1.  **Backend Test**:
+      - Sets up MySQL and Redis services.
+      - Installs backend dependencies.
+      - Runs all verification scripts in `Testing/`.
+  2.  **Frontend Build**:
+      - Installs frontend dependencies.
+      - Runs ESLint.
+      - Builds the React application.
 
 ## 🐛 Troubleshooting
 
