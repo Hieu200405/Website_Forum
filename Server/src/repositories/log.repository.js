@@ -10,36 +10,36 @@ class LogRepository {
     const offset = (page - 1) * limit;
     
     // Xây dựng điều kiện WHERE
-    let whereClauses = ['1 = 1']; // default true for clean appending
+    let whereClauses = ["u.role = 'admin'"]; // Filter specifically for admin activities
     let replacements = {};
 
     if (userId) {
-      whereClauses.push('userId = :userId');
+      whereClauses.push('sl.user_id = :userId'); // Using column name according to model
       replacements.userId = userId;
     }
     if (action) {
-      whereClauses.push('action LIKE :action');
+      whereClauses.push('sl.action LIKE :action');
       replacements.action = `%${action}%`;
     }
     if (from) {
-      whereClauses.push('created_at >= :from');
+      whereClauses.push('sl.created_at >= :from');
       replacements.from = from;
     }
     if (to) {
-      whereClauses.push('created_at <= :to');
+      whereClauses.push('sl.created_at <= :to');
       replacements.to = to;
     }
 
     const whereSql = whereClauses.join(' AND ');
 
-    // 1. Query Data
-    // Lưu ý: Tên cột cần khớp DB. Ở các bước trước ta gọi model là SystemLog
-    // nhưng yêu cầu ở đây là query thuần.
-    // Tên bảng thường là 'system_logs' (từ services/logging.service.js)
+    // 1. Query Data with User Join
     const logs = await sequelize.query(
-      `SELECT * FROM system_logs 
+      `SELECT sl.*, 
+              JSON_OBJECT('username', u.username, 'role', u.role) as user 
+       FROM system_logs sl
+       INNER JOIN users u ON sl.user_id = u.id
        WHERE ${whereSql} 
-       ORDER BY created_at DESC 
+       ORDER BY sl.created_at DESC 
        LIMIT :limit OFFSET :offset`,
       {
         replacements: { ...replacements, limit, offset },
@@ -47,9 +47,18 @@ class LogRepository {
       }
     );
 
-    // 2. Query Total Count (for pagination)
+    // Xử lý lại trường user JS Object từ chuỗi JSON MySQL trả về
+    const formattedLogs = logs.map(log => ({
+      ...log,
+      user: typeof log.user === 'string' ? JSON.parse(log.user) : log.user
+    }));
+
+    // 2. Query Total Count
     const countResult = await sequelize.query(
-      `SELECT COUNT(*) as total FROM system_logs WHERE ${whereSql}`,
+      `SELECT COUNT(*) as total 
+       FROM system_logs sl
+       INNER JOIN users u ON sl.user_id = u.id 
+       WHERE ${whereSql}`,
       {
         replacements: { ...replacements },
         type: QueryTypes.SELECT
@@ -58,7 +67,7 @@ class LogRepository {
     const total = countResult[0].total;
 
     return {
-      rows: logs,
+      rows: formattedLogs,
       count: total
     };
   }
