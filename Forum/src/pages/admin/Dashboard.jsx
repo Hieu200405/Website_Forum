@@ -3,13 +3,14 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAdminStats, getSystemLogs } from '@/features/admin/api/adminService';
 import { Users, FileText, Activity, AlertTriangle, ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 
 const AdminDashboard = () => {
     // 1. Fetch Stats
     const { data: statsData } = useQuery({ queryKey: ['admin-stats'], queryFn: getAdminStats });
-    const { data: logsData } = useQuery({ queryKey: ['admin-logs'], queryFn: () => getSystemLogs({ limit: 10 }) });
+    const { data: logsData } = useQuery({ queryKey: ['admin-logs'], queryFn: () => getSystemLogs({ limit: 2 }) });
 
     const stats = [
         { label: 'Tổng người dùng', value: statsData?.totalUsers || 0, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -44,9 +45,9 @@ const AdminDashboard = () => {
                             <Activity className="w-5 h-5 text-slate-500" />
                             Hoạt động gần đây
                         </h3>
-                        <button className="text-sm text-primary-600 font-medium hover:underline flex items-center">
+                        <Link to="/admin/logs" className="text-sm text-primary-600 font-medium hover:underline flex items-center">
                             Xem tất cả <ArrowUpRight className="w-4 h-4 ml-1" />
-                        </button>
+                        </Link>
                     </div>
                     <div className="space-y-4">
                         {logs.length > 0 ? logs.map(log => (
@@ -57,7 +58,6 @@ const AdminDashboard = () => {
                                         <span className="font-bold">{log.action}</span>
                                         {log.user && <span className="text-slate-500 font-normal"> bởi {log.user.username}</span>}
                                     </p>
-                                    <p className="text-xs text-slate-500 truncate">{log.data ? JSON.stringify(log.data) : 'No details'}</p>
                                 </div>
                                 <span className="text-xs text-slate-400 whitespace-nowrap">
                                     {formatDistanceToNow(new Date(log.created_at), { addSuffix: true, locale: vi })}

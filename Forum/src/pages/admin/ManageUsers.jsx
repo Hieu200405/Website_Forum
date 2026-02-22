@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUsers, banUser } from '@/features/admin/api/adminService';
+import { getUsers, banUser, unbanUser } from '@/features/admin/api/adminService';
 import { Search, MoreHorizontal, UserX, UserCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -15,7 +15,7 @@ const ManageUsers = () => {
     });
 
     const banMutation = useMutation({
-        mutationFn: ({ userId, reason }) => banUser(userId, reason),
+        mutationFn: ({ userId, reason }) => banUser({ userId, reason }),
         onSuccess: () => {
             toast.success('Đã cập nhật trạng thái người dùng');
             queryClient.invalidateQueries({ queryKey: ['admin-users'] });
@@ -26,6 +26,21 @@ const ManageUsers = () => {
     const handleBan = (userId) => {
         if(window.confirm('Bạn có chắc muốn khóa tài khoản này?')) {
             banMutation.mutate({ userId, reason: 'Vi phạm quy định' });
+        }
+    };
+
+    const unbanMutation = useMutation({
+        mutationFn: (userId) => unbanUser(userId),
+        onSuccess: () => {
+            toast.success('Đã mở khóa tài khoản');
+            queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+        },
+        onError: (err) => toast.error('Thất bại: ' + err.message)
+    });
+
+    const handleUnban = (userId) => {
+        if(window.confirm('Mở khóa cho tài khoản này?')) {
+            unbanMutation.mutate(userId);
         }
     };
 
@@ -106,7 +121,7 @@ const ManageUsers = () => {
                                                 <UserX className="w-5 h-5" />
                                             </button>
                                         ) : (
-                                            <button className="p-1 text-slate-400 hover:text-green-600 transition" title="Unban (Todo)">
+                                            <button onClick={() => handleUnban(user.id)} className="p-1 text-slate-400 hover:text-green-600 transition" title="Unban">
                                                 <UserCheck className="w-5 h-5" />
                                             </button>
                                         )}
