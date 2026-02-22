@@ -18,8 +18,8 @@ const CreatePost = () => {
 
   const mutation = useMutation({
     mutationFn: createPost,
-    onSuccess: () => {
-      toast.success('Bài viết đã được đăng!');
+    onSuccess: (res) => {
+      toast.success(res?.data?.message || 'Bài viết đã được đăng!');
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       navigate('/user');
     },

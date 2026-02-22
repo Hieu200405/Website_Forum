@@ -51,3 +51,14 @@ export const deleteBannedWord = async (id) => {
     const response = await axios.delete(`/admin/banned-words/${id}`);
     return response.data;
 };
+
+// Moderation Specific APIs
+export const getPendingPosts = async (params) => {
+    const response = await axios.get('/moderation/posts', { params });
+    return response.data;
+};
+
+export const moderatePost = async (postId, action, reason) => {
+    const response = await axios.patch(`/moderation/posts/${postId}`, { action, reason });
+    return response.data;
+};

@@ -1,5 +1,6 @@
 const ModeratePostUseCase = require('../usecases/moderatePost.usecase');
 const GetModerationStatsUseCase = require('../usecases/getModerationStats.usecase');
+const GetPendingPostsUseCase = require('../usecases/getPendingPosts.usecase');
 
 class ModerationController {
   
@@ -28,6 +29,20 @@ class ModerationController {
   static async getStats(req, res) {
     try {
       const result = await GetModerationStatsUseCase.execute();
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * GET /api/moderation/posts
+   * Lấy danh sách bài viết chờ duyệt
+   */
+  static async getPendingPosts(req, res) {
+    try {
+      const { page, limit } = req.query;
+      const result = await GetPendingPostsUseCase.execute({ page, limit });
       res.status(200).json({ success: true, data: result });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });

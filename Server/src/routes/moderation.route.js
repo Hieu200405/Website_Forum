@@ -11,6 +11,7 @@ const ROLES = require('../constants/roles');
 const allowedRoles = [ROLES.ADMIN, ROLES.MODERATOR];
 
 router.get('/stats', authMiddleware, roleMiddleware(allowedRoles), ModerationController.getStats);
+router.get('/posts', authMiddleware, roleMiddleware(allowedRoles), ModerationController.getPendingPosts);
 router.patch('/posts/:postId', authMiddleware, roleMiddleware(allowedRoles), ModerationController.moderatePost);
 
 module.exports = router;
