@@ -20,6 +20,10 @@ class DeleteBannedWordUseCase {
       { word: bannedWord.word, id }
     );
 
+    // Invalidate Moderation Cache
+    const ModerationService = require('../../services/moderation.service');
+    ModerationService.lastUpdate = 0;
+
     return { message: 'Xóa từ cấm thành công' };
   }
 }

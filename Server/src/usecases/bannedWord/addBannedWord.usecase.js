@@ -26,6 +26,10 @@ class AddBannedWordUseCase {
       { word: normalizedWord, id: newBannedWord.id }
     );
 
+    // Invalidate Moderation Cache
+    const ModerationService = require('../../services/moderation.service');
+    ModerationService.lastUpdate = 0;
+
     return newBannedWord;
   }
 }
