@@ -27,7 +27,7 @@ class UserRepository {
     return updated > 0;
   }
 
-  async findAll({ limit, offset, order = [['createdAt', 'DESC']] }) {
+  async findAll({ limit = 20, offset = 0, order = [['created_at', 'DESC']] } = {}) {
     return await User.findAndCountAll({
       limit,
       offset,

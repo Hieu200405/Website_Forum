@@ -1,24 +1,23 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getUsers, getPosts, getSystemLogs } from '@/features/admin/api/adminService';
+import { getAdminStats, getSystemLogs } from '@/features/admin/api/adminService';
 import { Users, FileText, Activity, AlertTriangle, ArrowUpRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 
 const AdminDashboard = () => {
     // 1. Fetch Stats
-    const { data: usersData } = useQuery({ queryKey: ['admin-users'], queryFn: getUsers });
-    const { data: postsData } = useQuery({ queryKey: ['admin-posts'], queryFn: () => getPosts() });
+    const { data: statsData } = useQuery({ queryKey: ['admin-stats'], queryFn: getAdminStats });
     const { data: logsData } = useQuery({ queryKey: ['admin-logs'], queryFn: () => getSystemLogs({ limit: 10 }) });
 
     const stats = [
-        { label: 'Tổng người dùng', value: usersData?.length || 0, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-        { label: 'Tổng bài viết', value: postsData?.length || 0, icon: FileText, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+        { label: 'Tổng người dùng', value: statsData?.totalUsers || 0, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+        { label: 'Tổng bài viết', value: statsData?.totalPosts || 0, icon: FileText, color: 'text-indigo-600', bg: 'bg-indigo-50' },
         { label: 'Hệ thống', value: 'On', icon: Activity, color: 'text-green-600', bg: 'bg-green-50' },
     ];
 
-    const logs = logsData?.data || [];
+    const logs = logsData?.logs || [];
 
     return (
         <div className="space-y-6">

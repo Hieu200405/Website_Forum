@@ -78,6 +78,16 @@ class AdminController {
         res.status(500).json({ success: false, message: error.message });
     }
   }
+
+  static async getStats(req, res) {
+    try {
+        const GetAdminStatsUseCase = require('../usecases/getAdminStats.usecase');
+        const stats = await GetAdminStatsUseCase.execute();
+        res.status(200).json({ success: true, data: stats });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+  }
 }
 
 module.exports = AdminController;

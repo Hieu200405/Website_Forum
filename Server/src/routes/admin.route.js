@@ -15,6 +15,9 @@ router.patch('/users/:id/unban', roleMiddleware([ROLES.ADMIN]), AdminController.
 // Report Management (Admin and Moderator can access)
 router.get('/reports', roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]), AdminController.getReports);
 
+// Dashboard stats
+router.get('/stats', roleMiddleware([ROLES.ADMIN]), AdminController.getStats);
+
 // System Logs Route (Admin only)
 const LogController = require('../controllers/log.controller');
 router.get('/logs', roleMiddleware([ROLES.ADMIN]), LogController.getLogs);

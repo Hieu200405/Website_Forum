@@ -11,6 +11,11 @@ export const getPosts = async (params) => {
     return response.data;
 };
 
+export const getAdminStats = async () => {
+    const response = await axios.get('/admin/stats');
+    return response.data;
+};
+
 export const banUser = async ({ userId, reason }) => {
     const response = await axios.patch(`/admin/users/${userId}/ban`, { reason });
     return response.data;
