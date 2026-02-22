@@ -38,7 +38,7 @@ jobs:
 
       - name: Install Server Dependencies
         working-directory: ./Server
-        run: npm install
+        run: npm ci
 
       - name: Run Backend Tests
         working-directory: ./Server
@@ -79,7 +79,7 @@ jobs:
 
       - name: Install Forum Dependencies
         working-directory: ./Forum
-        run: npm install
+        run: npm ci
 
       - name: Lint Frontend
         working-directory: ./Forum
