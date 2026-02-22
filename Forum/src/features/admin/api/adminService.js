@@ -36,3 +36,18 @@ export const getSystemLogs = async (params) => {
     const response = await axios.get('/admin/logs', { params });
     return response.data;
 };
+
+export const getBannedWords = async () => {
+    const response = await axios.get('/admin/banned-words');
+    return response.data;
+};
+
+export const addBannedWord = async (word) => {
+    const response = await axios.post('/admin/banned-words', { word });
+    return response.data;
+};
+
+export const deleteBannedWord = async (id) => {
+    const response = await axios.delete(`/admin/banned-words/${id}`);
+    return response.data;
+};
