@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback, useMemo } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { createPost, updatePost } from "../api/postService";
 import { getCategories } from "@/features/categories/api/categoryService";
+import { uploadImage } from "@/lib/uploadService";
 import useModalStore from "@/components/hooks/useModalStore";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
-import { Image, X } from "lucide-react";
 
 const CreatePostModal = () => {
   const { onClose, data: editPost } = useModalStore();
@@ -37,6 +37,54 @@ const CreatePostModal = () => {
       setFormData({ title: "", content: "", categoryId: "" });
     }
   }, [editPost]);
+
+  const quillRef = useRef(null);
+
+  const imageHandler = useCallback(() => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (file) {
+        const toastId = toast.loading("Đang tải ảnh lên...");
+        const uploadData = new FormData();
+        uploadData.append("image", file);
+        try {
+          const res = await uploadImage(uploadData);
+          const url = res.url;
+          const quill = quillRef.current.getEditor();
+          const range = quill.getSelection(true);
+          quill.insertEmbed(range.index, "image", url);
+          quill.setSelection(range.index + 1);
+          toast.success("Tải ảnh thành công", { id: toastId });
+        } catch (error) {
+          console.error('Image upload failed', error);
+          toast.error("Tải ảnh thất bại", { id: toastId });
+        }
+      }
+    };
+  }, []);
+
+  const modules = useMemo(
+    () => ({
+      toolbar: {
+        container: [
+          [{ header: [1, 2, false] }],
+          ["bold", "italic", "underline", "strike", "blockquote"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["link", "image"],
+          ["clean"],
+        ],
+        handlers: {
+          image: imageHandler,
+        },
+      },
+    }),
+    [imageHandler]
+  );
 
   const mutation = useMutation({
     mutationFn: (data) => {
@@ -115,6 +163,8 @@ const CreatePostModal = () => {
         <div className="h-px bg-slate-100 w-full my-2"></div>
         <div className="bg-white rounded-t-lg">
           <ReactQuill
+            ref={quillRef}
+            modules={modules}
             theme="snow"
             value={formData.content}
             onChange={(content) => setFormData({ ...formData, content })}
