@@ -7,6 +7,11 @@ import PostMenu from './PostMenu';
 import { useDeletePost } from '../hooks/useDeletePost';
 import useModalStore from '@/components/hooks/useModalStore';
 
+const getTextFromHtml = (html) => {
+    const doc = new DOMParser().parseFromString(html || '', 'text/html');
+    return doc.body.textContent || "";
+};
+
 const PostCard = ({ post, onLike }) => {
   const navigate = useNavigate();
   const deleteMutation = useDeletePost();
@@ -58,7 +63,7 @@ const PostCard = ({ post, onLike }) => {
             {post.title}
           </h3>
           <p className="text-slate-600 leading-relaxed text-[15px] mb-4 line-clamp-3">
-            {post.content}
+            {getTextFromHtml(post.content)}
           </p>
 
           {/* Action Bar */}
