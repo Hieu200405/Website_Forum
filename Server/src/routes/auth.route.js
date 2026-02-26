@@ -13,4 +13,6 @@ router.post('/login', [
   validate
 ], AuthController.login);
 
+router.post('/google', rateLimit, AuthController.googleLogin);
+
 module.exports = router;
