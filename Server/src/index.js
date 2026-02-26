@@ -52,6 +52,7 @@ require('./models/like.model');
 require('./models/bannedWord.model');
 require('./models/report.model');
 require('./models/notification.model');
+require('./models/savedPost.model');
 
 // Custom socket mapping for connected users
 const connectedUsers = new Map();

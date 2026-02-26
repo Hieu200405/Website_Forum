@@ -1,12 +1,9 @@
 const GetPostsUseCase = require('../usecases/getPosts.usecase');
-// Re-import các usecase khác nếu cần (create, detail...) vì file này bị overwrite/delete ở bước trước user nói.
-// Tôi sẽ giả định user muốn file này chỉ chứa getPosts mới hoặc các hàm cũ cần được thêm lại.
-// Tuy nhiên request chỉ yêu cầu "post.controller.js" cho chức năng này.
-// Để an toàn, tôi sẽ chỉ implement getPosts, các route khác sẽ lỗi nếu controller mất method cũ.
-// Nhưng tôi nên thêm method create, getDetail placeholder hoặc restore logic cũ nếu có thể.
-// Thôi, cứ làm đúng yêu cầu: getPosts.
 const CreatePostUseCase = require('../usecases/createPost.usecase');
 const GetPostDetailUseCase = require('../usecases/getPostDetail.usecase');
+const SavePostUseCase = require('../usecases/savePost.usecase');
+const UnsavePostUseCase = require('../usecases/unsavePost.usecase');
+const GetSavedPostsUseCase = require('../usecases/getSavedPosts.usecase');
 
 class PostController {
   
@@ -47,6 +44,41 @@ class PostController {
       res.status(200).json(result);
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  static async getSaved(req, res) {
+    try {
+      const { page, limit } = req.query;
+      const userId = req.user.userId;
+      const result = await GetSavedPostsUseCase.execute(userId, { page, limit });
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  static async save(req, res) {
+    try {
+      const userId = req.user.userId;
+      const { postId } = req.params;
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+      const result = await SavePostUseCase.execute(userId, postId, ip);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(error.status || 500).json({ success: false, message: error.message });
+    }
+  }
+
+  static async unsave(req, res) {
+    try {
+      const userId = req.user.userId;
+      const { postId } = req.params;
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+      const result = await UnsavePostUseCase.execute(userId, postId, ip);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(error.status || 500).json({ success: false, message: error.message });
     }
   }
 }

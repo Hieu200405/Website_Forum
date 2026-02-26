@@ -6,9 +6,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getPostDetail } from '@/features/posts/api/commentService';
 import { useLikePost } from '@/features/posts/hooks/useLikePost';
+import { useSavePost } from '@/features/posts/hooks/useSavePost';
 import PostCardSkeleton from '@/features/posts/components/PostSkeleton';
 import CommentSection from '@/features/posts/components/CommentSection';
-import { ArrowLeft, Heart, MessageSquare, Share2 } from 'lucide-react';
+import { ArrowLeft, Heart, MessageSquare, Share2, Bookmark } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 
@@ -16,6 +17,7 @@ const UserPostDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { mutate: toggleLike } = useLikePost();
+  const { mutate: toggleSave } = useSavePost();
 
   const { data, isLoading, isError } = useQuery({
       queryKey: ['post', id],
@@ -110,10 +112,19 @@ const UserPostDetail = () => {
                         </div>
                     </div>
 
-                    <button className="flex items-center space-x-2 text-slate-400 hover:text-slate-600">
-                        <Share2 className="w-5 h-5" />
-                        <span className="font-medium text-sm hidden sm:inline">Chia sẻ</span>
-                    </button>
+                    <div className="flex items-center space-x-2">
+                        <button 
+                            onClick={() => toggleSave({ postId: post.id, isSaved: post.isSaved })}
+                            className="flex items-center space-x-2 text-slate-400 hover:text-primary-600 transition-colors mr-4"
+                        >
+                            <Bookmark className={`w-5 h-5 ${post.isSaved ? 'fill-primary-500 text-primary-500' : ''}`} />
+                            <span className="font-medium text-sm hidden sm:inline">{post.isSaved ? 'Đã lưu' : 'Lưu bài'}</span>
+                        </button>
+                        <button className="flex items-center space-x-2 text-slate-400 hover:text-slate-600">
+                            <Share2 className="w-5 h-5" />
+                            <span className="font-medium text-sm hidden sm:inline">Chia sẻ</span>
+                        </button>
+                    </div>
                 </div>
           </article>
 

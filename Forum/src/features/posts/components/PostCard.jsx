@@ -1,10 +1,11 @@
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { Heart, MessageSquare, Share2, MoreHorizontal } from 'lucide-react';
+import { Heart, MessageSquare, Share2, MoreHorizontal, Bookmark } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 import PostMenu from './PostMenu';
 import { useDeletePost } from '../hooks/useDeletePost';
+import { useSavePost } from '../hooks/useSavePost';
 import useModalStore from '@/components/hooks/useModalStore';
 
 const getTextFromHtml = (html) => {
@@ -15,6 +16,7 @@ const getTextFromHtml = (html) => {
 const PostCard = ({ post, onLike }) => {
   const navigate = useNavigate();
   const deleteMutation = useDeletePost();
+  const { mutate: toggleSave } = useSavePost();
   const { onOpen } = useModalStore();
 
   const handlePostClick = () => {
@@ -88,10 +90,22 @@ const PostCard = ({ post, onLike }) => {
                 <span className="text-sm font-semibold">{post.commentCount || 0} Bình luận</span>
             </button>
             
-            <button className="flex items-center group/btn space-x-2 text-slate-500 hover:text-blue-500 transition-colors ml-auto">
+            <button className="flex items-center group/btn space-x-2 text-slate-500 hover:text-blue-500 transition-colors ml-auto mr-4">
                 <div className="p-2 rounded-full group-hover/btn:bg-blue-50 transition-colors">
                     <Share2 className="w-5 h-5" />
                 </div>
+            </button>
+            <button 
+                onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSave({ postId: post.id, isSaved: post.isSaved });
+                }}
+                className="flex items-center group/btn space-x-2 text-slate-500 hover:text-primary-600 transition-colors"
+                title={post.isSaved ? 'Đã lưu' : 'Lưu bài viết'}
+            >
+                 <div className="p-2 rounded-full group-hover/btn:bg-primary-50 transition-colors">
+                    <Bookmark className={`w-5 h-5 ${post.isSaved ? 'fill-primary-500 text-primary-500' : ''}`} />
+                 </div>
             </button>
           </div>
       </div>

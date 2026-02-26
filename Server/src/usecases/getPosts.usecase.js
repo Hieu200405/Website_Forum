@@ -35,7 +35,8 @@ class GetPostsUseCase {
           id: row.authorId,
           username: row.authorName || 'Người dùng ẩn danh'
         },
-        isLiked: !!parseInt(row.isLiked) // Convert to boolean
+        isLiked: !!parseInt(row.isLiked), // Convert to boolean
+        isSaved: !!parseInt(row.isSaved)
       }))
     };
   }

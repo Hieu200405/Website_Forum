@@ -30,3 +30,15 @@ export const likePost = async (postId) => {
 export const unlikePost = async (postId) => {
   return await api.delete(`/posts/${postId}/like`);
 };
+
+export const savePost = async (postId) => {
+  return await api.post(`/posts/${postId}/save`);
+};
+
+export const unsavePost = async (postId) => {
+  return await api.delete(`/posts/${postId}/save`);
+};
+
+export const getSavedPosts = async ({ page = 1, limit = 10 }) => {
+  return await api.get(`/posts/saved?page=${page}&limit=${limit}`);
+};
