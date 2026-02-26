@@ -3,7 +3,7 @@ import React from 'react';
 import useAuthStore from '@/features/auth/store/authStore';
 import PostList from '@/features/posts/components/PostList';
 import { useNavigate } from 'react-router-dom';
-import { Home, Hash, TrendingUp, PenSquare } from 'lucide-react';
+import { Home, Hash, TrendingUp, PenSquare, Bookmark } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '@/features/categories/api/categoryService';
 import { getPosts } from '@/features/posts/api/postService';
@@ -44,6 +44,7 @@ const UserHome = () => {
         <aside className="hidden lg:block col-span-3 sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar pr-2">
             <nav className="space-y-1">
                 <NavItem icon={Home} label="Bảng tin" active onClick={() => navigate('/user')} />
+                <NavItem icon={Bookmark} label="Bài đã lưu" onClick={() => navigate('/user/saved')} />
                 <div className="pt-6 pb-2">
                     <p className="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Danh mục</p>
                 </div>

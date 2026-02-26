@@ -17,6 +17,7 @@ import Unauthorized from '@/pages/auth/Unauthorized';
 import UserHome from '@/pages/user/Home';
 import UserPostDetail from '@/pages/user/PostDetail';
 import CreatePost from '@/pages/user/CreatePost';
+import SavedPostsList from '@/pages/user/SavedPosts';
 
 // Admin Pages
 import AdminDashboard from '@/pages/admin/Dashboard';
@@ -57,6 +58,7 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoute allowedRoles={['user']} />}>
          <Route path="/user" element={<UserLayout />}>
             <Route index element={<UserHome />} />
+            <Route path="saved" element={<SavedPostsList />} />
             <Route path="create-post" element={<CreatePost />} />
             <Route path="posts/:id" element={<UserPostDetail />} />
          </Route>

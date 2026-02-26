@@ -1,6 +1,7 @@
 const PostRepository = require('../repositories/post.repository');
 const CommentRepository = require('../repositories/comment.repository');
 const LikeRepository = require('../repositories/like.repository');
+const SavedPostRepository = require('../repositories/savedPost.repository');
 const ROLES = require('../constants/roles');
 
 class GetPostDetailUseCase {
@@ -31,10 +32,12 @@ class GetPostDetailUseCase {
     // 3. Lấy comments
     const comments = await CommentRepository.findAllByPostId(postId);
 
-    // 4. Check Like Status
+    // 4. Check Like & Save Status
     let isLiked = false;
+    let isSaved = false;
     if (user && user.userId) {
       isLiked = await LikeRepository.exists(user.userId, postId);
+      isSaved = await SavedPostRepository.exists(user.userId, postId);
     }
 
     // 5. Format kết quả
@@ -46,7 +49,8 @@ class GetPostDetailUseCase {
       createdAt: post.created_at,
       likesCount: post.like_count,
       commentsCount: post.comment_count, 
-      isLiked, // Added
+      isLiked,
+      isSaved,
       author: {
         id: post.author.id,
         username: post.author.username,

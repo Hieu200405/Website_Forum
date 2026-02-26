@@ -24,6 +24,9 @@ const optionalAuth = (req, res, next) => {
 // Public: Get all posts
 router.get('/', optionalAuth, PostController.getPosts);
 
+// Auth required: Get saved posts (must be before /:id to avoid conflict)
+router.get('/saved', authMiddleware, PostController.getSaved);
+
 // Public (with optional auth for viewing hidden posts): Get Detail
 router.get('/:id', optionalAuth, PostController.getPostDetail);
 
@@ -36,6 +39,10 @@ router.post('/:postId/comments', authMiddleware, rateLimit, CommentController.co
 // Auth required: Like / Unlike
 router.post('/:postId/like', authMiddleware, LikeController.like);
 router.delete('/:postId/like', authMiddleware, LikeController.unlike);
+
+// Auth required: Save / Unsave
+router.post('/:postId/save', authMiddleware, PostController.save);
+router.delete('/:postId/save', authMiddleware, PostController.unsave);
 
 // Auth required: Report
 router.post('/:postId/report', authMiddleware, ReportController.report);
