@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInView } from 'react-intersection-observer';
 import { getPosts } from '@/features/posts/api/postService';
 import PostCard from './PostCard';
 import PostCardSkeleton from './PostSkeleton';
@@ -27,18 +28,36 @@ const TabButton = ({ active, onClick, icon, label }) => {
 };
 
 const PostList = () => {
-  const [page, setPage] = useState(1);
   const [sort, setSort] = useState('newest');
+  const { ref, inView } = useInView();
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['posts', page, sort],
-    queryFn: () => getPosts({ page, limit: 10, sort }),
-    placeholderData: (previousData) => previousData,
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useInfiniteQuery({
+    queryKey: ['posts', sort],
+    queryFn: ({ pageParam = 1 }) => getPosts({ page: pageParam, limit: 10, sort }),
+    getNextPageParam: (lastPage, allPages) => {
+        // Assume API returns less than 10 items when it's the last page
+        return lastPage.data?.length === 10 ? allPages.length + 1 : undefined;
+    },
+    initialPageParam: 1,
   });
 
   const { mutate: toggleLike } = useLikePost();
 
-  const posts = data?.data || [];
+  useEffect(() => {
+    if (inView && hasNextPage) {
+        fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
+
+  // Flatten the pages array into a single array of posts
+  const posts = data?.pages.flatMap((page) => page.data || []) || [];
 
   return (
     <div className="space-y-6">
@@ -96,15 +115,23 @@ const PostList = () => {
         )}
       </div>
 
-      {/* Pagination (Tạm thời) */}
-      <div className="flex justify-center pt-8 pb-4">
-          <button 
-            className="px-6 py-2 bg-white border border-slate-200 text-slate-600 font-medium rounded-full shadow-sm hover:bg-slate-50 disabled:opacity-50 transition-all"
-            onClick={() => setPage(p => p + 1)}
-            disabled={posts.length < 10} // Simple check
-          >
-              Xem thêm bài viết
-          </button>
+      {/* Infinite Scroll trigger / Loading state */}
+      <div className="flex justify-center pt-8 pb-4" ref={ref}>
+          {isFetchingNextPage ? (
+              <div className="flex space-x-2 items-center text-slate-500 font-medium">
+                  <div className="w-4 h-4 rounded-full border-2 border-primary-500 border-t-transparent animate-spin"></div>
+                  <span>Đang tải thêm...</span>
+              </div>
+          ) : hasNextPage ? (
+              <button 
+                className="px-6 py-2 bg-white border border-slate-200 text-slate-600 font-medium rounded-full shadow-sm hover:bg-slate-50 transition-all cursor-pointer"
+                onClick={() => fetchNextPage()}
+              >
+                  Xem thêm
+              </button>
+          ) : posts.length > 0 ? (
+              <div className="text-slate-400 font-medium text-sm">Bạn đã xem hết bài viết!</div>
+          ) : null}
       </div>
     </div>
   );

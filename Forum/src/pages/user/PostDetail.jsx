@@ -1,5 +1,7 @@
 
 import React from 'react';
+import DOMPurify from 'dompurify';
+import parse from 'html-react-parser';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getPostDetail } from '@/features/posts/api/commentService';
@@ -82,10 +84,8 @@ const UserPostDetail = () => {
                   </div>
 
                   {/* Post Body */}
-                  <div className="prose prose-slate max-w-none text-slate-800 leading-8 text-[16px]">
-                      {post.content.split('\n').map((line, i) => (
-                          <p key={i} className="mb-4">{line}</p>
-                      ))}
+                  <div className="prose prose-slate max-w-none text-slate-800 leading-8 text-[16px] ql-editor px-0">
+                      {parse(DOMPurify.sanitize(post.content || ''))}
                   </div>
               </div>
 
