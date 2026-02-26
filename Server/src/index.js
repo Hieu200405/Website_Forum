@@ -11,6 +11,7 @@ const bannedWordRoute = require('./routes/admin/bannedWord.route');
 const reportRoute = require('./routes/report.route');
 const moderationRoute = require('./routes/moderation.route');
 const notificationRoute = require('./routes/notification.route');
+const uploadRoute = require('./routes/upload.route');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 
@@ -36,6 +37,7 @@ app.use('/api/posts', postRoute);
 app.use('/api/comments', commentRoute);
 app.use('/api/reports', reportRoute);
 app.use('/api/notifications', notificationRoute);
+app.use('/api/upload', uploadRoute);
 
 app.get('/', (req, res) => res.send('Forum API running'));
 app.get('/', (req, res) => {
