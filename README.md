@@ -24,14 +24,22 @@ The application strictly separates functionalities and layouts based on user rol
   - Create, Like, and Comment on posts.
   - View detailed post pages.
 
-### 2. **Modern UX/UI**
+### 2. **Advanced Functionality & Integrations**
+
+- **Real-time Notifications**: Instant alerts for likes and comments powered by **Socket.io**.
+- **Social Login**: Seamless one-tap authentication using **Google OAuth 2.0**.
+- **Rich Text Editor with Cloud Storage**: Integrated **ReactQuill** editor allowing direct image uploads stored securely on **Cloudinary**.
+- **Personalized Content**: "Save Post" / Bookmark functionality with optimistic UI updates.
+- **SEO Optimized**: Dynamic Meta Tags and Open Graph data generation using **React Helmet Async** for perfect social media sharing.
+
+### 3. **Modern UX/UI**
 
 - **Tailwind CSS v4**: High-performance utility-first styling.
 - **Responsive Design**: Fully adaptable to mobile and desktop.
 - **Interactive Components**: Modals, Toast Notifications, Loading Skeletons.
 - **Glassmorphism**: Modern aesthetic throughout the application.
 
-### 3. **Tech Stack**
+### 4. **Tech Stack**
 
 - **Frontend**: React (Vite), Zustand (State Management), React Query (Server State), React Router v6.
 - **Backend**: Node.js, Express.js.
@@ -69,6 +77,13 @@ DB_USER=root
 DB_PASS=your_password
 DB_NAME=forum_db
 JWT_SECRET=your_jwt_secret_key
+
+# Advanced Features Config
+CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_key
+CLOUDINARY_API_SECRET=your_cloudinary_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
 **Seed the Database (Create Tables & Default Data):**
