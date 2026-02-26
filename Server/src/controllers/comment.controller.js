@@ -20,7 +20,7 @@ class CommentController {
         postId, 
         content, 
         parentId: null 
-      }, ip);
+      }, ip, req.app);
 
       res.status(201).json({
         success: true,
@@ -43,7 +43,7 @@ class CommentController {
       const userId = req.user.userId;
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
       
-      const result = await ReplyCommentUseCase.execute(userId, req.body, ip);
+      const result = await ReplyCommentUseCase.execute(userId, req.body, ip, req.app);
       
       res.status(201).json({
         success: true,
@@ -66,7 +66,7 @@ class CommentController {
       const userId = req.user.userId;
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
       
-      const result = await CreateCommentUseCase.execute(userId, req.body, ip);
+      const result = await CreateCommentUseCase.execute(userId, req.body, ip, req.app);
       
       res.status(201).json({
         success: true,

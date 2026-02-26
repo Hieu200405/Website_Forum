@@ -2,6 +2,7 @@ const CommentRepository = require('../repositories/comment.repository');
 const PostRepository = require('../repositories/post.repository');
 const ModerationService = require('../services/moderation.service');
 const LoggingService = require('../services/logging.service');
+const NotificationService = require('../services/notification.service');
 
 class ReplyCommentUseCase {
   /**
@@ -10,7 +11,7 @@ class ReplyCommentUseCase {
    * @param {object} input - { postId, parentCommentId, content }
    * @param {string} ipAddress 
    */
-  static async execute(userId, { postId, parentCommentId, content }, ipAddress) {
+  static async execute(userId, { postId, parentCommentId, content }, ipAddress, app) {
     // 1. Validate Input
     if (!content || !content.trim()) {
       throw { status: 400, message: 'Nội dung trả lời không được để trống' };
@@ -69,6 +70,17 @@ class ReplyCommentUseCase {
         status
       }
     );
+
+    // 8. Gửi thông báo cho người được reply
+    if (app && parentComment.user_id && status === 'active') {
+       await NotificationService.createNotification(app, {
+         user_id: parentComment.user_id,
+         sender_id: userId,
+         type: 'COMMENT',
+         reference_id: postId,
+         content: 'đã trả lời bình luận của bạn'
+       });
+    }
 
     return {
       id: reply.id,

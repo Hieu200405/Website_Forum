@@ -3,6 +3,7 @@ import React from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '@/features/auth/store/authStore';
 import { Home, PlusSquare, LogOut, User as UserIcon } from 'lucide-react';
+import NotificationDropdown from '@/features/notifications/components/NotificationDropdown';
 
 const UserLayout = () => {
     const { user, logout } = useAuthStore();
@@ -37,6 +38,7 @@ const UserLayout = () => {
                     </nav>
 
                     <div className="flex items-center space-x-4">
+                        <NotificationDropdown />
                         <div className="flex items-center space-x-2">
                             <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
                                 {user?.username ? (

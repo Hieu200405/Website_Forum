@@ -1,6 +1,7 @@
 const LikeRepository = require('../repositories/like.repository');
 const PostRepository = require('../repositories/post.repository');
 const LoggingService = require('../services/logging.service');
+const NotificationService = require('../services/notification.service');
 
 class LikePostUseCase {
   /**
@@ -9,7 +10,7 @@ class LikePostUseCase {
    * @param {number} postId 
    * @param {string} ipAddress 
    */
-  static async execute(userId, postId, ipAddress) {
+  static async execute(userId, postId, ipAddress, app) {
     // 1. Kiểm tra Post tồn tại
     const post = await PostRepository.findById(postId);
     if (!post) {
@@ -35,6 +36,17 @@ class LikePostUseCase {
 
     // 6. Log
     await LoggingService.log(userId, 'LIKE_POST', ipAddress, { postId });
+
+    // 7. Gửi thông báo
+    if (app && post.user_id) {
+       await NotificationService.createNotification(app, {
+         user_id: post.user_id,
+         sender_id: userId,
+         type: 'LIKE',
+         reference_id: postId,
+         content: 'đã thích bài viết của bạn'
+       });
+    }
 
     return { message: 'Đã like bài viết' };
   }
