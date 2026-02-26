@@ -12,7 +12,7 @@ class LikeController {
       const { postId } = req.params;
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
 
-      const result = await LikePostUseCase.execute(userId, postId, ip);
+      const result = await LikePostUseCase.execute(userId, postId, ip, req.app);
       res.status(200).json({ success: true, message: result.message });
     } catch (error) {
       res.status(error.status || 500).json({ success: false, message: error.message });
@@ -28,7 +28,7 @@ class LikeController {
       const { postId } = req.params;
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
 
-      const result = await UnlikePostUseCase.execute(userId, postId, ip);
+      const result = await UnlikePostUseCase.execute(userId, postId, ip, req.app);
       res.status(200).json({ success: true, message: result.message });
     } catch (error) {
       res.status(error.status || 500).json({ success: false, message: error.message });
