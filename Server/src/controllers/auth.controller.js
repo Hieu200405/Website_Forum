@@ -1,5 +1,6 @@
 const RegisterUseCase = require('../usecases/register.usecase');
 const LoginUseCase = require('../usecases/login.usecase');
+const GoogleLoginUseCase = require('../usecases/googleLogin.usecase');
 
 /**
  * Auth Controller - Điều hướng các request đến UseCase tương ứng
@@ -51,5 +52,24 @@ exports.login = async (req, res) => {
     res.status(status).json({
       message, // Theo yêu cầu bảo mật: "Email hoặc mật khẩu không chính xác" (từ UseCase)
     });
+  }
+};
+
+/**
+ * Xử lý đăng nhập Google OAuth
+ */
+exports.googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+
+    const result = await GoogleLoginUseCase.execute(token, ip);
+    
+    res.status(200).json(result);
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || 'Lỗi hệ thống khi đăng nhập Google';
+    
+    res.status(status).json({ message });
   }
 };

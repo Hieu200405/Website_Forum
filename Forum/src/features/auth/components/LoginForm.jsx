@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { login } from '../api/authService';
+import { GoogleLogin } from '@react-oauth/google';
+import { login, googleLogin } from '../api/authService';
 import useAuthStore from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast'; // Need to setup Toaster
@@ -12,10 +13,7 @@ const LoginForm = () => {
   const setAuth = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const mutation = useMutation({
-    mutationFn: login,
-    onSuccess: (data) => {
-      // Backend returns { success: true, accessToken, user }
+  const handleLoginSuccess = (data) => {
       const user = { ...data.user, role: data.user.role.toLowerCase() };
       setAuth(user, data.accessToken);
       toast.success('Đăng nhập thành công!');
@@ -27,7 +25,11 @@ const LoginForm = () => {
       } else {
         navigate('/user');
       }
-    },
+  };
+
+  const mutation = useMutation({
+    mutationFn: login,
+    onSuccess: handleLoginSuccess,
     onError: (error) => {
         // Error from axios interceptor: { message, ... }
         if (error.response?.status === 429) {
@@ -35,6 +37,13 @@ const LoginForm = () => {
         } else {
            toast.error(error.message || 'Đăng nhập thất bại');
         }
+    }
+  });
+  const googleMutation = useMutation({
+    mutationFn: (token) => googleLogin(token),
+    onSuccess: handleLoginSuccess,
+    onError: (error) => {
+        toast.error(error.message || 'Đăng nhập Google thất bại');
     }
   });
 
@@ -68,10 +77,31 @@ const LoginForm = () => {
       <Button 
         type="submit" 
         className="w-full" 
-        isLoading={mutation.isPending}
+        isLoading={mutation.isPending || googleMutation.isPending}
       >
         Đăng nhập
       </Button>
+      
+      <div className="relative my-6 text-center">
+        <div className="absolute inset-0 flex items-center">
+             <div className="w-full border-t border-gray-300"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+             <span className="px-2 bg-white text-gray-500">Hoặc tiếp tục với</span>
+        </div>
+      </div>
+
+      <div className="flex justify-center flex-col items-center">
+          <GoogleLogin
+              onSuccess={credentialResponse => {
+                  googleMutation.mutate(credentialResponse.credential);
+              }}
+              onError={() => {
+                  toast.error('Gặp lỗi khi truy cập Google');
+              }}
+              useOneTap
+          />
+      </div>
     </form>
   );
 };

@@ -3,6 +3,7 @@ import React from 'react';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { getPostDetail } from '@/features/posts/api/commentService';
 import { useLikePost } from '@/features/posts/hooks/useLikePost';
@@ -42,8 +43,24 @@ const UserPostDetail = () => {
   );
   }
 
+  // Function to extract text from HTML for meta description
+  const getTextFromHtml = (html) => {
+    const doc = new DOMParser().parseFromString(html || '', 'text/html');
+    return doc.body.textContent || "";
+  };
+
+  const plainExcerpt = post?.content ? getTextFromHtml(post.content).substring(0, 160) + '...' : 'Diễn đàn chia sẻ kiến thức trực tuyến';
+
   return (
       <div className="max-w-4xl mx-auto">
+          <Helmet>
+              <title>{post.title} | Forum</title>
+              <meta name="description" content={plainExcerpt} />
+              <meta property="og:title" content={post.title} />
+              <meta property="og:description" content={plainExcerpt} />
+              <meta property="og:type" content="article" />
+          </Helmet>
+
           {/* Back Button */}
           <button 
             onClick={() => navigate('/user')}
