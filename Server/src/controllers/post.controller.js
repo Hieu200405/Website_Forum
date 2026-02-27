@@ -34,6 +34,56 @@ class PostController {
 
 
   /**
+   * DELETE /api/posts/:id
+   */
+  static async delete(req, res) {
+    try {
+      const { id } = req.params;
+      const userId = req.user.userId;
+      const role = req.user.role;
+
+      // Find post to verify ownership
+      const post = await require('../repositories/post.repository').findById(id);
+      if (!post) return res.status(404).json({ success: false, message: 'Bài viết không tồn tại' });
+      if (post.user_id !== userId && role !== 'admin' && role !== 'moderator') {
+        return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa bài viết này' });
+      }
+
+      await require('../repositories/post.repository').delete(id);
+      res.status(200).json({ success: true, message: 'Đã xóa bài viết' });
+    } catch (error) {
+      res.status(error.status || 500).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * PUT /api/posts/:id
+   */
+  static async update(req, res) {
+    try {
+      const { id } = req.params;
+      const userId = req.user.userId;
+      const { title, content, categoryId } = req.body;
+
+      const post = await require('../repositories/post.repository').findById(id);
+      if (!post) return res.status(404).json({ success: false, message: 'Bài viết không tồn tại' });
+      if (post.user_id !== userId) {
+        return res.status(403).json({ success: false, message: 'Bạn không có quyền sửa bài viết này' });
+      }
+
+      const updateData = {};
+      if (title) updateData.title = title;
+      if (content) updateData.content = content;
+      if (categoryId) updateData.category_id = categoryId;
+
+      await require('../models/post.model').update(updateData, { where: { id } });
+      res.status(200).json({ success: true, message: 'Cập nhật bài viết thành công' });
+    } catch (error) {
+      res.status(error.status || 500).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
    * GET /api/posts
    */
   static async getPosts(req, res) {

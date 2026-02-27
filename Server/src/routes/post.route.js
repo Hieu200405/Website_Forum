@@ -6,7 +6,7 @@ const ReportController = require('../controllers/report.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const rateLimit = require('../middlewares/rateLimit.middleware');
 
-// Middleware optional auth: Thử decode token, nếu lỗi hoặc không có thì next() với guest
+// Middleware optional auth
 const optionalAuth = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -24,10 +24,19 @@ const optionalAuth = (req, res, next) => {
 // Public: Get all posts
 router.get('/', optionalAuth, PostController.getPosts);
 
-// Auth required: Get saved posts (must be before /:id to avoid conflict)
+// Auth required: Get saved posts (must be before /:id)
 router.get('/saved', authMiddleware, PostController.getSaved);
 
-// Public (with optional auth for viewing hidden posts): Get Detail
+// Auth required: Create Post (with Rate Limit)
+router.post('/', authMiddleware, rateLimit, PostController.create);
+
+// Auth required: Update Post - MUST be here before sub-routes like /:postId/like
+router.put('/:id', authMiddleware, PostController.update);
+
+// Auth required: Delete Post - MUST be here before /:postId/like etc.
+router.delete('/:id', authMiddleware, PostController.delete);
+
+// Public: Get post detail
 router.get('/:id', optionalAuth, PostController.getPostDetail);
 
 // Public: Get comments for a post
@@ -46,8 +55,5 @@ router.delete('/:postId/save', authMiddleware, PostController.unsave);
 
 // Auth required: Report
 router.post('/:postId/report', authMiddleware, ReportController.report);
-
-// Auth required: Create Post (with Rate Limit)
-router.post('/', authMiddleware, rateLimit, PostController.create);
 
 module.exports = router;

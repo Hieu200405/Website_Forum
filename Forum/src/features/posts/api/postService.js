@@ -1,10 +1,14 @@
 import api from '@/lib/axios';
 
 // Lấy danh sách bài viết
-export const getPosts = async ({ page = 1, limit = 10, sort = 'newest' }) => {
+export const getPosts = async ({ page = 1, limit = 10, sort = 'newest', authorId = null }) => {
   // Backend trả về: { data: [...], page, limit, total }
-  // Endpoint: GET /posts?page=1&limit=10&sort=newest
-  return await api.get(`/posts?page=${page}&limit=${limit}&sort=${sort}`);
+  // Endpoint: GET /posts?page=1&limit=10&sort=newest&authorId=...
+  let url = `/posts?page=${page}&limit=${limit}&sort=${sort}`;
+  if (authorId) {
+    url += `&authorId=${authorId}`;
+  }
+  return await api.get(url);
 };
 
 // Tạo bài viết mới

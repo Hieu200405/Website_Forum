@@ -12,6 +12,11 @@ const useAuthStore = create(
         set({ user, token });
       },
 
+      // Update only user info, keep token
+      updateUser: (userData) => {
+        set((state) => ({ user: { ...state.user, ...userData } }));
+      },
+
       logout: () => {
         localStorage.removeItem('token');
         set({ user: null, token: null });
