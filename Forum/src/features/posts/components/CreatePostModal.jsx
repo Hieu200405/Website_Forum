@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo } from "react";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { createPost, updatePost } from "../api/postService";
 import { getCategories } from "@/features/categories/api/categoryService";
@@ -20,10 +20,11 @@ const CreatePostModal = () => {
   });
 
   // Fetch categories
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
+  const { data: rawCategories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategories,
   });
+  const categoriesList = Array.isArray(rawCategories) ? rawCategories : rawCategories?.data || [];
 
   // Reset form when editPost changes
   React.useEffect(() => {
@@ -112,13 +113,26 @@ const CreatePostModal = () => {
     e.preventDefault();
     if (
       !formData.title.trim() ||
-      !formData.content.trim() ||
-      !formData.categoryId
+      !formData.content.trim()
     ) {
-      toast.error("Vui lòng điền đầy đủ thông tin và chọn danh mục");
+      toast.error("Vui lòng điền đầy đủ Tiêu đề và Nội dung");
       return;
     }
-    mutation.mutate(formData);
+    
+    const payload = { ...formData };
+    
+    // Default to "Hỏi đáp" if no category is selected
+    if (!payload.categoryId) {
+        const defaultCategory = categoriesList.find(c => c.name.toLowerCase().includes('hỏi đáp'));
+        if (defaultCategory) {
+            payload.categoryId = defaultCategory.id;
+        } else if (categoriesList.length > 0) {
+            // Fallback to first category if 'Hỏi đáp' is not found
+            payload.categoryId = categoriesList[0].id;
+        }
+    }
+    
+    mutation.mutate(payload);
   };
 
   return (
@@ -150,13 +164,12 @@ const CreatePostModal = () => {
             className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-slate-700"
             disabled={categoriesLoading}
           >
-            <option value="">-- Chọn danh mục --</option>
-            {Array.isArray(categories) &&
-              categories.map((category) => (
+            <option value="">-- Chọn danh mục (Tùy chọn) --</option>
+            {categoriesList.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
                 </option>
-              ))}
+            ))}
           </select>
         </div>
 
