@@ -30,8 +30,8 @@ const CreatePostModal = () => {
   React.useEffect(() => {
     if (editPost) {
       setFormData({
-        title: editPost.title,
-        content: editPost.content,
+        title: editPost.title || "",
+        content: editPost.content || "",
         categoryId: editPost.categoryId || "",
       });
     } else {
@@ -112,8 +112,8 @@ const CreatePostModal = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (
-      !formData.title.trim() ||
-      !formData.content.trim()
+      !(formData.title || "").trim() ||
+      !(formData.content || "").trim()
     ) {
       toast.error("Vui lòng điền đầy đủ Tiêu đề và Nội dung");
       return;
