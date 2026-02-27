@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getPosts } from '@/features/posts/api/postService';
 import api from '@/lib/axios';
-import { Calendar, FileText, Loader2, Info, Trash2, Pencil } from 'lucide-react';
+import { Calendar, FileText, Loader2, Info, Trash2, Pencil, Settings2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import useAuthStore from '@/features/auth/store/authStore';
@@ -99,6 +99,17 @@ const Profile = () => {
                              <span className="flex-1">{user.bio || 'Chưa có tiểu sử.'}</span>
                          </div>
                      </div>
+
+                     {/* Settings button - only for own profile */}
+                     {isOwnProfile && (
+                         <button
+                             onClick={() => navigate('/user/settings')}
+                             className="mt-5 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-primary-50 text-slate-600 hover:text-primary-700 border border-slate-200 hover:border-primary-300 font-medium text-sm rounded-xl transition-all"
+                         >
+                             <Settings2 className="w-4 h-4" />
+                             Cài đặt tài khoản
+                         </button>
+                     )}
                 </div>
             </div>
 

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '@/features/auth/store/authStore';
-import { Home, PlusSquare, LogOut, User as UserIcon } from 'lucide-react';
+import { Home, PlusSquare, LogOut, User as UserIcon, Settings2 } from 'lucide-react';
 import NotificationDropdown from '@/features/notifications/components/NotificationDropdown';
 
 const UserLayout = () => {
@@ -53,16 +53,18 @@ const UserLayout = () => {
                             </Link>
                         )}
                         <NotificationDropdown />
-                        <div className="flex items-center space-x-2">
-                            <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
-                                {user?.username ? (
+                        <Link to={`/user/profile/${user?.id}`} className="flex items-center space-x-2 group">
+                            <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden ring-2 ring-transparent group-hover:ring-primary-400 transition">
+                                {user?.avatar ? (
+                                    <img src={user.avatar} alt="Avatar" className="h-full w-full object-cover" />
+                                ) : user?.username ? (
                                     <img src={`https://ui-avatars.com/api/?name=${user.username}&background=random`} alt="Avatar" className="h-full w-full object-cover" />
                                 ) : (
                                     <UserIcon className="w-5 h-5 text-slate-400" />
                                 )}
                             </div>
-                            <span className="text-sm font-medium text-slate-700 hidden sm:block">{user?.username}</span>
-                        </div>
+                            <span className="text-sm font-medium text-slate-700 hidden sm:block group-hover:text-primary-600 transition">{user?.username}</span>
+                        </Link>
                         <button onClick={handleLogout} className="text-slate-400 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-slate-100" title="Đăng xuất">
                             <LogOut className="w-5 h-5" />
                         </button>
