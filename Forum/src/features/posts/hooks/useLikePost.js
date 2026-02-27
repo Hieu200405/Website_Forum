@@ -47,25 +47,63 @@ export const useLikePost = () => {
                 // This might be tricky if pages are different. 
                 // A better approach for exact update is to iterate over all active queries.
                 
-                // Simplify: Just found the post in the current page data and update it.
-                if (!oldData.data) return oldData;
-
-                return {
-                    ...oldData,
-                    data: oldData.data.map(post => {
+                // If it's a standard paginated response { data: [...] }
+                if (Array.isArray(oldData.data)) {
+                    return {
+                        ...oldData,
+                        data: oldData.data.map(post => {
+                            if (post.id === postId) {
+                                return {
+                                    ...post,
+                                    isLiked: !isLiked,
+                                    likeCount: isLiked ? (post.likeCount || 1) - 1 : (post.likeCount || 0) + 1,
+                                    likesCount: isLiked ? (post.likesCount || 1) - 1 : (post.likesCount || 0) + 1,
+                                    like_count: isLiked ? (post.like_count || 1) - 1 : (post.like_count || 0) + 1
+                                };
+                            }
+                            return post;
+                        })
+                    };
+                }
+                
+                // If the data is just an array
+                if (Array.isArray(oldData)) {
+                    return oldData.map(post => {
                         if (post.id === postId) {
                             return {
                                 ...post,
                                 isLiked: !isLiked,
-                                likeCount: isLiked ? post.likeCount - 1 : post.likeCount + 1
+                                likeCount: isLiked ? (post.likeCount || 1) - 1 : (post.likeCount || 0) + 1,
+                                likesCount: isLiked ? (post.likesCount || 1) - 1 : (post.likesCount || 0) + 1,
+                                like_count: isLiked ? (post.like_count || 1) - 1 : (post.like_count || 0) + 1
                             };
                         }
                         return post;
-                    })
-                };
+                    });
+                }
+
+                return oldData;
             });
 
-            return { previousPosts };
+            // Cancel and Snapshot the previous single post value
+            await queryClient.cancelQueries({ queryKey: ['post', postId.toString()] });
+            const previousPost = queryClient.getQueryData(['post', postId.toString()]);
+            
+            // Optimistically update the single post
+            if (previousPost) {
+                 queryClient.setQueryData(['post', postId.toString()], {
+                     ...previousPost,
+                     data: {
+                         ...previousPost.data,
+                         isLiked: !isLiked,
+                         likeCount: isLiked ? (previousPost.data.likeCount || 1) - 1 : (previousPost.data.likeCount || 0) + 1,
+                         likesCount: isLiked ? (previousPost.data.likesCount || 1) - 1 : (previousPost.data.likesCount || 0) + 1,
+                         like_count: isLiked ? (previousPost.data.like_count || 1) - 1 : (previousPost.data.like_count || 0) + 1
+                     }
+                 });
+            }
+
+            return { previousPosts, previousPost };
         },
         onError: (err, newPost, context) => {
             if (err.message === 'UNAUTHENTICATED') {
@@ -76,6 +114,9 @@ export const useLikePost = () => {
             // Rollback
             if (context?.previousPosts) {
                 queryClient.setQueriesData({ queryKey: ['posts'] }, context.previousPosts);
+            }
+            if (context?.previousPost) {
+                queryClient.setQueryData(['post', newPost.postId.toString()], context.previousPost);
             }
             toast.error('Có lỗi xảy ra khi like bài viết');
         },

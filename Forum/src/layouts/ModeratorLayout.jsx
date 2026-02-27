@@ -64,9 +64,15 @@ const ModeratorLayout = () => {
                             <p className="text-xs text-slate-500 uppercase">Moderator</p>
                         </div>
                      </div>
+                     <Link 
+                        to="/user"
+                        className="w-full flex justify-center items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-sm transition-colors mb-2"
+                     >
+                        Quay lại Forum
+                     </Link>
                      <button 
                         onClick={handleLogout}
-                        className="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-sm transition-colors"
+                        className="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-red-700 hover:text-white text-slate-300 py-2 rounded-lg text-sm transition-colors"
                      >
                         <LogOut className="w-4 h-4" />
                         <span>Đăng xuất</span>
