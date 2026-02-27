@@ -4,7 +4,7 @@ const User = require('../models/user.model');
 exports.getNotifications = async (req, res) => {
   try {
     const notifications = await Notification.findAll({
-      where: { user_id: req.user.id },
+      where: { user_id: req.user.userId },
       include: [
         { model: User, as: 'sender', attributes: ['id', 'username'] }
       ],
@@ -22,7 +22,7 @@ exports.getNotifications = async (req, res) => {
 exports.markAsRead = async (req, res) => {
   try {
     const notification = await Notification.findOne({
-      where: { id: req.params.id, user_id: req.user.id }
+      where: { id: req.params.id, user_id: req.user.userId }
     });
 
     if (!notification) {
