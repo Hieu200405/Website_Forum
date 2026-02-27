@@ -48,7 +48,7 @@ const InputField = ({ label, id, type = 'text', value, onChange, placeholder, hi
 
 const Settings = () => {
     const navigate = useNavigate();
-    const { user: authUser, login: setAuth } = useAuthStore();
+    const { updateUser } = useAuthStore();
     const queryClient = useQueryClient();
     const fileInputRef = useRef(null);
 
@@ -92,10 +92,8 @@ const Settings = () => {
         onSuccess: (data) => {
             toast.success('Cập nhật thành công!');
             queryClient.invalidateQueries({ queryKey: ['me'] });
-            // Update auth store so NavBar reflects new username/avatar
-            if (authUser) {
-                setAuth({ ...authUser, username: data.username, avatar: data.avatar }, null);
-            }
+            // Update auth store so NavBar reflects new username/avatar (safe - no token change)
+            updateUser({ username: data.username, avatar: data.avatar });
         },
         onError: (err) => {
             toast.error(err?.message || 'Có lỗi xảy ra');
