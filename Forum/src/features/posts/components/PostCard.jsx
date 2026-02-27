@@ -27,10 +27,20 @@ const PostCard = ({ post, onLike }) => {
     <div className="group bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-200 transition-all duration-300">
       {/* Header Info */}
       <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center space-x-3 cursor-pointer" onClick={handlePostClick}>
+        <div 
+            className="flex items-center space-x-3 cursor-pointer" 
+            onClick={(e) => { 
+                e.stopPropagation(); 
+                navigate(`/user/profile/${post.author?.id}`); 
+            }}
+        >
             <div className="relative">
-                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-indigo-500 to-primary-500 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                    {post.author?.username?.[0]?.toUpperCase() || 'U'}
+                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-indigo-500 to-primary-500 text-white flex items-center justify-center font-bold text-lg shadow-sm overflow-hidden">
+                    {post.author?.avatar ? (
+                        <img src={post.author.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                        post.author?.username?.[0]?.toUpperCase() || 'U'
+                    )}
                 </div>
                 {/* Online Indicator (Fake) */}
                 <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-white"></div>

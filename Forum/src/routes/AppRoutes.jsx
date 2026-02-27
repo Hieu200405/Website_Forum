@@ -18,6 +18,7 @@ import UserHome from '@/pages/user/Home';
 import UserPostDetail from '@/pages/user/PostDetail';
 import CreatePost from '@/pages/user/CreatePost';
 import SavedPostsList from '@/pages/user/SavedPosts';
+import Profile from '@/pages/user/Profile';
 
 // Admin Pages
 import AdminDashboard from '@/pages/admin/Dashboard';
@@ -61,6 +62,7 @@ const AppRoutes = () => {
             <Route path="saved" element={<SavedPostsList />} />
             <Route path="create-post" element={<CreatePost />} />
             <Route path="posts/:id" element={<UserPostDetail />} />
+            <Route path="profile/:userId" element={<Profile />} />
          </Route>
       </Route>
 

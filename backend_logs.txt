@@ -1,0 +1,200 @@
+﻿        u.avatar as authorAvatar,
+        c.name as categoryName,
+        COUNT(DISTINCT l.id) as likeCount,
+        COUNT(DISTINCT cm.id) as commentCount,
+        MAX(CASE WHEN l.user_id = 9 THEN 1 ELSE 0 END) as isLiked,
+        MAX(CASE WHEN sp.user_id = 9 THEN 1 ELSE 0 END) as isSaved
+      FROM posts p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN likes l ON p.id = l.post_id
+      LEFT JOIN comments cm ON p.id = cm.post_id AND cm.status = 'active'
+      LEFT JOIN saved_posts sp ON p.id = sp.post_id
+      WHERE p.status = 'active'
+      GROUP BY p.id, u.username, u.avatar, c.name
+      ORDER BY p.created_at DESC
+      LIMIT 10 OFFSET 0
+Executing (default): SELECT `Notification`.`id`, `Notification`.`user_id`, `Notification`.`sender_id`, `Notification`.`type`, `Notification`.`reference_id`, `Notification`.`content`, `Notification`.`isRead`, `Notification`.`created_at`, `Notification`.`updated_at`, `sender`.`id` AS `sender.id`, `sender`.`username` AS `sender.username` FROM `notifications` AS `Notification` LEFT OUTER JOIN `users` AS `sender` ON `Notification`.`sender_id` = `sender`.`id` WHERE `Notification`.`user_id` = 9 ORDER BY `Notification`.`created_at` DESC LIMIT 20;
+Executing (default): SELECT COUNT(*) as total FROM posts p WHERE p.status = 'active'
+Executing (default): SELECT COUNT(*) as total FROM posts p WHERE p.status = 'active'
+Executing (default): SELECT `id`, `username`, `email`, `password`, `avatar`, `bio`, `role`, `status`, `banned_reason`, `banned_at`, `created_at`, `updated_at` FROM `users` AS `User` WHERE `User`.`id` = 9;
+Executing (default): SELECT count(`SavedPost`.`id`) AS `count` FROM `saved_posts` AS `SavedPost` INNER JOIN `posts` AS `Post` ON `SavedPost`.`post_id` = `Post`.`id` AND `Post`.`status` = 'active' LEFT OUTER JOIN `users` AS `Post->author` ON `Post`.`user_id` = `Post->author`.`id` LEFT OUTER JOIN `categories` AS `Post->category` ON `Post`.`category_id` = `Post->category`.`id` WHERE `SavedPost`.`user_id` = 9;
+Executing (default): SELECT `SavedPost`.`id`, `SavedPost`.`user_id`, `SavedPost`.`post_id`, `SavedPost`.`created_at`, `Post`.`id` AS `Post.id`, `Post`.`title` AS `Post.title`, `Post`.`content` AS `Post.content`, `Post`.`user_id` AS `Post.user_id`, `Post`.`category_id` AS `Post.category_id`, `Post`.`status` AS `Post.status`, `Post`.`like_count` AS `Post.like_count`, `Post`.`comment_count` AS `Post.comment_count`, `Post`.`hide_reason` AS `Post.hide_reason`, `Post`.`created_at` AS `Post.created_at`, `Post`.`updated_at` AS `Post.updated_at`, `Post->author`.`id` AS `Post.author.id`, `Post->author`.`username` AS `Post.author.username`, `Post->category`.`id` AS `Post.category.id`, `Post->category`.`name` AS `Post.category.name` FROM `saved_posts` AS `SavedPost` INNER JOIN `posts` AS `Post` ON `SavedPost`.`post_id` = `Post`.`id` AND `Post`.`status` = 'active' LEFT OUTER JOIN `users` AS `Post->author` ON `Post`.`user_id` = `Post->author`.`id` LEFT OUTER JOIN `categories` AS `Post->category` ON `Post`.`category_id` = `Post->category`.`id` WHERE `SavedPost`.`user_id` = 9 ORDER BY `SavedPost`.`created_at` DESC LIMIT 0, 100;
+Executing (default): SELECT count(*) AS `count` FROM `likes` AS `Like` WHERE `Like`.`post_id` = 13;
+Executing (default): SELECT count(*) AS `count` FROM `likes` AS `Like` WHERE `Like`.`post_id` = 3;
+Executing (default): SELECT count(*) AS `count` FROM `comments` AS `Comment` WHERE `Comment`.`post_id` = 13 AND `Comment`.`status` = 'active';
+Executing (default): SELECT count(*) AS `count` FROM `comments` AS `Comment` WHERE `Comment`.`post_id` = 3 AND `Comment`.`status` = 'active';
+Executing (default): SELECT `id`, `user_id`, `post_id`, `created_at` FROM `likes` AS `Like` WHERE `Like`.`post_id` = 13 AND `Like`.`user_id` = 9 LIMIT 1;
+Executing (default): SELECT `id`, `user_id`, `post_id`, `created_at` FROM `likes` AS `Like` WHERE `Like`.`post_id` = 3 AND `Like`.`user_id` = 9 LIMIT 1;
+Executing (default): SELECT 
+        p.id, 
+        p.title, 
+        p.created_at as createdAt,
+        p.user_id as authorId,
+        u.username as authorName,
+        u.avatar as authorAvatar,
+        c.name as categoryName,
+        COUNT(DISTINCT l.id) as likeCount,
+        COUNT(DISTINCT cm.id) as commentCount,
+        MAX(CASE WHEN l.user_id = 9 THEN 1 ELSE 0 END) as isLiked,
+        MAX(CASE WHEN sp.user_id = 9 THEN 1 ELSE 0 END) as isSaved
+      FROM posts p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN likes l ON p.id = l.post_id
+      LEFT JOIN comments cm ON p.id = cm.post_id AND cm.status = 'active'
+      LEFT JOIN saved_posts sp ON p.id = sp.post_id
+      WHERE p.status = 'active'
+      GROUP BY p.id, u.username, u.avatar, c.name
+      ORDER BY p.created_at DESC
+      LIMIT 10 OFFSET 0
+Executing (default): SELECT COUNT(*) as total FROM posts p WHERE p.status = 'active'
+Executing (default): SELECT `id`, `name`, `description` FROM `categories` AS `Category`;
+Executing (default): SELECT 
+        p.id, 
+        p.title, 
+        p.created_at as createdAt,
+        p.user_id as authorId,
+        u.username as authorName,
+        u.avatar as authorAvatar,
+        c.name as categoryName,
+        COUNT(DISTINCT l.id) as likeCount,
+        COUNT(DISTINCT cm.id) as commentCount,
+        MAX(CASE WHEN l.user_id = 9 THEN 1 ELSE 0 END) as isLiked,
+        MAX(CASE WHEN sp.user_id = 9 THEN 1 ELSE 0 END) as isSaved
+      FROM posts p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN likes l ON p.id = l.post_id
+      LEFT JOIN comments cm ON p.id = cm.post_id AND cm.status = 'active'
+      LEFT JOIN saved_posts sp ON p.id = sp.post_id
+      WHERE p.status = 'active'
+      GROUP BY p.id, u.username, u.avatar, c.name
+      ORDER BY likeCount DESC, p.created_at DESC
+      LIMIT 5 OFFSET 0
+Executing (default): SELECT COUNT(*) as total FROM posts p WHERE p.status = 'active'
+Executing (default): SELECT 
+        p.id, 
+        p.title, 
+        p.created_at as createdAt,
+        p.user_id as authorId,
+        u.username as authorName,
+        u.avatar as authorAvatar,
+        c.name as categoryName,
+        COUNT(DISTINCT l.id) as likeCount,
+        COUNT(DISTINCT cm.id) as commentCount,
+        MAX(CASE WHEN l.user_id = 9 THEN 1 ELSE 0 END) as isLiked,
+        MAX(CASE WHEN sp.user_id = 9 THEN 1 ELSE 0 END) as isSaved
+      FROM posts p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN likes l ON p.id = l.post_id
+      LEFT JOIN comments cm ON p.id = cm.post_id AND cm.status = 'active'
+      LEFT JOIN saved_posts sp ON p.id = sp.post_id
+      WHERE p.status = 'active'
+      GROUP BY p.id, u.username, u.avatar, c.name
+      ORDER BY p.created_at DESC
+      LIMIT 10 OFFSET 0
+Executing (default): SELECT 
+        p.id, 
+        p.title, 
+        p.created_at as createdAt,
+        p.user_id as authorId,
+        u.username as authorName,
+        u.avatar as authorAvatar,
+        c.name as categoryName,
+        COUNT(DISTINCT l.id) as likeCount,
+        COUNT(DISTINCT cm.id) as commentCount,
+        MAX(CASE WHEN l.user_id = 9 THEN 1 ELSE 0 END) as isLiked,
+        MAX(CASE WHEN sp.user_id = 9 THEN 1 ELSE 0 END) as isSaved
+      FROM posts p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN likes l ON p.id = l.post_id
+      LEFT JOIN comments cm ON p.id = cm.post_id AND cm.status = 'active'
+      LEFT JOIN saved_posts sp ON p.id = sp.post_id
+      WHERE p.status = 'active'
+      GROUP BY p.id, u.username, u.avatar, c.name
+      ORDER BY likeCount DESC, p.created_at DESC
+      LIMIT 5 OFFSET 0
+Executing (default): SELECT `id`, `username`, `email`, `password`, `avatar`, `bio`, `role`, `status`, `banned_reason`, `banned_at`, `created_at`, `updated_at` FROM `users` AS `User` WHERE `User`.`id` = 9;
+Executing (default): SELECT `id`, `name`, `description` FROM `categories` AS `Category`;
+Executing (default): SELECT COUNT(*) as total FROM posts p WHERE p.status = 'active'
+Executing (default): SELECT COUNT(*) as total FROM posts p WHERE p.status = 'active'
+Executing (default): SELECT `Notification`.`id`, `Notification`.`user_id`, `Notification`.`sender_id`, `Notification`.`type`, `Notification`.`reference_id`, `Notification`.`content`, `Notification`.`isRead`, `Notification`.`created_at`, `Notification`.`updated_at`, `sender`.`id` AS `sender.id`, `sender`.`username` AS `sender.username` FROM `notifications` AS `Notification` LEFT OUTER JOIN `users` AS `sender` ON `Notification`.`sender_id` = `sender`.`id` WHERE `Notification`.`user_id` = 9 ORDER BY `Notification`.`created_at` DESC LIMIT 20;
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ≡ƒöæ add access controls to secrets: https://dotenvx.com/ops
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ΓÜÖ∩╕Å  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ΓÜÖ∩╕Å  enable debug logging with { debug: true }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ΓÜÖ∩╕Å  enable debug logging with { debug: true }
+Server running on port 3000
+Redis Client Connected
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'users' AND TABLE_SCHEMA = 'forum_db'
+Executing (default): SHOW INDEX FROM `users`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'system_logs' AND TABLE_SCHEMA = 'forum_db'
+Executing (default): SHOW INDEX FROM `system_logs`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'categories' AND TABLE_SCHEMA = 'forum_db'
+Executing (default): SHOW INDEX FROM `categories`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'posts' AND TABLE_SCHEMA = 'forum_db'
+Executing (default): SHOW INDEX FROM `posts`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'reports' AND TABLE_SCHEMA = 'forum_db'
+Executing (default): SHOW INDEX FROM `reports`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'banned_words' AND TABLE_SCHEMA = 'forum_db'
+Executing (default): SHOW INDEX FROM `banned_words`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'comments' AND TABLE_SCHEMA = 'forum_db'
+Executing (default): SHOW INDEX FROM `comments`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'likes' AND TABLE_SCHEMA = 'forum_db'
+Executing (default): SHOW INDEX FROM `likes`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'saved_posts' AND TABLE_SCHEMA = 'forum_db'
+Executing (default): SHOW INDEX FROM `saved_posts`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'notifications' AND TABLE_SCHEMA = 'forum_db'
+Executing (default): SHOW INDEX FROM `notifications`
+Database synced
+Executing (default): SELECT `id`, `name`, `description` FROM `categories` AS `Category`;
+Executing (default): SELECT `id`, `username`, `email`, `password`, `avatar`, `bio`, `role`, `status`, `banned_reason`, `banned_at`, `created_at`, `updated_at` FROM `users` AS `User` WHERE `User`.`id` = 9;
+Executing (default): SELECT 
+        p.id, 
+        p.title, 
+        p.created_at as createdAt,
+        p.user_id as authorId,
+        u.username as authorName,
+        u.avatar as authorAvatar,
+        c.name as categoryName,
+        COUNT(DISTINCT l.id) as likeCount,
+        COUNT(DISTINCT cm.id) as commentCount,
+        MAX(CASE WHEN l.user_id = 9 THEN 1 ELSE 0 END) as isLiked,
+        MAX(CASE WHEN sp.user_id = 9 THEN 1 ELSE 0 END) as isSaved
+      FROM posts p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN likes l ON p.id = l.post_id
+      LEFT JOIN comments cm ON p.id = cm.post_id AND cm.status = 'active'
+      LEFT JOIN saved_posts sp ON p.id = sp.post_id
+      WHERE p.status = 'active'
+      GROUP BY p.id, u.username, u.avatar, c.name
+      ORDER BY p.created_at DESC
+      LIMIT 10 OFFSET 0
+Executing (default): SELECT 
+        p.id, 
+        p.title, 
+        p.created_at as createdAt,
+        p.user_id as authorId,
+        u.username as authorName,
+        u.avatar as authorAvatar,
+        c.name as categoryName,
+        COUNT(DISTINCT l.id) as likeCount,
+        COUNT(DISTINCT cm.id) as commentCount,
+        MAX(CASE WHEN l.user_id = 9 THEN 1 ELSE 0 END) as isLiked,
+        MAX(CASE WHEN sp.user_id = 9 THEN 1 ELSE 0 END) as isSaved
+      FROM posts p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN likes l ON p.id = l.post_id
+      LEFT JOIN comments cm ON p.id = cm.post_id AND cm.status = 'active'
+      LEFT JOIN saved_posts sp ON p.id = sp.post_id
+      WHERE p.status = 'active'
+      GROUP BY p.id, u.username, u.avatar, c.name
+      ORDER BY likeCount DESC, p.created_at DESC
+      LIMIT 5 OFFSET 0
+Executing (default): SELECT `Notification`.`id`, `Notification`.`user_id`, `Notification`.`sender_id`, `Notification`.`type`, `Notification`.`reference_id`, `Notification`.`content`, `Notification`.`isRead`, `Notification`.`created_at`, `Notification`.`updated_at`, `sender`.`id` AS `sender.id`, `sender`.`username` AS `sender.username` FROM `notifications` AS `Notification` LEFT OUTER JOIN `users` AS `sender` ON `Notification`.`sender_id` = `sender`.`id` WHERE `Notification`.`user_id` = 9 ORDER BY `Notification`.`created_at` DESC LIMIT 20;
+Executing (default): SELECT COUNT(*) as total FROM posts p WHERE p.status = 'active'
+Executing (default): SELECT COUNT(*) as total FROM posts p WHERE p.status = 'active'

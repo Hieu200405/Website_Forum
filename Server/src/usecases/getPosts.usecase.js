@@ -1,7 +1,7 @@
 const PostRepository = require('../repositories/post.repository');
 
 class GetPostsUseCase {
-  static async execute({ page, limit, sort, userId }) {
+  static async execute({ page, limit, sort, userId, authorId }) {
     // 1. Default Values
     const p = parseInt(page) || 1;
     const l = parseInt(limit) || 10;
@@ -16,7 +16,8 @@ class GetPostsUseCase {
       page: p,
       limit: l,
       sort: finalSort,
-      userId
+      userId,
+      authorId
     });
 
     // 4. Format Output
@@ -33,7 +34,8 @@ class GetPostsUseCase {
         category: row.categoryName || 'Thảo luận',
         author: {
           id: row.authorId,
-          username: row.authorName || 'Người dùng ẩn danh'
+          username: row.authorName || 'Người dùng ẩn danh',
+          avatar: row.authorAvatar
         },
         isLiked: !!parseInt(row.isLiked), // Convert to boolean
         isSaved: !!parseInt(row.isSaved)

@@ -178,7 +178,7 @@ class PostRepository {
    * Lấy danh sách bài viết có sắp xếp (Join Likes & Count)
    * @param {object} params
    */
-  async getPostsWithSort({ page, limit, sort, userId = null }) {
+  async getPostsWithSort({ page, limit, sort, userId = null, authorId = null }) {
     const offset = (page - 1) * limit;
     const { QueryTypes } = require('sequelize');
     const sequelize = require('../config/database');
@@ -198,7 +198,12 @@ class PostRepository {
     // 6. Check if current user liked (MAX because aggregate)
     
     // Note: userId replacement handles NULL gracefully
-    const currentUserId = userId || null; 
+    const currentUserId = userId || null;
+    
+    let whereClause = `p.status = 'active'`;
+    if (authorId) {
+       whereClause += ` AND p.user_id = :authorId`;
+    }
 
     const sql = `
       SELECT 
@@ -207,6 +212,7 @@ class PostRepository {
         p.created_at as createdAt,
         p.user_id as authorId,
         u.username as authorName,
+        u.avatar as authorAvatar,
         c.name as categoryName,
         COUNT(DISTINCT l.id) as likeCount,
         COUNT(DISTINCT cm.id) as commentCount,
@@ -218,21 +224,23 @@ class PostRepository {
       LEFT JOIN likes l ON p.id = l.post_id
       LEFT JOIN comments cm ON p.id = cm.post_id AND cm.status = 'active'
       LEFT JOIN saved_posts sp ON p.id = sp.post_id
-      WHERE p.status = 'active'
-      GROUP BY p.id, u.username, c.name
+      WHERE ${whereClause}
+      GROUP BY p.id, u.username, u.avatar, c.name
       ORDER BY ${orderByClause}
       LIMIT :limit OFFSET :offset
     `;
 
     const rows = await sequelize.query(sql, {
-      replacements: { limit, offset, userId: currentUserId },
+      replacements: { limit, offset, userId: currentUserId, authorId },
       type: QueryTypes.SELECT
     });
 
     // Count Total (để phân trang)
-    // Query count distinct post active
-    const countSql = `SELECT COUNT(*) as total FROM posts WHERE status = 'active'`;
-    const countResult = await sequelize.query(countSql, { type: QueryTypes.SELECT });
+    const countSql = `SELECT COUNT(*) as total FROM posts p WHERE ${whereClause}`;
+    const countResult = await sequelize.query(countSql, { 
+       replacements: { authorId },
+       type: QueryTypes.SELECT 
+    });
     const total = countResult[0].total;
 
     return { rows, count: total };

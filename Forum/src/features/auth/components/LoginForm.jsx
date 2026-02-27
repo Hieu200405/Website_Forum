@@ -99,7 +99,6 @@ const LoginForm = () => {
               onError={() => {
                   toast.error('Gặp lỗi khi truy cập Google');
               }}
-              useOneTap
           />
       </div>
     </form>

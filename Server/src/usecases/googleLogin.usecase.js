@@ -30,12 +30,23 @@ class GoogleLoginUseCase {
       // Generate a random long password for social login users since they don't use it
       const randomPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10);
       
+      let usernameBase = name.replace(/\s+/g, '').substring(0, 20); // removing spaces
+      if (usernameBase.length < 4) usernameBase += "user";
+      
+      let finalUsername = usernameBase;
+      let counter = 1;
+      while (await UserRepository.findByUsername(finalUsername)) {
+           finalUsername = `${usernameBase}${counter}`;
+           counter++;
+      }
+      
       const userData = {
-          username: name,
+          username: finalUsername,
           email: email,
-          password: randomPassword, // In repository it will be hashed
+          password: randomPassword, // In repository it will be hashed or raw stored for google
           role: 'user', // Default role
-          status: 'active'
+          status: 'active',
+          avatar: picture // we can save picture to avatar column directly here!
       };
       
       user = await UserRepository.create(userData);
