@@ -12,6 +12,7 @@ const reportRoute = require('./routes/report.route');
 const moderationRoute = require('./routes/moderation.route');
 const notificationRoute = require('./routes/notification.route');
 const uploadRoute = require('./routes/upload.route');
+const userRoute = require('./routes/user.route');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 
@@ -38,6 +39,7 @@ app.use('/api/comments', commentRoute);
 app.use('/api/reports', reportRoute);
 app.use('/api/notifications', notificationRoute);
 app.use('/api/upload', uploadRoute);
+app.use('/api/users', userRoute);
 
 app.get('/', (req, res) => res.send('Forum API running'));
 app.get('/', (req, res) => {

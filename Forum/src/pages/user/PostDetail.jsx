@@ -83,7 +83,10 @@ const UserPostDetail = () => {
               <div className="p-6 md:p-8 border-b border-slate-50">
                   <div className="flex items-start justify-between mb-6">
                       <div className="flex items-center space-x-4">
-                          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-primary-500 text-white flex items-center justify-center font-bold text-xl shadow-md overflow-hidden">
+                          <div 
+                              className="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-primary-500 text-white flex items-center justify-center font-bold text-xl shadow-md overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all"
+                              onClick={(e) => { e.stopPropagation(); navigate(`/user/profile/${post.author?.id}`); }}
+                          >
                                 {post.author?.username ? (
                                     <img src={`https://ui-avatars.com/api/?name=${post.author.username}&background=random`} alt="Avatar" className="h-full w-full object-cover" />
                                 ) : (
@@ -95,7 +98,12 @@ const UserPostDetail = () => {
                                   {post.title}
                               </h1>
                               <div className="flex items-center text-sm text-slate-500 mt-1 space-x-3">
-                                  <span className="font-semibold text-primary-600">{post.author?.username}</span>
+                                  <span 
+                                      className="font-semibold text-primary-600 cursor-pointer hover:underline"
+                                      onClick={(e) => { e.stopPropagation(); navigate(`/user/profile/${post.author?.id}`); }}
+                                  >
+                                      {post.author?.username}
+                                  </span>
                                   <span>•</span>
                                   <span>{post.createdAt ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: vi }) : ''}</span>
                                   <span>•</span>

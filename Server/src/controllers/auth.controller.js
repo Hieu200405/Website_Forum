@@ -67,9 +67,10 @@ exports.googleLogin = async (req, res) => {
     
     res.status(200).json(result);
   } catch (error) {
+    console.error('Google Login Error:', error);
     const status = error.status || 500;
     const message = error.message || 'Lỗi hệ thống khi đăng nhập Google';
     
-    res.status(status).json({ message });
+    res.status(status).json({ message, details: error.toString() });
   }
 };

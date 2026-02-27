@@ -100,7 +100,12 @@ const UserHome = () => {
                                 {post.title}
                             </h4>
                             <div className="flex items-center text-xs text-slate-400 mt-2 space-x-2">
-                                    <span>{post.author?.username}</span>
+                                    <span 
+                                        className="hover:text-primary-600 hover:underline cursor-pointer"
+                                        onClick={(e) => { e.stopPropagation(); navigate(`/user/profile/${post.author?.id}`); }}
+                                    >
+                                        {post.author?.username}
+                                    </span>
                                     <span>•</span>
                                     <span className="flex items-center text-rose-500 font-medium">
                                     <TrendingUp className="w-3 h-3 mr-1" />

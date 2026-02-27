@@ -23,9 +23,9 @@
     "react-helmet-async": "^2.0.5",
     "react-hot-toast": "^2.6.0",
     "react-intersection-observer": "^10.0.3",
-    "react-quill": "^2.0.0",
-    "react-quill-new": "^3.8.3",
-    "react-router-dom": "^7.13.0",
+    "react-quill": "^0.0.2",
+    "react-quill-new": "^3.7.0",
+    "react-router-dom": "^7.13.1",
     "socket.io-client": "^4.8.3",
     "tailwind-merge": "^3.4.0",
     "zustand": "^5.0.11"
