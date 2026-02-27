@@ -11,8 +11,9 @@ class ModeratePostUseCase {
    * @param {string} action - 'approve' | 'hide'
    * @param {string} reason - Lý do (nếu có)
    * @param {string} ip - IP Address
+   * @param {object} app - Express app instance for socket.io
    */
-  static async execute(userId, userRole, postId, action, reason, ip) {
+  static async execute(userId, userRole, postId, action, reason, ip, app) {
     // 1. Check Permission (Dù middleware đã check, check lại ở UseCase để business logic chặt chẽ)
     if (userRole !== ROLES.ADMIN && userRole !== ROLES.MODERATOR) {
         throw { status: 403, message: 'Bạn không có quyền thực hiện hành động này' };
@@ -70,6 +71,28 @@ class ModeratePostUseCase {
       ip,
       { postId, reason: hideReason, previousStatus: post.status }
     );
+
+    // 6. Notifications
+    const NotificationService = require('../services/notification.service');
+    if (app) {
+        if (action === 'approve') {
+            await NotificationService.createNotification(app, {
+                user_id: post.user_id || post.author?.id,
+                sender_id: userId,
+                type: 'system',
+                reference_id: post.id,
+                content: `Bài viết "${post.title}" của bạn đã được duyệt và hiển thị trên bảng tin.`
+            });
+        } else if (action === 'hide') {
+            await NotificationService.createNotification(app, {
+                user_id: post.user_id || post.author?.id,
+                sender_id: userId,
+                type: 'system',
+                reference_id: post.id,
+                content: `Bài viết "${post.title}" của bạn đã bị từ chối/ẩn. Lý do: ${hideReason}`
+            });
+        }
+    }
 
     return {
       message: action === 'approve' ? 'Đã duyệt bài viết' : 'Đã ẩn bài viết',

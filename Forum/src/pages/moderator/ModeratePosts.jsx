@@ -4,6 +4,11 @@ import { getPendingPosts, moderatePost } from '@/features/admin/api/adminService
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+const getTextFromHtml = (html) => {
+    const doc = new DOMParser().parseFromString(html || '', 'text/html');
+    return doc.body.textContent || "";
+};
+
 const ModeratePosts = () => {
     const queryClient = useQueryClient();
 
@@ -63,7 +68,7 @@ const ModeratePosts = () => {
                                     <span className="text-slate-500 text-xs">• Danh mục: {post.category?.name || 'General'}</span>
                                 </div>
                                 <h3 className="text-lg font-bold text-slate-800 mb-2">{post.title}</h3>
-                                <p className="text-slate-600 mb-4 line-clamp-3 bg-slate-50 p-3 rounded border border-slate-100">{post.content}</p>
+                                <p className="text-slate-600 mb-4 line-clamp-3 bg-slate-50 p-3 rounded border border-slate-100">{getTextFromHtml(post.content)}</p>
                             </div>
                             
                             <div className="flex shrink-0 flex-row md:flex-col gap-3 justify-center border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6">

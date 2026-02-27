@@ -94,9 +94,9 @@ const CreatePostModal = () => {
       }
       return createPost(data);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success(
-        editPost ? "Đã cập nhật bài viết!" : "Bài viết đã được đăng!",
+        data?.data?.message || (editPost ? "Đã cập nhật bài viết!" : "Bài viết đã được đăng!")
       );
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       if (editPost) {
