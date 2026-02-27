@@ -16,7 +16,7 @@ class ModerationController {
       const { action, reason } = req.body;
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
 
-      const result = await ModeratePostUseCase.execute(userId, userRole, postId, action, reason, ip);
+      const result = await ModeratePostUseCase.execute(userId, userRole, postId, action, reason, ip, req.app);
       res.status(200).json({ success: true, data: result });
     } catch (error) {
       res.status(error.status || 500).json({ success: false, message: error.message });
