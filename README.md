@@ -26,11 +26,16 @@ The application strictly separates functionalities and layouts based on user rol
 
 ### 2. **Advanced Functionality & Integrations**
 
+- **User Profile & Settings**:
+  - Comprehensive Profile view (posts, biography, join date).
+  - Account Settings: Update username, Edit bio, and **Change Password**.
+  - **Avatar Upload**: Custom profile pictures hosted on **Cloudinary**.
+- **Post Management**: Full CRUD support. Users can edit or delete their own posts directly from the feed or their profile.
 - **Real-time Notifications**: Instant alerts for likes and comments powered by **Socket.io**.
 - **Social Login**: Seamless one-tap authentication using **Google OAuth 2.0**.
 - **Rich Text Editor with Cloud Storage**: Integrated **ReactQuill** editor allowing direct image uploads stored securely on **Cloudinary**.
-- **Personalized Content**: "Save Post" / Bookmark functionality with optimistic UI updates.
-- **SEO Optimized**: Dynamic Meta Tags and Open Graph data generation using **React Helmet Async** for perfect social media sharing.
+- **Performance Caching**: Powered by **Redis** for faster data retrieval.
+- **Moderation**: Automatic filtering of banned words in post titles and content.
 
 ### 3. **Modern UX/UI**
 
@@ -39,90 +44,81 @@ The application strictly separates functionalities and layouts based on user rol
 - **Interactive Components**: Modals, Toast Notifications, Loading Skeletons.
 - **Glassmorphism**: Modern aesthetic throughout the application.
 
-### 4. **Tech Stack**
+---
+
+## 🛠️ Tech Stack
 
 - **Frontend**: React (Vite), Zustand (State Management), React Query (Server State), React Router v6.
 - **Backend**: Node.js, Express.js.
 - **Database**: MySQL with Sequelize ORM.
-- **Authentication**: JWT (JSON Web Tokens) with secure cookie/localStorage handling.
+- **Caching**: Redis.
+- **Infrastructure**: Docker & Docker Compose.
+- **Storage**: Cloudinary (Image Hosting).
+- **Security**: JWT (JSON Web Tokens), BCrypt for password hashing.
 
 ---
 
-## 🛠️ Installation & Setup
+## � Installation & Setup
 
-### Prerequisites
+We recommend using **Docker** for the fastest setup.
 
-- **Node.js**: v18+ recommended.
-- **MySQL**: Running instance.
+### 1. Prerequisites
 
-### 1. Database Setup
+- **Docker** and **Docker Compose** installed.
 
-Ensure your MySQL server is running and create a database (e.g., `forum_db`). Update the `.env` file in the `Server` directory with your credentials.
+### 2. Environment Variables
 
-### 2. Backend Setup
-
-Navigate to the `Server` directory:
-
-```bash
-cd Server
-npm install
-```
-
-Configure your `.env` file (example):
+Create a `.env` file in the root directory (and `Server/` directory) with the following values:
 
 ```env
 PORT=3000
-DB_HOST=localhost
+DB_HOST=db
+DB_PORT=3306
 DB_USER=root
-DB_PASS=your_password
+DB_PASS=root
 DB_NAME=forum_db
-JWT_SECRET=your_jwt_secret_key
+JWT_SECRET=your_jwt_secret
 
-# Advanced Features Config
-CLOUDINARY_CLOUD_NAME=your_cloudinary_name
-CLOUDINARY_API_KEY=your_cloudinary_key
-CLOUDINARY_API_SECRET=your_cloudinary_secret
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
+# Caching
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# Cloudinary (Required for Avatar/Post Images)
+CLOUDINARY_CLOUD_NAME=your_name
+CLOUDINARY_API_KEY=your_key
+CLOUDINARY_API_SECRET=your_secret
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_id
+GOOGLE_CLIENT_SECRET=your_google_secret
 ```
 
-**Seed the Database (Create Tables & Default Data):**
-This is crucial for setting up the initial Admin/Mod accounts.
+### 3. Quick Start (Docker)
+
+Run the entire stack (DB, Redis, Backend, Frontend) with one command:
 
 ```bash
-node src/seed.js
+docker-compose up -d --build
 ```
 
-_Note: This script will drop existing tables and recreate them with sample data._
+Access the app:
 
-**Start the Server:**
+- **Frontend**: `http://localhost`
+- **Backend API**: `http://localhost:3000`
+
+### 4. Database Seeding (First Time Only)
+
+To create default categories, banned words, and admin accounts:
 
 ```bash
-npm run dev
+docker exec -it forum_backend node src/seed.js
 ```
-
-### 3. Frontend Setup
-
-Navigate to the `Forum` directory (in a new terminal):
-
-```bash
-cd Forum
-npm install
-```
-
-**Start the Client:**
-
-```bash
-npm run dev
-```
-
-Access the application at: `http://localhost:5173` (or the port shown in terminal).
 
 ---
 
 ## 🔐 Default Test Accounts
 
-Use these accounts to explore different roles (password is `12345678` for all):
+(Password: `12345678` for all)
 
 | Role            | Email             | Privileges                                             |
 | :-------------- | :---------------- | :----------------------------------------------------- |
@@ -138,76 +134,43 @@ Use these accounts to explore different roles (password is `12345678` for all):
 
 ```
 Project-Forum/
-├── 📁 Server/              # Backend (Node.js + Express)
-│   ├── src/
-│   │   ├── config/         # DB & App Config
-│   │   ├── controllers/    # Request Handlers
-│   │   ├── models/         # Sequelize Models
-│   │   ├── routes/         # API Routes
-│   │   ├── middleware/     # Auth & Error Handling
-│   │   └── seed.js         # Database Seeding Script
-│   └── .env                # Environment Variables
-│
 ├── 📁 Forum/               # Frontend (React + Vite)
-│   ├── src/
-│   │   ├── components/     # Reusable UI Components
-│   │   ├── features/       # Feature-based Modules (Auth, Posts, Admin, etc.)
-│   │   ├── layouts/        # Layout Wrappers (AdminLayout, UserLayout, etc.)
-│   │   ├── pages/          # Page Components
-│   │   │   ├── admin/      # Admin Pages (ManageUsers, Dashboard...)
-│   │   │   ├── auth/       # Login/Register Pages
-│   │   │   ├── moderator/  # Moderator Pages (Reports...)
-│   │   │   └── user/       # User Pages (Home, PostDetail...)
-│   │   ├── routes/         # App Routing Configuration
-│   │   └── store/          # Global State (Zustand)
-│   └── index.css           # Global Styles (Tailwind)
-│
-└── README.md               # Project Documentation
-├── 📁 Testing/             # Integration & API Flow Verification Scripts
+│   ├── src/features/       # Auth, Posts, Admin modules
+│   ├── src/pages/user/     # Home, PostDetail, Profile, Settings
+│   └── src/store/          # Zustand State (Auth, Notifications)
+├── 📁 Server/              # Backend (Node.js + Express)
+│   ├── src/controllers/    # Auth, Post, User handlers
+│   ├── src/usecases/       # Business logic (Google Login, Posts)
+│   ├── src/repositories/   # Database access layer
+│   └── src/config/         # Cloudinary, Redis, Sequelize config
+├── 📁 Testing/             # API & Integration test scripts
+├── docker-compose.yml      # Orchestration file
+└── README.md               # Documentation
 ```
+
+---
 
 ## 🧪 Testing
 
-The project includes a suite of integration verification scripts in the `Testing/` directory. These scripts verify critical flows like Authentication, Posting, and Moderation using the registered backend routes.
+The project includes a suite of integration verification scripts in the `Testing/` directory.
 
 **To run tests locally:**
 
-1. Ensure the Backend Server is **NOT** running (the tests start their own mock app instance or connect solely via DB/Supertest).
-   _Note: Some tests might require the server to be running if they fetch against localhost, but the current scripts use `supertest` with the Express app instance._ -> _Correction: The scripts import `app` or routes, so they likely start their own instance._
-2. Navigate to the `Server` directory:
+1. Navigate to the `Server` directory:
    ```bash
    cd Server
    ```
-3. Run a specific verification script (ensure `NODE_PATH` includes `Server/node_modules`):
-   _Linux/Mac/Git Bash:_
-   ```bash
-   export NODE_PATH=$(pwd)/node_modules
-   node ../Testing/verify_auth_flow.js
-   ```
-   _Windows PowerShell:_
+2. Run a verification script (PowerShell):
    ```powershell
    $env:NODE_PATH="$pwd\node_modules"
    node ..\Testing\verify_auth_flow.js
    ```
 
-## 🔄 Continuous Integration (CI)
+---
 
-This project uses **GitHub Actions** for CI/CD.
+## � Troubleshooting
 
-- **Workflow File**: `.github/workflows/ci.yml`
-- **Triggers**: Push and Pull Request to `main` or `master` branches.
-- **Jobs**:
-  1.  **Backend Test**:
-      - Sets up MySQL and Redis services.
-      - Installs backend dependencies.
-      - Runs all verification scripts in `Testing/`.
-  2.  **Frontend Build**:
-      - Installs frontend dependencies.
-      - Runs ESLint.
-      - Builds the React application.
-
-## 🐛 Troubleshooting
-
-- **Login 403 Forbidden**: Ensure you ran `node src/seed.js` to create the correct user roles. The system distinguishes between `admin`, `moderator`, and `user`.
-- **Database Connection Error**: Check your MySQL credentials in `Server/.env`.
-- **Module Not Found**: Try deleting `node_modules` and running `npm install` again.
+- **Cloudinary Error**: Ensure your API keys in `.env` are correct.
+- **Database Sync**: If tables don't match or deletion fails, run `node src/seed.js` inside the container to reset schema with `onDelete: CASCADE` rules.
+- **Logout after Update**: Fixed by using the `updateUser` action in `authStore` to preserve JWT tokens.
+- **500 Error on Feed**: Ensure `saved_posts` and `notifications` tables exist (run seed script).

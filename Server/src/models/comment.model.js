@@ -57,11 +57,11 @@ const Comment = sequelize.define(
 
 // Associations
 Comment.belongsTo(User, { foreignKey: "user_id", as: "author" });
-Comment.belongsTo(Post, { foreignKey: "post_id" });
-Post.hasMany(Comment, { foreignKey: "post_id", as: "comments" });
+Comment.belongsTo(Post, { foreignKey: "post_id", onDelete: "CASCADE" });
+Post.hasMany(Comment, { foreignKey: "post_id", as: "comments", onDelete: "CASCADE" });
 
 // Self-referencing
-Comment.hasMany(Comment, { foreignKey: "parent_id", as: "replies" });
-Comment.belongsTo(Comment, { foreignKey: "parent_id", as: "parent" });
+Comment.hasMany(Comment, { foreignKey: "parent_id", as: "replies", onDelete: "CASCADE" });
+Comment.belongsTo(Comment, { foreignKey: "parent_id", as: "parent", onDelete: "CASCADE" });
 
 module.exports = Comment;

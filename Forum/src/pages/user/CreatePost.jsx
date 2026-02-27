@@ -30,7 +30,7 @@ const CreatePost = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.content.trim()) return;
+    if (!(formData.title || '').trim() || !(formData.content || '').trim()) return;
     mutation.mutate(formData);
   };
 

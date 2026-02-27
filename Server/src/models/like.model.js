@@ -42,7 +42,7 @@ const Like = sequelize.define('Like', {
 User.hasMany(Like, { foreignKey: 'user_id' });
 Like.belongsTo(User, { foreignKey: 'user_id' });
 
-Post.hasMany(Like, { foreignKey: 'post_id' });
-Like.belongsTo(Post, { foreignKey: 'post_id' });
+Post.hasMany(Like, { foreignKey: 'post_id', onDelete: 'CASCADE' });
+Like.belongsTo(Post, { foreignKey: 'post_id', onDelete: 'CASCADE' });
 
 module.exports = Like;

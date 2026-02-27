@@ -29,6 +29,8 @@ app.set('io', io);
 
 app.use(cors());
 app.use(express.json());
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+app.use('/api/users', userRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/admin', adminRoute);
 app.use('/api/admin/banned-words', bannedWordRoute);
@@ -39,7 +41,6 @@ app.use('/api/comments', commentRoute);
 app.use('/api/reports', reportRoute);
 app.use('/api/notifications', notificationRoute);
 app.use('/api/upload', uploadRoute);
-app.use('/api/users', userRoute);
 
 app.get('/', (req, res) => res.send('Forum API running'));
 app.get('/', (req, res) => {

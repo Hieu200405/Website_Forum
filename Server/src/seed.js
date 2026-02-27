@@ -11,6 +11,8 @@ const Like = require('./models/like.model');
 const Report = require('./models/report.model');
 const SystemLog = require('./models/systemLog.model');
 const BannedWord = require('./models/bannedWord.model');
+const Notification = require('./models/notification.model');
+const SavedPost = require('./models/savedPost.model');
 const ROLES = require('./constants/roles');
 
 const run = async () => {
@@ -19,8 +21,11 @@ const run = async () => {
         console.log('DB Connected');
         
         sequelize.options.logging = false; 
-
+        
+        console.log('Cleaning up old tables...');
+        await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
         await sequelize.sync({ force: true });
+        await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
         console.log('--- Database schema refreshed ---');
 
         const passwordHash = await bcrypt.hash('12345678', 10);
