@@ -79,7 +79,7 @@ class ModeratePostUseCase {
             await NotificationService.createNotification(app, {
                 user_id: post.user_id || post.author?.id,
                 sender_id: userId,
-                type: 'system',
+                type: 'APPROVE',
                 reference_id: post.id,
                 content: `Bài viết "${post.title}" của bạn đã được duyệt và hiển thị trên bảng tin.`
             });
@@ -87,7 +87,7 @@ class ModeratePostUseCase {
             await NotificationService.createNotification(app, {
                 user_id: post.user_id || post.author?.id,
                 sender_id: userId,
-                type: 'system',
+                type: 'REJECT',
                 reference_id: post.id,
                 content: `Bài viết "${post.title}" của bạn đã bị từ chối/ẩn. Lý do: ${hideReason}`
             });

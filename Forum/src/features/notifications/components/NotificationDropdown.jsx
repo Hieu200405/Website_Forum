@@ -24,7 +24,7 @@ const NotificationDropdown = () => {
         refetchInterval: 60000 // Refetch every minute as backup
     });
 
-    const notifications = notificationsResponse?.data || [];
+    const notifications = Array.isArray(notificationsResponse) ? notificationsResponse : notificationsResponse?.data || [];
     const unreadCount = notifications.filter(n => !n.isRead).length;
 
     const markAsReadMutation = useMutation({
@@ -46,11 +46,8 @@ const NotificationDropdown = () => {
         socket.on('new_notification', (notification) => {
             // Update react query cache manually
             queryClient.setQueryData(['notifications'], (oldData) => {
-                if (!oldData) return { data: [notification] };
-                return {
-                    ...oldData,
-                    data: [notification, ...oldData.data]
-                };
+                const arr = Array.isArray(oldData) ? oldData : oldData?.data || [];
+                return [notification, ...arr];
             });
         });
 

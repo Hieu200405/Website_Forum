@@ -5,6 +5,15 @@ const Category = require('../models/category.model');
 
 class PostRepository {
   /**
+   * Đếm số bài viết theo trạng thái
+   * @param {string} status 
+   * @returns {Promise<number>}
+   */
+  async countByStatus(status) {
+    return await Post.count({ where: { status } });
+  }
+
+  /**
    * Tạo bài viết mới
    * @param {object} postData 
    * @returns {Promise<Post>}
