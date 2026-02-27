@@ -17,10 +17,12 @@ const ManageCategories = () => {
 
     const queryClient = useQueryClient();
 
-    const { data: categories = [], isLoading } = useQuery({
+    const { data: rawData = [], isLoading } = useQuery({
         queryKey: ['categories'],
         queryFn: getCategories
     });
+
+    const categories = Array.isArray(rawData) ? rawData : rawData?.data || [];
 
     const createMutation = useMutation({
         mutationFn: createCategory,
