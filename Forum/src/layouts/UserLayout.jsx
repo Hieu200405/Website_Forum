@@ -30,14 +30,28 @@ const UserLayout = () => {
                              <Home className="w-5 h-5" />
                              <span>Trang chủ</span>
                         </Link>
-                        {/* "Tạo bài viết" could be a link or modal trigger. The prompt asks for a menu item. */}
-                        <Link to="/user/create-post" className="flex items-center space-x-1 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-primary-600 transition-colors font-medium">
+                        {/* "Tạo bài viết" using modal trigger to utilize CreatePostModal with Cloudinary */}
+                        <button onClick={() => {
+                            import('@/components/hooks/useModalStore').then(({ default: useModal }) => {
+                                useModal.getState().onOpen('create-post');
+                            });
+                        }} className="flex items-center space-x-1 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-primary-600 transition-colors font-medium">
                              <PlusSquare className="w-5 h-5" />
                              <span>Tạo bài viết</span>
-                        </Link>
+                        </button>
                     </nav>
 
                     <div className="flex items-center space-x-4">
+                        {user?.role === 'admin' && (
+                            <Link to="/admin" className="hidden sm:inline-block text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors border border-red-100">
+                                Trang Quản Trị
+                            </Link>
+                        )}
+                        {user?.role === 'moderator' && (
+                            <Link to="/moderator" className="hidden sm:inline-block text-sm font-bold text-green-600 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors border border-green-100">
+                                Trang Kiểm Duyệt
+                            </Link>
+                        )}
                         <NotificationDropdown />
                         <div className="flex items-center space-x-2">
                             <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">

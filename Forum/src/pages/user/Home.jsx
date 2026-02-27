@@ -64,7 +64,11 @@ const UserHome = () => {
         {/* MAIN FEED */}
         <main className="col-span-12 lg:col-span-6 space-y-6 pb-20">
             {user && (
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 transition-all hover:shadow-md cursor-pointer" onClick={() => navigate('/user/create-post')}>
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 transition-all hover:shadow-md cursor-pointer" onClick={() => {
+                     import('@/components/hooks/useModalStore').then(({ default: useModal }) => {
+                          useModal.getState().onOpen('create-post');
+                     });
+                }}>
                     <div className="flex space-x-4">
                         <div className="h-11 w-11 rounded-full bg-slate-100 flex-shrink-0 overflow-hidden">
                              <img src={`https://ui-avatars.com/api/?name=${user.username}&background=random`} alt="Avatar" className="h-full w-full object-cover" />
@@ -100,7 +104,7 @@ const UserHome = () => {
                                     <span>•</span>
                                     <span className="flex items-center text-rose-500 font-medium">
                                     <TrendingUp className="w-3 h-3 mr-1" />
-                                    {post.like_count || post.likeCount || 0}
+                                    {Number(post.likeCount ?? post.likesCount ?? post.like_count ?? 0)}
                                     </span>
                             </div>
                         </div>

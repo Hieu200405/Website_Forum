@@ -18,6 +18,7 @@ const AdminLayout = () => {
     const menuItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
         { icon: Users, label: 'Quản lý user', path: '/admin/users' },
+        { icon: FileText, label: 'Quản lý danh mục', path: '/admin/categories' },
         { icon: Ban, label: 'Quản lý từ cấm', path: '/admin/banned-words' },
         { icon: AlertTriangle, label: 'Xem log hệ thống', path: '/admin/logs' },
     ];
@@ -66,9 +67,15 @@ const AdminLayout = () => {
                             <p className="text-xs text-slate-500 uppercase">Administrator</p>
                         </div>
                      </div>
+                     <Link 
+                        to="/user"
+                        className="w-full flex justify-center items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-sm transition-colors mb-2"
+                     >
+                        Quay lại Forum
+                     </Link>
                     <button 
                         onClick={handleLogout}
-                        className="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-sm transition-colors"
+                        className="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-red-700 hover:text-white text-slate-300 py-2 rounded-lg text-sm transition-colors"
                     >
                         <LogOut className="w-4 h-4" />
                         <span>Đăng xuất</span>

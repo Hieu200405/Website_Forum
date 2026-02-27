@@ -80,17 +80,26 @@ const PostCard = ({ post, onLike }) => {
                 <div className="p-2 rounded-full group-hover/btn:bg-red-50 transition-colors">
                     <Heart className={`w-5 h-5 transition-transform group-active/btn:scale-75 ${post.isLiked ? 'fill-current text-red-500' : ''}`} />
                 </div>
-                <span className="text-sm font-semibold">{post.likeCount || 0}</span>
+                <span className="text-sm font-semibold">{Number(post.likeCount ?? post.likesCount ?? post.like_count ?? 0)}</span>
             </button>
 
             <button className="flex items-center group/btn space-x-2 text-slate-500 hover:text-primary-600 transition-colors">
                 <div className="p-2 rounded-full group-hover/btn:bg-primary-50 transition-colors">
                      <MessageSquare className="w-5 h-5" />
                 </div>
-                <span className="text-sm font-semibold">{post.commentCount || 0} Bình luận</span>
+                <span className="text-sm font-semibold">{Number(post.commentCount ?? post.commentsCount ?? post.comment_count ?? 0)} Bình luận</span>
             </button>
             
-            <button className="flex items-center group/btn space-x-2 text-slate-500 hover:text-blue-500 transition-colors ml-auto mr-4">
+            <button 
+                onClick={(e) => {
+                    e.stopPropagation();
+                    const url = `${window.location.origin}/user/posts/${post.id}`;
+                    navigator.clipboard.writeText(url);
+                    import('react-hot-toast').then(({ default: toast }) => toast.success('Đã copy link!'));
+                }}
+                className="flex items-center group/btn space-x-2 text-slate-500 hover:text-blue-500 transition-colors ml-auto mr-4"
+                title="Chia sẻ bài viết"
+            >
                 <div className="p-2 rounded-full group-hover/btn:bg-blue-50 transition-colors">
                     <Share2 className="w-5 h-5" />
                 </div>

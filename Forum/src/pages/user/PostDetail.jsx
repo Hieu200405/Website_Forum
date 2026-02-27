@@ -8,17 +8,24 @@ import { useQuery } from '@tanstack/react-query';
 import { getPostDetail } from '@/features/posts/api/commentService';
 import { useLikePost } from '@/features/posts/hooks/useLikePost';
 import { useSavePost } from '@/features/posts/hooks/useSavePost';
+import { useDeletePost } from '@/features/posts/hooks/useDeletePost';
 import PostCardSkeleton from '@/features/posts/components/PostSkeleton';
 import CommentSection from '@/features/posts/components/CommentSection';
+import PostMenu from '@/features/posts/components/PostMenu';
 import { ArrowLeft, Heart, MessageSquare, Share2, Bookmark } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import useAuthStore from '@/features/auth/store/authStore';
+import useModalStore from '@/components/hooks/useModalStore';
 
 const UserPostDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { mutate: toggleLike } = useLikePost();
   const { mutate: toggleSave } = useSavePost();
+  const deleteMutation = useDeletePost();
+  const { user } = useAuthStore();
+  const { onOpen } = useModalStore();
 
   const { data, isLoading, isError } = useQuery({
       queryKey: ['post', id],
@@ -97,9 +104,20 @@ const UserPostDetail = () => {
                           </div>
                       </div>
                       
-                      {/* Edit/Delete Menu - Only show for post author */}
-                      {/* TODO: Add authentication check and implement edit/delete functionality */}
-                      {/* Example: {user?.id === post.author?.id && <PostMenu postId={post.id} />} */}
+                      {/* Post Menu (Edit/Delete or Report based on ownership) */}
+                      {user && (
+                          <PostMenu 
+                              post={post}
+                              onEdit={() => onOpen('create-post', post)}
+                              onDelete={() => {
+                                  if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+                                      deleteMutation.mutate(post.id, {
+                                          onSuccess: () => navigate('/user')
+                                      });
+                                  }
+                              }}
+                          />
+                      )}
                   </div>
 
                   {/* Post Body */}
@@ -118,14 +136,14 @@ const UserPostDetail = () => {
                             <div className="p-2 bg-white rounded-full shadow-sm group-hover:shadow border border-slate-100 group-hover:bg-red-50">
                                 <Heart className={`w-5 h-5 ${post.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
                             </div>
-                            <span className="font-bold text-lg">{post.likesCount || 0}</span>
+                            <span className="font-bold text-lg">{Number(post.likeCount ?? post.likesCount ?? post.like_count ?? 0)}</span>
                         </button>
                         
                         <div className="flex items-center space-x-2 text-slate-500">
                             <div className="p-2 bg-white rounded-full shadow-sm border border-slate-100">
                                 <MessageSquare className="w-5 h-5" />
                             </div>
-                            <span className="font-bold text-lg">{post.commentsCount || 0}</span>
+                            <span className="font-bold text-lg">{Number(post.commentCount ?? post.commentsCount ?? post.comment_count ?? 0)}</span>
                         </div>
                     </div>
 
@@ -137,7 +155,13 @@ const UserPostDetail = () => {
                             <Bookmark className={`w-5 h-5 ${post.isSaved ? 'fill-primary-500 text-primary-500' : ''}`} />
                             <span className="font-medium text-sm hidden sm:inline">{post.isSaved ? 'Đã lưu' : 'Lưu bài'}</span>
                         </button>
-                        <button className="flex items-center space-x-2 text-slate-400 hover:text-slate-600">
+                        <button 
+                            onClick={() => {
+                                navigator.clipboard.writeText(window.location.href);
+                                import('react-hot-toast').then(({ default: toast }) => toast.success('Đã copy link!'));
+                            }}
+                            className="flex items-center space-x-2 text-slate-400 hover:text-slate-600"
+                        >
                             <Share2 className="w-5 h-5" />
                             <span className="font-medium text-sm hidden sm:inline">Chia sẻ</span>
                         </button>

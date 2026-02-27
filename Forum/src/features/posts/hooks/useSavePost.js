@@ -24,21 +24,44 @@ export const useSavePost = () => {
             const previousPost = queryClient.getQueryData(['post', postId.toString()]);
             const previousSavedPosts = queryClient.getQueryData(['savedPosts']);
 
-            // Generic update function for paginated endpoints
+            // Generic update function for queries
             const updatePostPages = (oldData) => {
-                if (!oldData?.pages) return oldData;
-                return {
-                    ...oldData,
-                    pages: oldData.pages.map(page => ({
-                        ...page,
-                        data: page.data.map(p => {
-                            if (p.id === postId) {
-                                return { ...p, isSaved: !isSaved };
-                            }
+                if (!oldData) return oldData;
+                
+                // If the data has pages (infinite query)
+                if (oldData.pages) {
+                    return {
+                        ...oldData,
+                        pages: oldData.pages.map(page => ({
+                            ...page,
+                            data: Array.isArray(page.data) ? page.data.map(p => {
+                                if (p.id === postId) return { ...p, isSaved: !isSaved };
+                                return p;
+                            }) : page.data
+                        }))
+                    };
+                }
+                
+                // If it is a standard paginated response { data: [...] }
+                if (Array.isArray(oldData.data)) {
+                    return {
+                        ...oldData,
+                        data: oldData.data.map(p => {
+                            if (p.id === postId) return { ...p, isSaved: !isSaved };
                             return p;
                         })
-                    }))
-                };
+                    };
+                }
+
+                // If it is just an array
+                if (Array.isArray(oldData)) {
+                    return oldData.map(p => {
+                        if (p.id === postId) return { ...p, isSaved: !isSaved };
+                        return p;
+                    });
+                }
+                
+                return oldData;
             };
 
             // Update feed pages
