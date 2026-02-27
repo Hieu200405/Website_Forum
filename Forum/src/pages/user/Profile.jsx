@@ -3,9 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getPosts } from '@/features/posts/api/postService';
 import api from '@/lib/axios';
-import { Calendar, FileText, Loader2, Info } from 'lucide-react';
+import { Calendar, FileText, Loader2, Info, Trash2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import useAuthStore from '@/features/auth/store/authStore';
+import { useDeletePost } from '@/features/posts/hooks/useDeletePost';
+import useModalStore from '@/components/hooks/useModalStore';
 
 // Service to fetch user profile
 const getUserProfile = async (id) => {
@@ -30,6 +33,12 @@ const Profile = () => {
         queryFn: () => getPosts({ authorId: userId, limit: 50 }),
         enabled: !!userId
     });
+
+    const { user: currentUser } = useAuthStore();
+    const deleteMutation = useDeletePost();
+    const { onOpen } = useModalStore();
+
+    const isOwnProfile = currentUser && String(currentUser.id) === String(userId);
 
     const user = userResponse || null;
     let posts = [];
@@ -124,13 +133,32 @@ const Profile = () => {
                                                 <span>{format(new Date(post.createdAt), 'dd/MM/yyyy')}</span>
                                              </div>
                                         </div>
-                                        <div className="flex items-center gap-4 text-sm font-medium text-slate-500 self-start sm:self-center shrink-0">
-                                            <span className="flex items-center gap-1">
-                                                ❤️ {post.likeCount || 0}
-                                            </span>
-                                            <span className="flex items-center gap-1">
-                                                💬 {post.commentCount || 0}
-                                            </span>
+                                        <div className="flex items-center gap-3 self-start sm:self-center shrink-0">
+                                            <span className="text-sm text-slate-500">❤️ {post.likeCount || 0}</span>
+                                            <span className="text-sm text-slate-500">💬 {post.commentCount || 0}</span>
+                                            {isOwnProfile && (
+                                                <>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); onOpen('create-post', post); }}
+                                                        className="p-1.5 rounded-lg text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                                                        title="Chỉnh sửa"
+                                                    >
+                                                        <Pencil className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => { 
+                                                            e.stopPropagation();
+                                                            if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+                                                                deleteMutation.mutate(post.id);
+                                                            }
+                                                        }}
+                                                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                                        title="Xóa"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                 ))
