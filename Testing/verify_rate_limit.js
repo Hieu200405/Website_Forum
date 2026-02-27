@@ -145,6 +145,7 @@ async function runTests() {
 
     } catch (error) {
         console.error('\n❌ TEST FAILED:', error);
+        process.exitCode = 1;
     } finally {
         await sequelize.close();
         // Close redis client?
@@ -154,4 +155,15 @@ async function runTests() {
     }
 }
 
-runTests();
+
+// Robust execution wrapper added to avoid hanging CI and report correct exit code
+runTests().then(() => {
+    // Give a short delay to allow logs to flush
+    setTimeout(() => {
+        console.log('Exiting process with code:', process.exitCode || 0);
+        process.exit(process.exitCode || 0);
+    }, 500);
+}).catch((err) => {
+    console.error('Unhandled Rejection in runTests:', err);
+    process.exit(1);
+});

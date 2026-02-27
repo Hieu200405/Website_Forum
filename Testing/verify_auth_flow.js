@@ -111,4 +111,15 @@ async function runTests() {
 }
 
 // Chạy test
-runTests();
+
+// Robust execution wrapper added to avoid hanging CI and report correct exit code
+runTests().then(() => {
+    // Give a short delay to allow logs to flush
+    setTimeout(() => {
+        console.log('Exiting process with code:', process.exitCode || 0);
+        process.exit(process.exitCode || 0);
+    }, 500);
+}).catch((err) => {
+    console.error('Unhandled Rejection in runTests:', err);
+    process.exit(1);
+});
