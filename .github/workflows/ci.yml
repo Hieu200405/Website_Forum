@@ -60,30 +60,16 @@ jobs:
           # Change directory to Testing so relative requires to Server work as exactly constructed
           cd ../Testing
 
-          # Run tests in parallel to heavily cut down execution time
-          pids=""
-
+          # Run tests sequentially to avoid DB metadata locks and rate limit collisions
           for test_file in verify_*.js; do
             if [ -f "$test_file" ]; then
               echo "Starting $test_file..."
-              node "$test_file" &
-              pids="$pids $!"
+              node "$test_file" || {
+                echo "Test process failed for $test_file!"
+                exit 1
+              }
             fi
           done
-
-          # Wait for all background test processes to finish
-          failed=0
-          for pid in $pids; do
-            wait $pid || {
-               echo "A test process (PID: $pid) failed!"
-               failed=1
-            }
-          done
-
-          if [ $failed -ne 0 ]; then
-            echo "One or more tests failed."
-            exit 1
-          fi
 
   frontend-build:
     runs-on: ubuntu-latest
