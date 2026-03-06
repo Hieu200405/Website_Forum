@@ -47,9 +47,49 @@ const NotificationDropdown = () => {
                 const arr = Array.isArray(old) ? old : old?.data || [];
                 return [notif, ...arr];
             });
+
+            // Show real-time interactive toast
+            import('react-hot-toast').then(({ default: toast }) => {
+                toast.custom((t) => (
+                    <div
+                        onClick={() => {
+                            toast.dismiss(t.id);
+                            if (notif.reference_id && (notif.type === 'LIKE' || notif.type === 'COMMENT')) {
+                                navigate(`/user/posts/${notif.reference_id}`);
+                            }
+                        }}
+                        className={`${
+                            t.visible ? 'animate-enter' : 'animate-leave'
+                        } max-w-sm w-full bg-white shadow-2xl rounded-2xl pointer-events-auto flex ring-1 ring-black ring-opacity-5 cursor-pointer hover:bg-slate-50 transition-colors border border-primary-100 overflow-hidden`}
+                    >
+                        <div className="flex-1 w-0 p-4">
+                            <div className="flex items-start">
+                                <div className="flex-shrink-0 pt-0.5">
+                                    <img
+                                        className="h-10 w-10 rounded-full object-cover ring-2 ring-primary-100"
+                                        src={notif.sender?.avatar || `https://ui-avatars.com/api/?name=${notif.sender?.username || 'U'}&background=6366f1&color=fff&bold=true`}
+                                        alt=""
+                                    />
+                                </div>
+                                <div className="ml-3 flex-1">
+                                    <p className="text-[13px] font-bold text-slate-900">
+                                        {notif.sender?.username || 'Ai đó'}
+                                    </p>
+                                    <p className="mt-0.5 text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                                        {notif.content}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-center p-3 text-primary-500">
+                            <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+                        </div>
+                    </div>
+                ), { duration: 5000 });
+            });
         });
         return () => socket.disconnect();
-    }, [user, queryClient]);
+    }, [user, queryClient, navigate]);
 
     useEffect(() => {
         const close = e => { if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsOpen(false); };

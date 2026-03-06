@@ -10,6 +10,7 @@ import useAuthStore from '@/features/auth/store/authStore';
 import { useDeletePost } from '@/features/posts/hooks/useDeletePost';
 import useModalStore from '@/components/hooks/useModalStore';
 import toast from 'react-hot-toast';
+import { Helmet } from 'react-helmet-async';
 
 const getUserProfile = async (id) => {
     const response = await api.get(`/users/${id}`);
@@ -83,10 +84,21 @@ const Profile = () => {
     else if (postsResponse?.data && Array.isArray(postsResponse.data)) posts = postsResponse.data;
 
     if (userLoading) return (
-        <div className="flex justify-center items-center h-64">
-            <div className="flex flex-col items-center gap-3">
-                <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
-                <span className="text-sm text-slate-400 font-medium">Đang tải hồ sơ...</span>
+        <div className="max-w-5xl mx-auto pb-20 fade-in animate-pulse">
+            <Helmet>
+                <title>Đang tải hồ sơ... | ForumHub</title>
+            </Helmet>
+            <div className="h-44 rounded-3xl bg-slate-200 mt-2" />
+            <div className="bg-white rounded-3xl -mt-12 mx-4 shadow-xl border border-slate-100 p-6 flex flex-col sm:flex-row gap-5">
+                <div className="w-28 h-28 rounded-2xl bg-slate-300 shrink-0 border-4 border-white" />
+                <div className="flex-1 space-y-4 pt-2">
+                    <div className="h-6 bg-slate-200 rounded w-1/3" />
+                    <div className="h-4 bg-slate-200 rounded w-1/4" />
+                    <div className="flex gap-4 mt-6">
+                        <div className="h-10 bg-slate-100 rounded-xl w-24" />
+                        <div className="h-10 bg-slate-100 rounded-xl w-24" />
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -110,6 +122,14 @@ const Profile = () => {
 
     return (
         <div className="max-w-5xl mx-auto pb-20 fade-in">
+            <Helmet>
+                <title>{user.username} | Hồ sơ cá nhân - ForumHub</title>
+                <meta name="description" content={`Xem hồ sơ của ${user.username} trên ForumHub - thành viên nổi bật với ${rep} điểm uy tín`} />
+                <meta property="og:title" content={`${user.username} | ForumHub`} />
+                <meta property="og:description" content={`Thành viên nổi bật - ${badge.label} với ${rep} điểm uy tín`} />
+                <meta property="og:image" content={avatarSrc} />
+            </Helmet>
+
             {/* ─── Hero Banner ─── */}
             <div className="relative h-44 rounded-3xl overflow-hidden mb-0"
                 style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)' }}>
