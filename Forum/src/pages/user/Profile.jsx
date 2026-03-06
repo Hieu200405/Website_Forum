@@ -3,12 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getPosts } from '@/features/posts/api/postService';
 import api from '@/lib/axios';
-import { Calendar, FileText, Loader2, Info, Trash2, Pencil, Settings2 } from 'lucide-react';
+import { Calendar, FileText, Loader2, Info, Trash2, Pencil, Settings2, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import useAuthStore from '@/features/auth/store/authStore';
 import { useDeletePost } from '@/features/posts/hooks/useDeletePost';
 import useModalStore from '@/components/hooks/useModalStore';
+import { useMutation } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 // Service to fetch user profile
 const getUserProfile = async (id) => {
@@ -35,10 +37,69 @@ const Profile = () => {
     });
 
     const { user: currentUser } = useAuthStore();
+    const isOwnProfile = currentUser && String(currentUser.id) === String(userId);
+
+    // Follow status check
+    const { data: followStatus, refetch: refetchFollow } = useQuery({
+        queryKey: ['followStatus', userId],
+        queryFn: async () => {
+            const res = await api.get(`/users/${userId}/check-follow`);
+            return res.data.isFollowing;
+        },
+        enabled: !!currentUser && !isOwnProfile,
+        retry: false
+    });
+
+    const { data: followersData, refetch: refetchFollowers } = useQuery({
+        queryKey: ['followers', userId],
+        queryFn: async () => {
+            const res = await api.get(`/users/${userId}/followers`);
+            return res.data.data;
+        },
+        enabled: !!userId,
+        retry: false
+    });
+
+    const { data: followingData } = useQuery({
+        queryKey: ['following', userId],
+        queryFn: async () => {
+            const res = await api.get(`/users/${userId}/following`);
+            return res.data.data;
+        },
+        enabled: !!userId,
+        retry: false
+    });
     const deleteMutation = useDeletePost();
     const { onOpen } = useModalStore();
 
-    const isOwnProfile = currentUser && String(currentUser.id) === String(userId);
+    // Follow mutations
+    const followMutation = useMutation({
+        mutationFn: async () => {
+            await api.post(`/users/${userId}/follow`);
+        },
+        onSuccess: () => {
+            toast.success(`Đã theo dõi ${userResponse?.username || 'người dùng'}`);
+            refetchFollow();
+            refetchFollowers();
+        },
+        onError: (err) => {
+            toast.error(err.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    });
+
+    const unfollowMutation = useMutation({
+        mutationFn: async () => {
+            await api.post(`/users/${userId}/unfollow`);
+        },
+        onSuccess: () => {
+            toast.success(`Đã bỏ theo dõi ${userResponse?.username || 'người dùng'}`);
+            refetchFollow();
+            refetchFollowers();
+        },
+        onError: (err) => {
+            toast.error(err.response?.data?.message || 'Có lỗi xảy ra');
+        }
+    });
 
     const user = userResponse || null;
     let posts = [];
@@ -110,6 +171,21 @@ const Profile = () => {
                          })()}
                      </div>
 
+                     <div className="flex justify-center flex-wrap gap-4 mt-5 w-full">
+                         <div className="text-center px-4">
+                             <div className="text-lg font-bold text-slate-800">{posts.length}</div>
+                             <div className="text-xs text-slate-500 uppercase tracking-widest font-semibold">Bài viết</div>
+                         </div>
+                         <div className="text-center px-4 border-x border-slate-100">
+                             <div className="text-lg font-bold text-slate-800">{followersData?.length || 0}</div>
+                             <div className="text-xs text-slate-500 uppercase tracking-widest font-semibold">Theo dõi</div>
+                         </div>
+                         <div className="text-center px-4">
+                             <div className="text-lg font-bold text-slate-800">{followingData?.length || 0}</div>
+                             <div className="text-xs text-slate-500 uppercase tracking-widest font-semibold">Đang theo dõi</div>
+                         </div>
+                     </div>
+
                      <div className="w-full mt-6 space-y-4 text-left">
                          <div className="flex items-center text-slate-600 text-sm">
                              <Calendar className="w-4 h-4 mr-3 text-slate-400" />
@@ -121,16 +197,34 @@ const Profile = () => {
                          </div>
                      </div>
 
-                     {/* Settings button - only for own profile */}
-                     {isOwnProfile && (
-                         <button
-                             onClick={() => navigate('/user/settings')}
-                             className="mt-5 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-primary-50 text-slate-600 hover:text-primary-700 border border-slate-200 hover:border-primary-300 font-medium text-sm rounded-xl transition-all"
-                         >
-                             <Settings2 className="w-4 h-4" />
-                             Cài đặt tài khoản
-                         </button>
-                     )}
+                     {/* Action buttons */}
+                     <div className="w-full mt-5">
+                         {isOwnProfile ? (
+                             <button
+                                 onClick={() => navigate('/user/settings')}
+                                 className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-primary-50 text-slate-600 hover:text-primary-700 border border-slate-200 hover:border-primary-300 font-medium text-sm rounded-xl transition-all"
+                             >
+                                 <Settings2 className="w-4 h-4" />
+                                 Cài đặt tài khoản
+                             </button>
+                         ) : (
+                             <button
+                                 onClick={() => followStatus ? unfollowMutation.mutate() : followMutation.mutate()}
+                                 disabled={followMutation.isPending || unfollowMutation.isPending}
+                                 className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 font-medium text-sm rounded-xl transition-all ${
+                                     followStatus 
+                                     ? 'bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 border border-slate-200 hover:border-red-200' 
+                                     : 'bg-primary-600 hover:bg-primary-700 text-white shadow-md shadow-primary-500/20'
+                                 }`}
+                             >
+                                 <Users className="w-4 h-4" />
+                                 {followMutation.isPending || unfollowMutation.isPending 
+                                    ? <Loader2 className="w-4 h-4 animate-spin" /> 
+                                    : (followStatus ? 'Bỏ theo dõi' : 'Theo dõi')
+                                 }
+                             </button>
+                         )}
+                     </div>
                 </div>
             </div>
 

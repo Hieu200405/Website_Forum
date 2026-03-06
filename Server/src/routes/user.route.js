@@ -128,4 +128,8 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// Merge follow routes (e.g. /api/users/:id/follow)
+const followRoute = require('./follow.route');
+router.use('/', followRoute);
+
 module.exports = router;
