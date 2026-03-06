@@ -1,26 +1,32 @@
 import React from 'react';
 
-const PostSkeleton = () => {
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 animate-pulse">
-      <div className="flex items-center mb-4">
-        <div className="h-10 w-10 rounded-full bg-gray-200"></div>
-        <div className="ml-3 space-y-2">
-          <div className="h-4 w-24 bg-gray-200 rounded"></div>
-          <div className="h-3 w-16 bg-gray-200 rounded"></div>
+const PostCardSkeleton = () => (
+    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden"
+        style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <div className="p-5">
+            {/* Author row */}
+            <div className="flex items-center gap-3 mb-5">
+                <div className="w-11 h-11 rounded-full skeleton shrink-0" />
+                <div className="flex-1 space-y-2">
+                    <div className="h-3.5 w-28 skeleton rounded-full" />
+                    <div className="h-3 w-20 skeleton rounded-full" />
+                </div>
+            </div>
+            {/* Title */}
+            <div className="pl-14 space-y-2 mb-4">
+                <div className="h-5 w-4/5 skeleton rounded-xl" />
+                <div className="h-3.5 w-full skeleton rounded-full" />
+                <div className="h-3.5 w-3/4 skeleton rounded-full" />
+            </div>
         </div>
-      </div>
-      <div className="h-6 w-3/4 bg-gray-200 rounded mb-4"></div>
-      <div className="space-y-2 mb-4">
-        <div className="h-4 w-full bg-gray-200 rounded"></div>
-        <div className="h-4 w-5/6 bg-gray-200 rounded"></div>
-      </div>
-      <div className="flex space-x-4">
-        <div className="h-8 w-16 bg-gray-200 rounded"></div>
-        <div className="h-8 w-16 bg-gray-200 rounded"></div>
-      </div>
+        {/* Action bar */}
+        <div className="px-5 py-3 border-t border-slate-50 flex gap-3">
+            <div className="h-8 w-20 skeleton rounded-xl" />
+            <div className="h-8 w-28 skeleton rounded-xl" />
+            <div className="ml-auto h-8 w-8 skeleton rounded-xl" />
+            <div className="h-8 w-8 skeleton rounded-xl" />
+        </div>
     </div>
-  );
-};
+);
 
-export default PostSkeleton;
+export default PostCardSkeleton;
