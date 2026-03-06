@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '@/features/auth/store/authStore';
-import { Home, PlusSquare, LogOut, User as UserIcon, Trophy, Zap, Bookmark, Sun, Moon } from 'lucide-react';
+import { Home, PlusSquare, LogOut, User as UserIcon, Trophy, Zap, Bookmark, Sun, Moon, Search } from 'lucide-react';
 import NotificationDropdown from '@/features/notifications/components/NotificationDropdown';
 import { useTheme } from '@/contexts/useTheme';
+
 
 const UserLayout = () => {
     const { user, logout } = useAuthStore();
@@ -66,6 +67,28 @@ const UserLayout = () => {
                         <NavLink to="/user/leaderboard" active={isActive('/user/leaderboard')} icon={<Trophy size={16} />} label="Phong Thần" highlight />
                         <NavLink to="/user/saved" active={isActive('/user/saved')} icon={<Bookmark size={16} />} label="Đã lưu" />
                     </nav>
+
+                    {/* ── Search trigger (opens Command Palette) ── */}
+                    <button
+                        onClick={() => {
+                            const e = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true });
+                            window.dispatchEvent(e);
+                        }}
+                        className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-all w-52"
+                        style={{
+                            background: 'var(--bg-muted)',
+                            border: '1px solid var(--border-color)',
+                            color: 'var(--text-muted)',
+                        }}
+                        title="Tìm kiếm (Ctrl+K)"
+                    >
+                        <Search size={14} />
+                        <span className="flex-1 text-left">Tìm kiếm...</span>
+                        <kbd
+                            className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
+                        >⌘K</kbd>
+                    </button>
 
                     {/* Right actions */}
                     <div className="flex items-center gap-2 shrink-0">

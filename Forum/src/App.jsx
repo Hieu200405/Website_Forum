@@ -6,6 +6,7 @@ import AppRoutes from '@/routes/AppRoutes';
 import ModalProvider from '@/components/providers/ModalProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import CommandPalette from '@/components/CommandPalette';
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ function App() {
           <Router>
             <AppRoutes />
             <ModalProvider />
+            <CommandPalette />
           </Router>
         </ErrorBoundary>
         <Toaster
