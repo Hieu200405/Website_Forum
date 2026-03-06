@@ -30,6 +30,19 @@ class CreateCommentUseCase {
     // Note: checkContent trả về Promise<{isValid, bannedWordsFound}> do load DB
     const modResult = await ModerationService.check(content);
     const status = modResult.isValid ? 'active' : 'pending';
+    
+    let violationReason = '';
+    if (!modResult.isValid) {
+        const uniqueViolations = [...new Set(modResult.bannedWordsFound)];
+        let reasonStr = '';
+        if (uniqueViolations.length > 0) {
+           reasonStr += `Found banned words: ${uniqueViolations.join(', ')}. `;
+        }
+        if (modResult.aiReason) {
+           reasonStr += `AI Flagged: ${modResult.aiReason}.`;
+        }
+        violationReason = reasonStr.trim();
+    }
 
     // 4. Create Comment
     const newComment = await CommentRepository.create({
@@ -50,7 +63,12 @@ class CreateCommentUseCase {
       userId,
       'CREATE_COMMENT',
       ip,
-      { commentId: newComment.id, postId, status }
+      { 
+        commentId: newComment.id, 
+        postId, 
+        status,
+        violationReason: status === 'pending' ? violationReason : null
+      }
     );
 
     // 7. Gửi thông báo cho chủ sở hữu bài viết

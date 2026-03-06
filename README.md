@@ -37,7 +37,12 @@ The application strictly separates functionalities and layouts based on user rol
 - **Performance Caching**: Powered by **Redis** for faster data retrieval.
 - **Moderation**: Automatic filtering of banned words in post titles and content.
 
-### 3. **Modern UX/UI**
+### 3. **AI && Security (Mới Cập Nhật 🌟)**
+
+- **AI Content Moderation**: Viết bài & Bình luận được bảo vệ 2 lớp nhờ tích hợp **Google Gemini 2.5 Flash AI** cùng bộ lọc "Banned Words". Nội dung sẽ tự động chuyển sang trạng thái "chờ duyệt" nếu AI phát hiện ngôn từ toxic/quấy rối.
+- **Debounced Live Full-Text Search**: Cỗ máy tìm kiếm SQL an toàn được tối ưu cùng độ trễ tránh Spam.
+
+### 4. **Modern UX/UI**
 
 - **Tailwind CSS v4**: High-performance utility-first styling.
 - **Responsive Design**: Fully adaptable to mobile and desktop.

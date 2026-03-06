@@ -43,6 +43,19 @@ class ReplyCommentUseCase {
     // 4. Moderation Check
     const modResult = await ModerationService.check(content);
     const status = modResult.isValid ? 'active' : 'pending';
+    
+    let violationReason = '';
+    if (!modResult.isValid) {
+        const uniqueViolations = [...new Set(modResult.bannedWordsFound)];
+        let reasonStr = '';
+        if (uniqueViolations.length > 0) {
+           reasonStr += `Found banned words: ${uniqueViolations.join(', ')}. `;
+        }
+        if (modResult.aiReason) {
+           reasonStr += `AI Flagged: ${modResult.aiReason}.`;
+        }
+        violationReason = reasonStr.trim();
+    }
 
     // 5. Create Reply
     const reply = await CommentRepository.create({
@@ -67,7 +80,8 @@ class ReplyCommentUseCase {
         replyId: reply.id, 
         parentCommentId, 
         postId, 
-        status
+        status,
+        violationReason: status === 'pending' ? violationReason : null
       }
     );
 
