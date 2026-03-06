@@ -35,6 +35,21 @@ class UserRepository {
       attributes: { exclude: ['password'] } // Security: Don't return passwords
     });
   }
+
+  async updateReputation(userId, points) {
+    const user = await User.findByPk(userId);
+    if (user) {
+      await user.increment('reputation', { by: points });
+    }
+  }
+
+  async getTopReputation(limit = 10) {
+    return await User.findAll({
+      limit,
+      order: [['reputation', 'DESC']],
+      attributes: ['id', 'username', 'avatar', 'reputation']
+    });
+  }
 }
 
 module.exports = new UserRepository();

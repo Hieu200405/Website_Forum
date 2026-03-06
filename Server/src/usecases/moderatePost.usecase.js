@@ -1,4 +1,5 @@
 const PostRepository = require('../repositories/post.repository');
+const UserRepository = require('../repositories/user.repository');
 const LoggingService = require('../services/logging.service');
 const ROLES = require('../constants/roles');
 
@@ -63,6 +64,16 @@ class ModeratePostUseCase {
     // Update Report status to 'reviewed'
     const ReportRepository = require('../repositories/report.repository');
     await ReportRepository.updateStatusByPostId(postId, 'reviewed');
+
+    // Mange Gamification Reputation for Post moderation
+    const authorId = post.user_id || post.author?.id;
+    if (authorId) {
+      if (action === 'approve') {
+        await UserRepository.updateReputation(authorId, 10); // Reward 10 points for good post
+      } else if (action === 'hide' || action === 'delete') {
+        await UserRepository.updateReputation(authorId, -20); // Penalty for violating post
+      }
+    }
 
     // 5. Logging
     await LoggingService.log(

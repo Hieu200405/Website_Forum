@@ -1,5 +1,6 @@
 const LikeRepository = require('../repositories/like.repository');
 const PostRepository = require('../repositories/post.repository');
+const UserRepository = require('../repositories/user.repository');
 const LoggingService = require('../services/logging.service');
 
 class UnlikePostUseCase {
@@ -29,7 +30,12 @@ class UnlikePostUseCase {
     // 4. Update Post stats
     await PostRepository.decreaseLikeCount(postId);
 
-    // 5. Log
+    // 5. Trừ điểm uy tín (Reputation Gamification)
+    if (post.user_id && post.user_id !== userId) {
+      await UserRepository.updateReputation(post.user_id, -5);
+    }
+
+    // 6. Log
     await LoggingService.log(userId, 'UNLIKE_POST', ipAddress, { postId });
 
     return { message: 'Đã bỏ like bài viết' };
