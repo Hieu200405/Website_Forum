@@ -1,12 +1,15 @@
 import api from '@/lib/axios';
 
 // Lấy danh sách bài viết
-export const getPosts = async ({ page = 1, limit = 10, sort = 'newest', authorId = null }) => {
+export const getPosts = async ({ page = 1, limit = 10, sort = 'newest', authorId = null, search = null }) => {
   // Backend trả về: { data: [...], page, limit, total }
   // Endpoint: GET /posts?page=1&limit=10&sort=newest&authorId=...
   let url = `/posts?page=${page}&limit=${limit}&sort=${sort}`;
   if (authorId) {
     url += `&authorId=${authorId}`;
+  }
+  if (search) {
+    url += `&search=${encodeURIComponent(search)}`;
   }
   return await api.get(url);
 };

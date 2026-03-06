@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import useAuthStore from '@/features/auth/store/authStore';
 import PostList from '@/features/posts/components/PostList';
 import { useNavigate } from 'react-router-dom';
-import { Home, Hash, TrendingUp, PenSquare, Bookmark } from 'lucide-react';
+import { Home, Hash, TrendingUp, PenSquare, Bookmark, Search } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '@/features/categories/api/categoryService';
 import { getPosts } from '@/features/posts/api/postService';
@@ -24,6 +24,16 @@ const NavItem = ({ icon, label, active, onClick }) => {
 const UserHome = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Debounce search input to avoid spamming the API
+  useEffect(() => {
+     const delayDebounceFn = setTimeout(() => {
+        setSearchQuery(searchInput);
+     }, 400);
+     return () => clearTimeout(delayDebounceFn);
+  }, [searchInput]);
 
   // 1. Fetch Categories
   const { data: categories = [] } = useQuery({
@@ -63,6 +73,20 @@ const UserHome = () => {
 
         {/* MAIN FEED */}
         <main className="col-span-12 lg:col-span-6 space-y-6 pb-20">
+            {/* Search Bar */}
+            <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
+                </div>
+                <input
+                    type="text"
+                    className="block w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all font-medium text-slate-700"
+                    placeholder="Tìm kiếm bài viết, chủ đề..."
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                />
+            </div>
+
             {user && (
                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 transition-all hover:shadow-md cursor-pointer" onClick={() => {
                      import('@/components/hooks/useModalStore').then(({ default: useModal }) => {
@@ -83,7 +107,7 @@ const UserHome = () => {
                 </div>
             )}
             
-            <PostList />
+            <PostList searchQuery={searchQuery} />
         </main>
 
         {/* RIGHT SIDEBAR (Trending Posts) */}
