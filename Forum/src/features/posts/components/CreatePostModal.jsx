@@ -1,6 +1,8 @@
 import React, { useState, useRef, useCallback, useMemo } from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
+import hljs from "highlight.js";
+import "highlight.js/styles/atom-one-dark.css";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { createPost, updatePost } from "../api/postService";
 import { getCategories } from "@/features/categories/api/categoryService";
@@ -9,6 +11,9 @@ import useModalStore from "@/components/hooks/useModalStore";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
+
+// Configure highlight.js for Quill
+window.hljs = hljs;
 
 const CreatePostModal = () => {
   const { onClose, data: editPost } = useModalStore();
@@ -71,10 +76,11 @@ const CreatePostModal = () => {
 
   const modules = useMemo(
     () => ({
+      syntax: true, // Enable syntax highlighting
       toolbar: {
         container: [
           [{ header: [1, 2, false] }],
-          ["bold", "italic", "underline", "strike", "blockquote"],
+          ["bold", "italic", "underline", "strike", "blockquote", "code-block"],
           [{ list: "ordered" }, { list: "bullet" }],
           ["link", "image"],
           ["clean"],
