@@ -13,6 +13,7 @@ import { useDeletePost } from '@/features/posts/hooks/useDeletePost';
 import PostCardSkeleton from '@/features/posts/components/PostSkeleton';
 import CommentSection from '@/features/posts/components/CommentSection';
 import PostMenu from '@/features/posts/components/PostMenu';
+import ReadingProgressBar from '@/components/ReadingProgressBar';
 import { ArrowLeft, Heart, MessageSquare, Share2, Bookmark } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -60,6 +61,8 @@ const UserPostDetail = () => {
   const plainExcerpt = post?.content ? getTextFromHtml(post.content).substring(0, 160) + '...' : 'Diễn đàn chia sẻ kiến thức trực tuyến';
 
   return (
+      <>
+      <ReadingProgressBar />
       <div className="max-w-4xl mx-auto">
           <Helmet>
               <title>{post.title} | Forum</title>
@@ -130,7 +133,7 @@ const UserPostDetail = () => {
                   </div>
 
                   {/* Post Body */}
-                  <div className="prose prose-slate max-w-none text-slate-800 leading-8 text-[16px] ql-editor px-0">
+                  <div id="post-content" className="prose prose-slate max-w-none text-slate-800 leading-8 text-[16px] ql-editor px-0">
                       {parse(DOMPurify.sanitize(post.content || ''))}
                   </div>
               </div>
@@ -181,6 +184,7 @@ const UserPostDetail = () => {
           {/* Comments Section */}
           <CommentSection postId={post.id} />
       </div>
+      </>
   );
 };
 
