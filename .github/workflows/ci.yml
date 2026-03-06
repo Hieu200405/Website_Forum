@@ -86,7 +86,7 @@ jobs:
 
       - name: Install Forum Dependencies
         working-directory: ./Forum
-        run: npm ci --legacy-peer-deps
+        run: npm install --no-fund --no-audit --legacy-peer-deps
 
       - name: Lint Frontend
         working-directory: ./Forum
