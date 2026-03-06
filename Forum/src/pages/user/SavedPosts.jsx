@@ -19,19 +19,29 @@ const SavedPostsList = () => {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            <div className="flex items-center space-x-4 mb-6">
-                <button 
-                    onClick={() => navigate('/user')}
-                    className="p-2 text-slate-400 hover:text-slate-600 bg-white rounded-full shadow-sm border border-slate-100 transition-colors"
-                >
-                    <ArrowLeft className="w-5 h-5" />
-                </button>
-                <div className="flex items-center space-x-3 text-slate-800">
-                    <div className="p-2 bg-primary-50 text-primary-600 rounded-xl">
-                        <Bookmark className="w-6 h-6 fill-current text-primary-500" />
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-8 mb-8 text-white shadow-lg relative overflow-hidden">
+                <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
+                    <button 
+                        onClick={() => navigate('/user')}
+                        className="p-3 bg-white/20 hover:bg-white/30 rounded-xl transition-colors backdrop-blur-md self-start md:self-center"
+                    >
+                        <ArrowLeft className="w-6 h-6 text-white" />
+                    </button>
+                    <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                           <div className="p-2 bg-white/20 rounded-lg backdrop-blur-md">
+                               <Bookmark className="w-6 h-6 text-white fill-white" />
+                           </div>
+                           <h1 className="text-3xl font-extrabold text-white tracking-tight">Bộ sưu tập</h1>
+                        </div>
+                        <p className="text-indigo-100 text-lg">
+                            Nơi lưu trữ những kiến thức quý giá và nội dung tâm đắc nhất của bạn.
+                        </p>
                     </div>
-                    <h1 className="text-2xl font-bold">Bài viết đã lưu</h1>
                 </div>
+                {/* Decorative Elements */}
+                <div className="absolute top-[-40px] right-[-20px] w-48 h-48 bg-white/10 rounded-full blur-3xl mix-blend-overlay"></div>
+                <div className="absolute bottom-[-60px] left-[10%] w-64 h-64 bg-purple-400/20 rounded-full blur-3xl mix-blend-overlay"></div>
             </div>
 
             <div className="space-y-4">

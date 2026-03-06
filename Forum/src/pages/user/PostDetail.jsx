@@ -4,6 +4,7 @@ import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import "highlight.js/styles/atom-one-dark.css";
 import { useQuery } from '@tanstack/react-query';
 import { getPostDetail } from '@/features/posts/api/commentService';
 import { useLikePost } from '@/features/posts/hooks/useLikePost';
