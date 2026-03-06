@@ -38,7 +38,7 @@ jobs:
 
       - name: Install Server Dependencies
         working-directory: ./Server
-        run: npm ci
+        run: npm install --no-fund --no-audit --legacy-peer-deps
 
       - name: Run Backend Tests
         working-directory: ./Server
