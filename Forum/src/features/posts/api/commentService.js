@@ -21,12 +21,26 @@ export const createComment = async ({ postId, content }) => {
 };
 
 export const replyComment = async ({ postId, parentId, content }) => {
-    // POST /api/comments/reply
     const response = await axios.post(`/comments/reply`, { 
         postId, 
         parentCommentId: parentId, 
         content 
     });
-    // Response: { success: true, data: {...comment} }
     return response;
 };
+
+export const likeComment = async (commentId) => {
+    const response = await axios.post(`/comments/${commentId}/like`);
+    return response;
+};
+
+export const unlikeComment = async (commentId) => {
+    const response = await axios.delete(`/comments/${commentId}/like`);
+    return response;
+};
+
+export const deleteComment = async (commentId) => {
+    const response = await axios.delete(`/comments/${commentId}`);
+    return response;
+};
+
