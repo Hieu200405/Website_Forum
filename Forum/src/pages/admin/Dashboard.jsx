@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAdminStats, getSystemLogs } from '@/features/admin/api/adminService';
 import {
@@ -44,44 +44,50 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 // ─── Stat Card ───────────────────────────────────────────────────
-const StatCard = ({ icon: Icon, label, value, sub, gradient, trend }) => (
-    <div className={`relative overflow-hidden rounded-2xl p-5 text-white`} style={{ background: gradient }}>
-        <div className="absolute -top-4 -right-4 w-20 h-20 bg-white/10 rounded-full blur-xl" />
-        <div className="relative z-10 flex items-start justify-between">
-            <div>
-                <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-1">{label}</p>
-                <p className="text-3xl font-black">{value?.toLocaleString()}</p>
-                {sub && <p className="text-white/60 text-xs mt-1">{sub}</p>}
+const StatCard = ({ icon, label, value, sub, gradient, trend }) => {
+    const IconComponent = icon;
+    return (
+        <div className={`relative overflow-hidden rounded-2xl p-5 text-white`} style={{ background: gradient }}>
+            <div className="absolute -top-4 -right-4 w-20 h-20 bg-white/10 rounded-full blur-xl" />
+            <div className="relative z-10 flex items-start justify-between">
+                <div>
+                    <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-1">{label}</p>
+                    <p className="text-3xl font-black">{value?.toLocaleString()}</p>
+                    {sub && <p className="text-white/60 text-xs mt-1">{sub}</p>}
+                </div>
+                <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
+                    <IconComponent className="w-5 h-5 text-white" />
+                </div>
             </div>
-            <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
-                <Icon className="w-5 h-5 text-white" />
-            </div>
+            {trend !== undefined && (
+                <div className="relative z-10 mt-3 flex items-center gap-1 text-xs font-semibold text-white/80">
+                    <TrendingUp className="w-3.5 h-3.5" />
+                    <span>{trend}</span>
+                </div>
+            )}
         </div>
-        {trend !== undefined && (
-            <div className="relative z-10 mt-3 flex items-center gap-1 text-xs font-semibold text-white/80">
-                <TrendingUp className="w-3.5 h-3.5" />
-                <span>{trend}</span>
-            </div>
-        )}
-    </div>
-);
+    );
+};
 
 // ─── Section wrapper ─────────────────────────────────────────────
-const Section = ({ title, icon: Icon, children, action }) => (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
-        style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(99,102,241,0.04)' }}>
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-primary-50">
-                    <Icon className="w-4 h-4 text-primary-600" />
+const Section = ({ title, icon, children, action }) => {
+    const IconComponent = icon;
+    return (
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+            style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(99,102,241,0.04)' }}>
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-lg bg-primary-50">
+                        <IconComponent className="w-4 h-4 text-primary-600" />
+                    </div>
+                    <h3 className="font-bold text-slate-800 text-sm">{title}</h3>
                 </div>
-                <h3 className="font-bold text-slate-800 text-sm">{title}</h3>
+                {action}
             </div>
-            {action}
+            <div className="p-5">{children}</div>
         </div>
-        <div className="p-5">{children}</div>
-    </div>
-);
+    );
+};
 
 // ─── Main Dashboard ──────────────────────────────────────────────
 const AdminDashboard = () => {
