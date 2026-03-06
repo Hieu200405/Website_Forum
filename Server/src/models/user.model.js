@@ -41,6 +41,11 @@ const User = sequelize.define('User', {
     defaultValue: ROLES.USER,
     allowNull: false,
   },
+  reputation: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    allowNull: false,
+  },
   status: {
     type: DataTypes.ENUM('active', 'banned'),
     defaultValue: 'active',

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '@/features/auth/store/authStore';
-import { Home, PlusSquare, LogOut, User as UserIcon, Settings2 } from 'lucide-react';
+import { Home, PlusSquare, LogOut, User as UserIcon, Settings2, Trophy } from 'lucide-react';
 import NotificationDropdown from '@/features/notifications/components/NotificationDropdown';
 
 const UserLayout = () => {
@@ -39,6 +39,10 @@ const UserLayout = () => {
                              <PlusSquare className="w-5 h-5" />
                              <span>Tạo bài viết</span>
                         </button>
+                        <Link to="/user/leaderboard" className="flex items-center space-x-1 px-4 py-2 rounded-lg text-yellow-600 hover:bg-yellow-50 hover:text-yellow-700 transition-colors font-medium">
+                             <Trophy className="w-5 h-5" />
+                             <span>Bảng Phong Thần</span>
+                        </Link>
                     </nav>
 
                     <div className="flex items-center space-x-4">

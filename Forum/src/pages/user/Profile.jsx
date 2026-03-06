@@ -89,6 +89,27 @@ const Profile = () => {
                      <h2 className="text-2xl font-bold text-slate-800">{user.username}</h2>
                      <p className="text-primary-600 font-medium text-sm mt-1 capitalize cursor-pointer">{user.role}</p>
                      
+                     <div className="flex flex-wrap justify-center gap-2 mt-4">
+                         {(() => {
+                             const rep = user.reputation || 0;
+                             let badge = { label: 'Tân binh', color: 'bg-slate-100 text-slate-700 border-slate-200' };
+                             if (rep >= 1000) badge = { label: '🌟 Huyền thoại', color: 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md border-transparent' };
+                             else if (rep >= 500) badge = { label: '🔥 Chuyên gia', color: 'bg-blue-100 text-blue-800 border-blue-300' };
+                             else if (rep >= 100) badge = { label: '⭐ Đóng góp tích cực', color: 'bg-green-100 text-green-800 border-green-300' };
+                             else if (rep >= 10) badge = { label: '🌱 Thành viên mới', color: 'bg-orange-100 text-orange-800 border-orange-300' };
+                             return (
+                                <>
+                                    <span className={`px-3 py-1 text-xs font-bold rounded-full border ${badge.color}`}>
+                                        {badge.label}
+                                    </span>
+                                    <span className="px-3 py-1 text-xs font-bold rounded-full border bg-amber-100 text-amber-800 border-amber-300" title="Điểm Uy Tín">
+                                        ⚡ {rep} Uy tín
+                                    </span>
+                                </>
+                             );
+                         })()}
+                     </div>
+
                      <div className="w-full mt-6 space-y-4 text-left">
                          <div className="flex items-center text-slate-600 text-sm">
                              <Calendar className="w-4 h-4 mr-3 text-slate-400" />

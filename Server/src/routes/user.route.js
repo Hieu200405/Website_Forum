@@ -18,6 +18,7 @@ router.get('/me', authMiddleware, async (req, res) => {
                 avatar: user.avatar,
                 bio: user.bio,
                 role: user.role,
+                reputation: user.reputation,
                 created_at: user.created_at
             }
         });
@@ -90,6 +91,19 @@ router.put('/me', authMiddleware, async (req, res) => {
     }
 });
 
+// GET /api/users/leaderboard - get top users by reputation
+router.get('/leaderboard', async (req, res) => {
+    try {
+        const topUsers = await UserRepository.getTopReputation(10);
+        res.status(200).json({
+            success: true,
+            data: topUsers
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 // GET /api/users/:id - get public profile
 router.get('/:id', async (req, res) => {
     try {
@@ -105,6 +119,7 @@ router.get('/:id', async (req, res) => {
                 avatar: user.avatar,
                 bio: user.bio,
                 role: user.role,
+                reputation: user.reputation,
                 created_at: user.created_at
             }
         });

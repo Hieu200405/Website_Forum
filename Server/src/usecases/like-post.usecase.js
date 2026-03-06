@@ -1,5 +1,6 @@
 const LikeRepository = require('../repositories/like.repository');
 const PostRepository = require('../repositories/post.repository');
+const UserRepository = require('../repositories/user.repository');
 const LoggingService = require('../services/logging.service');
 const NotificationService = require('../services/notification.service');
 
@@ -34,10 +35,16 @@ class LikePostUseCase {
     // 5. Update Post stats
     await PostRepository.increaseLikeCount(postId);
 
-    // 6. Log
+    // 6. Tích lũy điểm uy tín (Reputation Gamification)
+    if (post.user_id && post.user_id !== userId) {
+      // Nhận 5 điểm uy tín cho mỗi lượt thích
+      await UserRepository.updateReputation(post.user_id, 5);
+    }
+
+    // 7. Log
     await LoggingService.log(userId, 'LIKE_POST', ipAddress, { postId });
 
-    // 7. Gửi thông báo
+    // 8. Gửi thông báo
     if (app && post.user_id) {
        await NotificationService.createNotification(app, {
          user_id: post.user_id,
