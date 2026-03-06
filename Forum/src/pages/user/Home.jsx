@@ -7,6 +7,7 @@ import { Home, Hash, TrendingUp, PenSquare, Bookmark, Search, Sparkles, Users, F
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '@/features/categories/api/categoryService';
 import { getPosts } from '@/features/posts/api/postService';
+import { Helmet } from 'react-helmet-async';
 
 const NavItem = ({ icon, label, active, onClick, count }) => {
     const Icon = icon;
@@ -50,6 +51,13 @@ const UserHome = () => {
 
     return (
         <div className="grid grid-cols-12 gap-6">
+            <Helmet>
+                <title>Bảng tin | ForumHub - Chia sẻ kiến thức trực tuyến</title>
+                <meta name="description" content="ForumHub - Không gian thảo luận sôi nổi, chia sẻ kiến thức lập trình, công nghệ và đời sống dành cho giới trẻ." />
+                <meta property="og:title" content="Bảng tin | ForumHub" />
+                <meta property="og:description" content="Khám phá các bài viết và chủ đề nóng hổi nhất trên ForumHub." />
+            </Helmet>
+
             {/* ─────── LEFT SIDEBAR ─────── */}
             <aside className="hidden lg:flex lg:col-span-3 flex-col gap-3">
                 <div className="bg-white rounded-2xl p-3 border border-slate-100 shadow-sm sticky top-24">
