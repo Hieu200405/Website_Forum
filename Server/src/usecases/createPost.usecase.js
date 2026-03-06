@@ -44,7 +44,17 @@ class CreatePostUseCase {
         ];
         // Unique violations only
         const uniqueViolations = [...new Set(violations)];
-        violationReason = `Found banned words: ${uniqueViolations.join(', ')}`;
+        
+        const aiReasons = [checkTitle.aiReason, checkContent.aiReason].filter(Boolean);
+        
+        let reasonStr = '';
+        if (uniqueViolations.length > 0) {
+           reasonStr += `Found banned words: ${uniqueViolations.join(', ')}. `;
+        }
+        if (aiReasons.length > 0) {
+           reasonStr += `AI Flagged: ${aiReasons.join(' | ')}.`;
+        }
+        violationReason = reasonStr.trim();
     }
 
     // 4. Lưu bài viết

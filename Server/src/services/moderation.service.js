@@ -21,24 +21,66 @@ class ModerationService {
   }
 
   /**
-   * Kiểm tra văn bản có chứa từ cấm không
+   * Kiểm tra văn bản bằng LLM (AI) để chống Toxic content tinh vi
    * @param {string} text 
-   * @returns {Promise<{isValid: boolean, bannedWordsFound: string[]}>}
+   */
+  async aiCheck(text) {
+    if (!text || !process.env.GEMINI_API_KEY) return { isValid: true, reason: 'AI Check Bypassed' };
+
+    try {
+        const { GoogleGenerativeAI } = require('@google/generative-ai');
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+        const prompt = `Phân tích đoạn văn bản sau và cho tôi biết nó có chứa nội dung toxic, thù địch, quấy rối, tục tĩu hay vi phạm tiêu chuẩn cộng đồng không. Chỉ trả về JSON duy nhất: {"isValid": boolean, "reason": "Lý do bằng tiếng Việt, khoảng 10 chữ"}: \n"${text}"`;
+
+        const result = await model.generateContent(prompt);
+        let responseText = result.response.text();
+        
+        // Clean markdown block if any
+        responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        const data = JSON.parse(responseText);
+        return {
+            isValid: data.isValid !== false, // Fallback to true if undefined
+            reason: data.reason || 'AI Flagged'
+        };
+    } catch (err) {
+        console.error('AI Moderation Error:', err.message);
+        // Fallback mở cho user nếu AI lỗi or quota limit
+        return { isValid: true, reason: 'AI Error Fallback' };
+    }
+  }
+
+  /**
+   * Kiểm tra văn bản kết hợp Cấm từ (Rule-based) & AI Generative
+   * @param {string} text 
+   * @returns {Promise<{isValid: boolean, bannedWordsFound: string[], aiReason?: string}>}
    */
   async check(text) {
     if (!text) {
       return { isValid: true, bannedWordsFound: [] };
     }
     
+    // 1. Rule-based Fast Check
     const lowerText = text.toLowerCase();
     const bannedWords = await this.loadBannedWords();
-    
-    // Tìm tất cả các từ cấm xuất hiện trong text
     const found = bannedWords.filter(word => lowerText.includes(word));
 
+    if (found.length > 0) {
+        return {
+            isValid: false,
+            bannedWordsFound: found,
+            aiReason: 'Rule-based banned words matched'
+        };
+    }
+
+    // 2. AI Advanced Check
+    const aiResult = await this.aiCheck(text);
     return {
-      isValid: found.length === 0,
-      bannedWordsFound: found
+      isValid: aiResult.isValid,
+      bannedWordsFound: [],
+      aiReason: aiResult.isValid ? null : aiResult.reason
     };
   }
 
