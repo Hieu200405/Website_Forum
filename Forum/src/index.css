@@ -1,7 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════
    DESIGN TOKENS — Light Mode
@@ -129,12 +127,12 @@ html.dark .bg-emerald-50 { background-color: rgba(16,185,129,0.12) !important; }
 html.dark .bg-red-50     { background-color: rgba(239,68,68,0.12) !important; }
 html.dark .bg-amber-50   { background-color: rgba(245,158,11,0.1) !important; }
 
-/* Quill editor */
+/* Quill editor dark */
 html.dark .custom-quill .ql-toolbar  { background: #1a1a2e !important; border-color: var(--border-color) !important; }
 html.dark .custom-quill .ql-container{ background: var(--bg-card) !important; border-color: var(--border-color) !important; color: var(--text-primary) !important; }
 html.dark .custom-quill .ql-editor   { color: var(--text-primary) !important; }
 
-/* Dark mode smooth transition for all elements */
+/* Dark mode smooth transition */
 *, *::before, *::after {
   transition-property: background-color, border-color, color, box-shadow;
   transition-duration: 0.25s;
@@ -201,12 +199,6 @@ html.dark .glass {
 .btn-primary:hover {
   box-shadow: 0 6px 20px rgba(99,102,241,0.45);
   transform: translateY(-1px);
-}
-
-/* Nav active */
-.nav-active {
-  background: var(--nav-bg-active);
-  box-shadow: var(--nav-shadow-active);
 }
 
 /* Skeleton shimmer */
