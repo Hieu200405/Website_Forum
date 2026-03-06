@@ -15,6 +15,8 @@ const uploadRoute = require('./routes/upload.route');
 const userRoute = require('./routes/user.route');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 
 const app = express();
 const httpServer = createServer(app);
@@ -29,7 +31,36 @@ app.set('io', io);
 
 app.use(cors());
 app.use(express.json());
-app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+
+// ─── Swagger API Docs ──────────────────────────────────────────
+const swaggerUiOptions = {
+  customSiteTitle: 'ForumHub API Docs',
+  customCss: `
+    .swagger-ui .topbar { background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 12px 0; }
+    .swagger-ui .topbar-wrapper .link { display: flex; align-items: center; gap: 10px; }
+    .swagger-ui .topbar-wrapper .link::before { content: '🚀 ForumHub'; color: white; font-weight: 900; font-size: 20px; }
+    .swagger-ui .topbar-wrapper img { display: none; }
+    .swagger-ui .info .title { color: #6366f1; }
+    .swagger-ui .btn.authorize { background: #6366f1; border-color: #6366f1; }
+    .swagger-ui .btn.authorize:hover { background: #4f46e5; }
+    .swagger-ui .opblock.opblock-post .opblock-summary-method { background: #6366f1; }
+    .swagger-ui .opblock.opblock-get .opblock-summary-method { background: #10b981; }
+    .swagger-ui .opblock.opblock-delete .opblock-summary-method { background: #ef4444; }
+    .swagger-ui .opblock.opblock-put .opblock-summary-method { background: #f59e0b; }
+    .swagger-ui .opblock.opblock-patch .opblock-summary-method { background: #f97316; }
+  `,
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    filter: true,
+    tryItOutEnabled: true,
+  },
+};
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
+app.get('/api/docs.json', (req, res) => { res.setHeader('Content-Type', 'application/json'); res.send(swaggerSpec); });
+// ──────────────────────────────────────────────────────────────
+
+app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 app.use('/api/users', userRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/admin', adminRoute);
