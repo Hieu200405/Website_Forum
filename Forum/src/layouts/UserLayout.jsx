@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '@/features/auth/store/authStore';
-import { Home, PlusSquare, LogOut, User as UserIcon, Trophy, Zap, Bookmark } from 'lucide-react';
+import { Home, PlusSquare, LogOut, User as UserIcon, Trophy, Zap, Bookmark, Sun, Moon } from 'lucide-react';
 import NotificationDropdown from '@/features/notifications/components/NotificationDropdown';
+import { useTheme } from '@/contexts/useTheme';
 
 const UserLayout = () => {
     const { user, logout } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
+    const { isDark, toggleTheme } = useTheme();
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
@@ -26,11 +28,18 @@ const UserLayout = () => {
     return (
         <div className="min-h-screen font-sans" style={{ background: 'var(--bg-base, #f3f4f8)' }}>
             {/* ─────────────── HEADER ─────────────── */}
-            <header className={`sticky top-0 z-50 transition-all duration-300 ${
-                scrolled
-                    ? 'bg-white/90 backdrop-blur-xl shadow-lg shadow-slate-200/50 border-b border-slate-200/60'
-                    : 'bg-white/80 backdrop-blur-md border-b border-slate-100'
-            }`}>
+            <header
+                className="sticky top-0 z-50 transition-all duration-300 border-b"
+                style={{
+                    background: scrolled
+                        ? 'color-mix(in srgb, var(--bg-card) 92%, transparent)'
+                        : 'var(--bg-card)',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                    borderColor: 'var(--border-color)',
+                    boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.08)' : 'none',
+                }}
+            >
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
                     
                     {/* Logo */}
@@ -76,6 +85,23 @@ const UserLayout = () => {
                         )}
 
                         <NotificationDropdown />
+
+                        {/* Dark Mode Toggle */}
+                        <button
+                            onClick={toggleTheme}
+                            title={isDark ? 'Chuyển sang Light Mode' : 'Chuyển sang Dark Mode'}
+                            className="p-2 rounded-xl transition-all relative overflow-hidden group"
+                            style={{
+                                background: isDark ? 'rgba(129,140,248,0.15)' : 'transparent',
+                                color: isDark ? '#818cf8' : '#64748b',
+                            }}
+                        >
+                            <span className="relative z-10">
+                                {isDark
+                                    ? <Sun size={18} className="text-amber-400" />
+                                    : <Moon size={18} />}
+                            </span>
+                        </button>
 
                         <Link to={`/user/profile/${user?.id}`}
                             className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-full hover:bg-slate-100 transition-all group">
