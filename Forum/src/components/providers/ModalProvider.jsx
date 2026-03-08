@@ -1,14 +1,14 @@
 import React from 'react';
-import CreatePostModal from '@/features/posts/components/CreatePostModal';
+const CreatePostModal = React.lazy(() => import('@/features/posts/components/CreatePostModal'));
 import ReportModal from '@/components/modals/ReportModal';
 
 const ModalProvider = () => {
   return (
-    <>
+    <React.Suspense fallback={null}>
       <CreatePostModal />
       {/* Add LoginModal here later */}
       <ReportModal />
-    </>
+    </React.Suspense>
   );
 };
 
