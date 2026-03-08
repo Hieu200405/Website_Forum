@@ -2,7 +2,7 @@ const router = require('express').Router();
 const UserRepository = require('../repositories/user.repository');
 const authMiddleware = require('../middlewares/auth.middleware');
 const uploadMiddleware = require('../middlewares/upload.middleware');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 /**
  * @swagger
