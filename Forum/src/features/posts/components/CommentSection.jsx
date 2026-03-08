@@ -18,11 +18,13 @@ const CommentSection = ({ postId }) => {
     const queryClient = useQueryClient();
 
     // Fetch Comments
-    const { data: comments = [], isLoading } = useQuery({
+    const { data: commentsResponse = [], isLoading } = useQuery({
         queryKey: ['comments', postId],
         queryFn: () => getCommentsByPost(postId),
         staleTime: 1000 * 60, // 1 minute
     });
+    const commentsRaw = Array.isArray(commentsResponse) ? commentsResponse : commentsResponse?.data || [];
+    const comments = Array.isArray(commentsRaw) ? commentsRaw : [];
 
     // Create Comment Mutation
     const createMutation = useMutation({

@@ -23,7 +23,12 @@ const DOW_LABELS = ['', 'CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 // ─── Fill date gaps with zeros ──────────────────────────────────
 const fillDateGaps = (data, days = 30) => {
     const map = {};
-    (data || []).forEach(d => { map[d.date?.slice(0, 10)] = Number(d.count); });
+    (data || []).forEach(d => { 
+        if (d.date) {
+            const dateStr = typeof d.date === 'string' ? d.date : d.date.toISOString();
+            map[dateStr.slice(0, 10)] = Number(d.count); 
+        }
+    });
     return eachDayOfInterval({ start: subDays(new Date(), days - 1), end: new Date() }).map(d => ({
         date: format(d, 'dd/MM'),
         count: map[format(d, 'yyyy-MM-dd')] || 0,
