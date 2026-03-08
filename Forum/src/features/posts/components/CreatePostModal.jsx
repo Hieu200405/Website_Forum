@@ -140,13 +140,14 @@ const CreatePostModal = () => {
     <Modal
       type="create-post"
       title={editPost ? "Chỉnh sửa bài viết" : "Tạo bài viết mới"}
+      className="max-w-2xl"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <input
             type="text"
             placeholder="Tiêu đề bài viết..."
-            className="w-full text-lg font-bold placeholder:text-slate-400 border-none focus:ring-0 px-0 bg-transparent"
+            className="w-full text-lg font-bold placeholder:text-slate-400 border-none focus:ring-0 px-0 bg-transparent text-slate-900"
             value={formData.title}
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
@@ -183,11 +184,11 @@ const CreatePostModal = () => {
             value={formData.content}
             onChange={(content) => setFormData({ ...formData, content })}
             placeholder="Bạn đang nghĩ gì thế? Cùng chia sẻ với mọi người nhé..."
-            className="h-48 mb-12 custom-quill"
+            className="custom-quill"
           />
         </div>
 
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-end pt-6">
           <Button
             type="submit"
             isLoading={mutation.isPending}
