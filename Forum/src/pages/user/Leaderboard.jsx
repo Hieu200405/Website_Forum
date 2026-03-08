@@ -33,7 +33,8 @@ const Leaderboard = () => {
         </div>
     );
 
-    const topUsers = response.data || [];
+    const topUsersRaw = Array.isArray(response) ? response : response?.data || [];
+    const topUsers = Array.isArray(topUsersRaw) ? topUsersRaw : [];
     const top3 = topUsers.slice(0, 3);
     const rest = topUsers.slice(3);
 

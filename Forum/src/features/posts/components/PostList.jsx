@@ -57,7 +57,10 @@ const PostList = ({ searchQuery = "" }) => {
   }, [inView, hasNextPage, fetchNextPage]);
 
   // Flatten the pages array into a single array of posts
-  const posts = data?.pages.flatMap((page) => page.data || []) || [];
+  const posts = data?.pages.flatMap((page) => {
+    const raw = Array.isArray(page) ? page : page?.data || [];
+    return Array.isArray(raw) ? raw : [];
+  }) || [];
 
   return (
     <div className="space-y-6">

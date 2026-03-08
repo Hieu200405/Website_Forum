@@ -42,7 +42,9 @@ const UserHome = () => {
         return () => clearTimeout(fn);
     }, [searchInput]);
 
-    const { data: categories = [] } = useQuery({ queryKey: ['categories'], queryFn: getCategories });
+    const { data: categoriesResponse = [] } = useQuery({ queryKey: ["categories"], queryFn: getCategories });
+    const categoriesRaw = Array.isArray(categoriesResponse) ? categoriesResponse : categoriesResponse?.data || [];
+    const categories = Array.isArray(categoriesRaw) ? categoriesRaw : [];
     const { data: trendingData } = useQuery({
         queryKey: ['posts', 'trending'],
         queryFn: () => getPosts({ sort: 'most_liked', limit: 5 }),
