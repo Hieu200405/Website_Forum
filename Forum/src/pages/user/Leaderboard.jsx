@@ -5,8 +5,8 @@ import { Trophy, Loader2, Sparkles, Flame, Star, AlertCircle, Zap, Crown, Medal 
 import { useNavigate } from 'react-router-dom';
 
 const getLeaderboard = async () => {
-    const { data } = await api.get('/users/leaderboard');
-    return data;
+    // api in lib/axios already returns response.data
+    return await api.get('/users/leaderboard');
 };
 
 const getBadge = (rep) => {
