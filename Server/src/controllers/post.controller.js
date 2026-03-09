@@ -88,9 +88,9 @@ class PostController {
    */
   static async getPosts(req, res) {
     try {
-      const { page, limit, sort, authorId, search } = req.query;
+      const { page, limit, sort, authorId, search, categoryId } = req.query;
       const userId = req.user?.userId || null;
-      const result = await GetPostsUseCase.execute({ page, limit, sort, userId, authorId, search });
+      const result = await GetPostsUseCase.execute({ page, limit, sort, userId, authorId, search, categoryId });
       res.status(200).json(result);
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });

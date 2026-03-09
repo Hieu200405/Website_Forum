@@ -27,7 +27,7 @@ const TabButton = ({ active, onClick, icon, label }) => {
   );
 };
 
-const PostList = ({ searchQuery = "" }) => {
+const PostList = ({ searchQuery = "", categoryId = null }) => {
   const [sort, setSort] = useState('newest');
   const { ref, inView } = useInView();
 
@@ -39,8 +39,8 @@ const PostList = ({ searchQuery = "" }) => {
     hasNextPage,
     isFetchingNextPage
   } = useInfiniteQuery({
-    queryKey: ['posts', sort, searchQuery],
-    queryFn: ({ pageParam = 1 }) => getPosts({ page: pageParam, limit: 10, sort, search: searchQuery }),
+    queryKey: ['posts', sort, searchQuery, categoryId],
+    queryFn: ({ pageParam = 1 }) => getPosts({ page: pageParam, limit: 10, sort, search: searchQuery, categoryId }),
     getNextPageParam: (lastPage, allPages) => {
         // Assume API returns less than 10 items when it's the last page
         return lastPage.data?.length === 10 ? allPages.length + 1 : undefined;

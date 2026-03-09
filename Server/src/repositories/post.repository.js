@@ -178,7 +178,7 @@ class PostRepository {
    * Lấy danh sách bài viết có sắp xếp (Join Likes & Count)
    * @param {object} params
    */
-  async getPostsWithSort({ page, limit, sort, userId = null, authorId = null, search = null }) {
+  async getPostsWithSort({ page, limit, sort, userId = null, authorId = null, search = null, categoryId = null }) {
     const offset = (page - 1) * limit;
     const { QueryTypes } = require('sequelize');
     const sequelize = require('../config/database');
@@ -195,6 +195,9 @@ class PostRepository {
     let whereClause = `p.status = 'active'`;
     if (authorId) {
        whereClause += ` AND p.user_id = :authorId`;
+    }
+    if (categoryId) {
+       whereClause += ` AND p.category_id = :categoryId`;
     }
     if (search) {
        whereClause += ` AND (p.title LIKE :search OR p.content LIKE :search)`;
@@ -229,14 +232,14 @@ class PostRepository {
     `;
 
     const rows = await sequelize.query(sql, {
-      replacements: { limit, offset, userId: currentUserId, authorId, search: search ? `%${search}%` : '' },
+      replacements: { limit, offset, userId: currentUserId, authorId, search: search ? `%${search}%` : '', categoryId },
       type: QueryTypes.SELECT
     });
 
     // Count Total (để phân trang)
     const countSql = `SELECT COUNT(*) as total FROM posts p WHERE ${whereClause}`;
     const countResult = await sequelize.query(countSql, { 
-       replacements: { authorId, search: `%${search}%` },
+       replacements: { authorId, search: `%${search}%`, categoryId },
        type: QueryTypes.SELECT 
     });
     const total = countResult[0].total;
