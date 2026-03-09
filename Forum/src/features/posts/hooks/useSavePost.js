@@ -126,6 +126,13 @@ export const useSavePost = () => {
                     return old.data ? { ...old, data: updated } : updated;
                 });
             });
+
+            // Show success notification
+            if (serverData.isSaved) {
+                toast.success('Đã lưu bài viết', { icon: '🔖' });
+            } else {
+                toast.success('Đã bỏ lưu bài viết', { icon: '🔓' });
+            }
         },
         onError: (err, variables, context) => {
             // Rollback everything from broad snapshot if needed, or specific bits

@@ -13,7 +13,7 @@ import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 
 const getUserProfile = async (id) => {
-    const response = await api.get(`/users/${id}`);
+    const response = await api.get(`/users/${id}/profile`);
     return response.data;
 };
 
@@ -29,56 +29,43 @@ const Profile = () => {
     const { userId } = useParams();
     const navigate = useNavigate();
 
-    const { data: userResponse, isLoading: userLoading, error: userError } = useQuery({
-        queryKey: ['user', userId],
+    const { data: user, isLoading: userLoading, error: userError, refetch: refetchUser } = useQuery({
+        queryKey: ['user-profile', userId],
         queryFn: () => getUserProfile(userId),
-        retry: false
+        retry: false,
+        enabled: !!userId
     });
 
     const { data: postsResponse, isLoading: postsLoading } = useQuery({
         queryKey: ['posts', 'user', userId],
-        queryFn: () => getPosts({ authorId: userId, limit: 50 }),
+        queryFn: () => getPosts({ authorId: userId, limit: 100 }),
         enabled: !!userId
     });
 
     const { user: currentUser } = useAuthStore();
     const isOwnProfile = currentUser && String(currentUser.id) === String(userId);
 
-    const { data: followStatus, refetch: refetchFollow } = useQuery({
-        queryKey: ['followStatus', userId],
-        queryFn: async () => { const res = await api.get(`/users/${userId}/check-follow`); return res.data.isFollowing; },
-        enabled: !!currentUser && !isOwnProfile,
-        retry: false
-    });
-
-    const { data: followersData, refetch: refetchFollowers } = useQuery({
-        queryKey: ['followers', userId],
-        queryFn: async () => { const res = await api.get(`/users/${userId}/followers`); return res.data.data; },
-        enabled: !!userId, retry: false
-    });
-
-    const { data: followingData } = useQuery({
-        queryKey: ['following', userId],
-        queryFn: async () => { const res = await api.get(`/users/${userId}/following`); return res.data.data; },
-        enabled: !!userId, retry: false
-    });
-
     const deleteMutation = useDeletePost();
     const { onOpen } = useModalStore();
 
     const followMutation = useMutation({
         mutationFn: async () => { await api.post(`/users/${userId}/follow`); },
-        onSuccess: () => { toast.success(`Đã theo dõi ${userResponse?.username || 'người dùng'}`); refetchFollow(); refetchFollowers(); },
-        onError: err => toast.error(err.response?.data?.message || 'Có lỗi xảy ra')
+        onSuccess: () => { 
+            toast.success(`Đã theo dõi ${user?.username || 'người dùng'}`); 
+            refetchUser(); 
+        },
+        onError: err => toast.error(err.response?.data?.message || err.message || 'Có lỗi xảy ra')
     });
 
     const unfollowMutation = useMutation({
         mutationFn: async () => { await api.post(`/users/${userId}/unfollow`); },
-        onSuccess: () => { toast.success(`Đã bỏ theo dõi ${userResponse?.username}`); refetchFollow(); refetchFollowers(); },
-        onError: err => toast.error(err.response?.data?.message || 'Có lỗi xảy ra')
+        onSuccess: () => { 
+            toast.success(`Đã bỏ theo dõi ${user?.username}`); 
+            refetchUser(); 
+        },
+        onError: err => toast.error(err.response?.data?.message || err.message || 'Có lỗi xảy ra')
     });
 
-    const user = userResponse || null;
     let posts = [];
     if (postsResponse?.data?.data && Array.isArray(postsResponse.data.data)) posts = postsResponse.data.data;
     else if (postsResponse?.data && Array.isArray(postsResponse.data)) posts = postsResponse.data;
@@ -171,20 +158,20 @@ const Profile = () => {
                                 </button>
                             ) : (
                                 <button
-                                    onClick={() => followStatus ? unfollowMutation.mutate() : followMutation.mutate()}
+                                    onClick={() => user.isFollowing ? unfollowMutation.mutate() : followMutation.mutate()}
                                     disabled={followMutation.isPending || unfollowMutation.isPending}
                                     className={`flex items-center gap-2 px-5 py-2.5 font-bold text-sm rounded-xl transition-all shadow-md ${
-                                        followStatus
+                                        user.isFollowing
                                             ? 'bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 border border-slate-200 hover:border-red-200 shadow-none'
                                             : 'text-white shadow-primary-400/40 hover:-translate-y-0.5 hover:shadow-lg'
                                     }`}
-                                    style={!followStatus ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
+                                    style={!user.isFollowing ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
                                 >
                                     {followMutation.isPending || unfollowMutation.isPending
                                         ? <Loader2 className="w-4 h-4 animate-spin" />
                                         : <Users className="w-4 h-4" />
                                     }
-                                    {followStatus ? 'Bỏ theo dõi' : 'Theo dõi'}
+                                    {user.isFollowing ? 'Bỏ theo dõi' : 'Theo dõi'}
                                 </button>
                             )}
                         </div>
@@ -206,9 +193,9 @@ const Profile = () => {
 
                 {/* Stats row */}
                 <div className="grid grid-cols-4 gap-2 mt-6 pt-5 border-t border-slate-100">
-                    <StatBox label="Bài viết" value={posts.length} icon={<FileText className="w-4 h-4 text-primary-500" />} />
-                    <StatBox label="Người theo dõi" value={followersData?.length || 0} icon={<Users className="w-4 h-4 text-violet-500" />} />
-                    <StatBox label="Đang theo dõi" value={followingData?.length || 0} icon={<Heart className="w-4 h-4 text-rose-500" />} />
+                    <StatBox label="Bài viết" value={user.postCount || 0} icon={<FileText className="w-4 h-4 text-primary-500" />} />
+                    <StatBox label="Người theo dõi" value={user.followerCount || 0} icon={<Users className="w-4 h-4 text-violet-500" />} />
+                    <StatBox label="Đang theo dõi" value={user.followingCount || 0} icon={<Heart className="w-4 h-4 text-rose-500" />} />
                     <StatBox label="Uy tín" value={rep} icon={<Zap className="w-4 h-4 text-amber-500" />} highlight />
                 </div>
             </div>

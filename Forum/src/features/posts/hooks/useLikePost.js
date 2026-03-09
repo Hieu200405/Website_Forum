@@ -131,6 +131,13 @@ export const useLikePost = () => {
                 };
                 return old.data ? { ...old, data: updated } : updated;
             });
+
+            // Show success notification
+            if (serverData.isLiked) {
+                toast.success('Đã thích bài viết', { icon: '❤️' });
+            } else {
+                toast.success('Đã bỏ thích', { icon: '💔' });
+            }
         },
         onError: (err, variables, context) => {
             if (err.message === 'UNAUTHENTICATED') {
