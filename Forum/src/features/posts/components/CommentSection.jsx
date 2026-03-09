@@ -8,7 +8,7 @@ import { Send } from 'lucide-react';
 import useAuthStore from '@/features/auth/store/authStore';
 import useModalStore from '@/components/hooks/useModalStore';
 
-const CommentSection = ({ postId }) => {
+const CommentSection = ({ postId, postAuthorId }) => {
     const [content, setContent] = useState('');
     const [replyTo, setReplyTo] = useState(null); // the comment being replied to
     
@@ -122,11 +122,11 @@ const CommentSection = ({ postId }) => {
                 <div className="space-y-6">
                     {rootComments.map(comment => (
                         <div key={comment.id}>
-                            <CommentItem comment={comment} onReply={setReplyTo} />
+                            <CommentItem comment={comment} postId={postId} postAuthorId={postAuthorId} onReply={setReplyTo} />
                             {/* Render Replies */}
                             <div className="ml-0">
                                 {getReplies(comment.id).map(reply => (
-                                    <CommentItem key={reply.id} comment={reply} onReply={setReplyTo} />
+                                    <CommentItem key={reply.id} comment={reply} postId={postId} postAuthorId={postAuthorId} onReply={setReplyTo} />
                                 ))}
                             </div>
                         </div>
