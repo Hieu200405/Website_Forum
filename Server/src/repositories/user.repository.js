@@ -47,7 +47,7 @@ class UserRepository {
     return await User.findAll({
       limit,
       order: [['reputation', 'DESC']],
-      attributes: ['id', 'username', 'avatar', 'reputation']
+      attributes: ['id', 'username', 'avatar', 'reputation', 'role']
     });
   }
 }

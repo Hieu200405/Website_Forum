@@ -310,22 +310,19 @@ router.delete('/:id/follow', authMiddleware, async (req, res) => {
  */
 router.get('/leaderboard', async (req, res) => {
     try {
-        const User = require('../models/user.model');
-        const redis = require('../config/redis');
+        const UserRepository = require('../repositories/user.repository');
+        const redisService = require('../services/redis.service');
         const CACHE_KEY = 'leaderboard:top10';
-        try {
-            const cached = await redis.get(CACHE_KEY);
-            if (cached) return res.json({ success: true, data: JSON.parse(cached) });
-        } catch (_) { /* Redis unavailable */ }
+        
+        const cached = await redisService.get(CACHE_KEY);
+        if (cached) {
+            return res.json({ success: true, data: JSON.parse(cached) });
+        }
 
-        const users = await User.findAll({
-            where: { status: 'active' },
-            attributes: ['id', 'username', 'avatar', 'reputation', 'role'],
-            order: [['reputation', 'DESC']],
-            limit: 10,
-        });
+        const users = await UserRepository.getTopReputation(10);
 
-        try { await redis.set(CACHE_KEY, JSON.stringify(users), { EX: 300 }); } catch (_) {}
+        await redisService.set(CACHE_KEY, JSON.stringify(users), 300); // 5 minutes
+        
         res.json({ success: true, data: users });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
