@@ -36,6 +36,7 @@ const UserHome = () => {
     const navigate = useNavigate();
     const [searchInput, setSearchInput] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategoryId, setSelectedCategoryId] = useState(null);
 
     useEffect(() => {
         const fn = setTimeout(() => setSearchQuery(searchInput), 400);
@@ -64,7 +65,7 @@ const UserHome = () => {
             <aside className="hidden lg:flex lg:col-span-3 flex-col gap-3">
                 <div className="bg-white rounded-2xl p-3 border border-slate-100 shadow-sm sticky top-24">
                     <nav className="space-y-0.5">
-                        <NavItem icon={Home} label="Bảng tin" active onClick={() => navigate('/user')} />
+                        <NavItem icon={Home} label="Bảng tin" active={!selectedCategoryId} onClick={() => setSelectedCategoryId(null)} />
                         <NavItem icon={Bookmark} label="Bài đã lưu" onClick={() => navigate('/user/saved')} />
                     </nav>
 
@@ -77,7 +78,8 @@ const UserHome = () => {
                                 key={cat.id}
                                 icon={Hash}
                                 label={cat.name}
-                                onClick={() => {}}
+                                active={selectedCategoryId === cat.id}
+                                onClick={() => setSelectedCategoryId(cat.id)}
                             />
                         )) : (
                             <div className="px-3 text-sm text-slate-400 italic py-2">Chưa có danh mục</div>
@@ -150,7 +152,7 @@ const UserHome = () => {
                     </div>
                 )}
 
-                <PostList searchQuery={searchQuery} />
+                <PostList searchQuery={searchQuery} categoryId={selectedCategoryId} />
             </main>
 
             {/* ─────── RIGHT SIDEBAR ─────── */}

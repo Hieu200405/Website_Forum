@@ -2,7 +2,7 @@ const PostRepository = require('../repositories/post.repository');
 const RedisService = require('../services/redis.service');
 
 class GetPostsUseCase {
-  static async execute({ page, limit, sort, userId, authorId, search }) {
+  static async execute({ page, limit, sort, userId, authorId, search, categoryId }) {
     // 1. Default Values
     const p = parseInt(page) || 1;
     const l = parseInt(limit) || 10;
@@ -13,13 +13,9 @@ class GetPostsUseCase {
     const finalSort = validSorts.includes(s) ? s : 'newest';
 
     // 3. Cache Key Strategy
-    // We cache based on page, limit, sort, and authorId.
-    // If userId is provided, we can't fully cache the "isLiked/isSaved" globally for all users.
-    // However, as an advanced optimization: we can cache the base query and then append user-specific data, 
-    // OR we just cache the request per-user if logged in. For public feed, cache globally.
-    // Added Search query to cache key
     const searchPart = search ? `q${encodeURIComponent(search)}` : 'no-search';
-    const cacheKey = `posts:feed:p${p}:l${l}:s${finalSort}:u${userId || 'public'}:a${authorId || 'all'}:${searchPart}`;
+    const catPart = categoryId ? `c${categoryId}` : 'all-cats';
+    const cacheKey = `posts:feed:p${p}:l${l}:s${finalSort}:u${userId || 'public'}:a${authorId || 'all'}:${searchPart}:${catPart}`;
     
     // Check Cache
     const cachedData = await RedisService.get(cacheKey);
@@ -34,7 +30,8 @@ class GetPostsUseCase {
       sort: finalSort,
       userId,
       authorId,
-      search
+      search,
+      categoryId
     });
 
     // 5. Format Output
