@@ -15,83 +15,132 @@ export const useSavePost = () => {
             return { postId, isSaved: !isSaved };
         },
         onMutate: async ({ postId, isSaved }) => {
-            // Optimistic update
-            await queryClient.cancelQueries({ queryKey: ['posts'] });
-            await queryClient.cancelQueries({ queryKey: ['post', postId.toString()] });
-            await queryClient.cancelQueries({ queryKey: ['savedPosts'] });
+            const pid = Number(postId);
+            const sid = postId.toString();
 
-            const previousPosts = queryClient.getQueryData(['posts']);
-            const previousPost = queryClient.getQueryData(['post', postId.toString()]);
-            const previousSavedPosts = queryClient.getQueryData(['savedPosts']);
+            // 1. Cancel related queries
+            await Promise.all([
+                queryClient.cancelQueries({ queryKey: ['posts'] }),
+                queryClient.cancelQueries({ queryKey: ['savedPosts'] }),
+                queryClient.cancelQueries({ queryKey: ['post', sid] }),
+                queryClient.cancelQueries({ queryKey: ['post', pid] })
+            ]);
 
-            // Generic update function for queries
-            const updatePostPages = (oldData) => {
-                if (!oldData) return oldData;
-                
-                // If the data has pages (infinite query)
-                if (oldData.pages) {
-                    return {
-                        ...oldData,
-                        pages: oldData.pages.map(page => ({
-                            ...page,
-                            data: Array.isArray(page.data) ? page.data.map(p => {
-                                if (p.id === postId) return { ...p, isSaved: !isSaved };
-                                return p;
-                            }) : page.data
-                        }))
-                    };
-                }
-                
-                // If it is a standard paginated response { data: [...] }
-                if (Array.isArray(oldData.data)) {
-                    return {
-                        ...oldData,
-                        data: oldData.data.map(p => {
-                            if (p.id === postId) return { ...p, isSaved: !isSaved };
-                            return p;
-                        })
-                    };
-                }
+            // 2. Snapshot state for rollback
+            const previousQueries = queryClient.getQueriesData({ queryKey: [] }); // Get all for broad safety or specific keys
 
-                // If it is just an array
-                if (Array.isArray(oldData)) {
-                    return oldData.map(p => {
-                        if (p.id === postId) return { ...p, isSaved: !isSaved };
-                        return p;
-                    });
-                }
-                
-                return oldData;
+            // 3. Define the update logic
+            const getUpdatedPost = (post) => ({
+                ...post,
+                isSaved: !isSaved,
+                is_saved: !isSaved
+            });
+
+            const syncCache = (key) => {
+                queryClient.setQueriesData({ queryKey: [key] }, (old) => {
+                    if (!old) return old;
+                    // Infinite Query
+                    if (old.pages) {
+                        return {
+                            ...old,
+                            pages: old.pages.map(page => {
+                                const updateArr = (arr) => arr.map(p => (Number(p.id) === pid) ? getUpdatedPost(p) : p);
+                                if (Array.isArray(page.data)) return { ...page, data: updateArr(page.data) };
+                                if (Array.isArray(page)) return updateArr(page);
+                                return page;
+                            })
+                        };
+                    }
+                    // Standard List
+                    const target = Array.isArray(old.data) ? old.data : (Array.isArray(old) ? old : null);
+                    if (target) {
+                        const newList = target.map(p => (Number(p.id) === pid) ? getUpdatedPost(p) : p);
+                        return Array.isArray(old.data) ? { ...old, data: newList } : newList;
+                    }
+                    return old;
+                });
             };
 
-            // Update feed pages
-            queryClient.setQueryData(['posts'], updatePostPages);
-            
-            // Update saved posts feed (remove item optimistically if unsaving context is in saved posts list, here we just invalidate later)
-            queryClient.setQueryData(['savedPosts'], updatePostPages);
+            // 4. Update all relevant feed types
+            syncCache('posts');
+            syncCache('savedPosts');
 
-            // Update single post
-            if (previousPost) {
-                 queryClient.setQueryData(['post', postId.toString()], {
-                     ...previousPost,
-                     data: {
-                         ...previousPost.data,
-                         isSaved: !isSaved
-                     }
-                 });
-            }
+            // 5. Update Single Post Detail (Checking both string and numeric ID patterns)
+            [sid, pid].forEach(id => {
+                queryClient.setQueryData(['post', id.toString()], (old) => {
+                    const current = old?.data || old;
+                    if (!current) return old;
+                    const updated = getUpdatedPost(current);
+                    return old.data ? { ...old, data: updated } : updated;
+                });
+            });
 
-            return { previousPosts, previousPost, previousSavedPosts };
+            return { previousQueries };
+        },
+        onSuccess: (serverData, variables) => {
+            // serverData is already the data because of axios interceptors
+            if (!serverData || typeof serverData.isSaved === 'undefined') return;
+
+            const pid = Number(variables.postId);
+            const sid = variables.postId.toString();
+
+            const syncFn = (post) => {
+                if (Number(post.id) !== pid) return post;
+                return { 
+                    ...post, 
+                    isSaved: serverData.isSaved,
+                    is_saved: serverData.isSaved
+                };
+            };
+
+            const finalizeCache = (key) => {
+                queryClient.setQueriesData({ queryKey: [key] }, (old) => {
+                    if (!old) return old;
+                    if (old.pages) {
+                        return {
+                            ...old,
+                            pages: old.pages.map(page => {
+                                if (Array.isArray(page.data)) return { ...page, data: page.data.map(syncFn) };
+                                if (Array.isArray(page)) return page.map(syncFn);
+                                return page;
+                            })
+                        };
+                    }
+                    const target = Array.isArray(old.data) ? old.data : (Array.isArray(old) ? old : null);
+                    if (target) {
+                        const newList = target.map(syncFn);
+                        return Array.isArray(old.data) ? { ...old, data: newList } : newList;
+                    }
+                    return old;
+                });
+            };
+
+            finalizeCache('posts');
+            finalizeCache('savedPosts');
+
+            [sid, pid].forEach(id => {
+                queryClient.setQueryData(['post', id.toString()], (old) => {
+                    const current = old?.data || old;
+                    if (!current) return old;
+                    const updated = { ...current, isSaved: serverData.isSaved, is_saved: serverData.isSaved };
+                    return old.data ? { ...old, data: updated } : updated;
+                });
+            });
         },
         onError: (err, variables, context) => {
-            if (context?.previousPosts) queryClient.setQueryData(['posts'], context.previousPosts);
-            if (context?.previousPost) queryClient.setQueryData(['post', variables.postId.toString()], context.previousPost);
-            if (context?.previousSavedPosts) queryClient.setQueryData(['savedPosts'], context.previousSavedPosts);
-            toast.error('Không thể thao tác. Vui lòng thử lại.');
+            // Rollback everything from broad snapshot if needed, or specific bits
+            if (context?.previousQueries) {
+                context.previousQueries.forEach(([key, old]) => queryClient.setQueryData(key, old));
+            }
+            toast.error('Có lỗi xảy ra khi thao tác với bài viết');
         },
-        onSettled: () => {
-            // Need to always invalidate savedPosts to ensure pagination integrity when we add/remove
+        onSettled: (data, error, variables) => {
+            const sid = variables.postId.toString();
+            const pid = Number(variables.postId);
+            queryClient.invalidateQueries({ queryKey: ['posts'] });
             queryClient.invalidateQueries({ queryKey: ['savedPosts'] });
-        },
+            queryClient.invalidateQueries({ queryKey: ['post', sid] });
+            queryClient.invalidateQueries({ queryKey: ['post', pid.toString()] });
+        }
     });
 };
