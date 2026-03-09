@@ -25,29 +25,38 @@ class ModerationService {
    * @param {string} text 
    */
   async aiCheck(text) {
-    if (!text || !process.env.GEMINI_API_KEY) return { isValid: true, reason: 'AI Check Bypassed' };
+    if (!text || !process.env.GEMINI_API_KEY) {
+        console.warn('AI Moderation: Missing text or GEMINI_API_KEY');
+        return { isValid: true, reason: 'AI Check Bypassed' };
+    }
 
     try {
         const { GoogleGenerativeAI } = require('@google/generative-ai');
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        // Corrected model name: gemini-1.5-flash is stable and fast
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `Phân tích đoạn văn bản sau và cho tôi biết nó có chứa nội dung toxic, thù địch, quấy rối, tục tĩu hay vi phạm tiêu chuẩn cộng đồng không. Chỉ trả về JSON duy nhất: {"isValid": boolean, "reason": "Lý do bằng tiếng Việt, khoảng 10 chữ"}: \n"${text}"`;
 
         const result = await model.generateContent(prompt);
         let responseText = result.response.text();
         
+        console.log('AI Moderation Raw Response:', responseText);
+
         // Clean markdown block if any
         responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
 
         const data = JSON.parse(responseText);
         return {
-            isValid: data.isValid !== false, // Fallback to true if undefined
+            isValid: data.isValid !== false,
             reason: data.reason || 'AI Flagged'
         };
     } catch (err) {
-        console.error('AI Moderation Error:', err.message);
-        // Fallback mở cho user nếu AI lỗi or quota limit
+        console.error('AI Moderation Critical Error:', err.message);
+        if (err.message.includes('403')) {
+            console.error('AI Moderation: API Key invalid or permissions denied');
+        }
+        // Fallback mở cho user nếu AI lỗi
         return { isValid: true, reason: 'AI Error Fallback' };
     }
   }
