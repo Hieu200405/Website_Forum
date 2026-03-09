@@ -4,9 +4,9 @@ import { Loader2 } from 'lucide-react';
 
 const Button = React.forwardRef(({ className, variant = 'primary', size = 'md', isLoading, children, ...props }, ref) => {
   const variants = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
-    secondary: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-primary-500',
-    ghost: 'bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm',
+    secondary: 'bg-slate-100 text-slate-800 border border-slate-200 hover:bg-slate-200 focus:ring-primary-500',
+    ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
   };
 
