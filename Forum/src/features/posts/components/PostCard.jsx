@@ -1,11 +1,13 @@
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { Heart, MessageSquare, Share2, Bookmark } from 'lucide-react';
+import { Heart, MessageSquare, Share2, Bookmark, Users, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PostMenu from './PostMenu';
 import { useDeletePost } from '../hooks/useDeletePost';
 import { useSavePost } from '../hooks/useSavePost';
 import useModalStore from '@/components/hooks/useModalStore';
+import useAuthStore from '@/features/auth/store/authStore';
+import { useFollow } from '@/hooks/useFollow';
 
 const getTextFromHtml = (html) => {
     const doc = new DOMParser().parseFromString(html || '', 'text/html');
@@ -23,15 +25,40 @@ const CATEGORY_COLORS = {
 
 const getCategoryColor = (cat) => CATEGORY_COLORS[cat] || 'bg-slate-100 text-slate-600';
 
+const getBadge = (rep) => {
+    if (rep >= 1000) return { label: 'Huyền thoại', emoji: '🌟', gradient: 'from-purple-500 via-pink-500 to-amber-400' };
+    if (rep >= 500)  return { label: 'Chuyên gia',  emoji: '🔥', gradient: 'from-blue-500 to-cyan-500' };
+    if (rep >= 100)  return { label: 'Đóng góp tích cực', emoji: '⭐', gradient: 'from-green-500 to-emerald-500' };
+    if (rep >= 10)   return { label: 'Thành viên', emoji: '🌱', gradient: 'from-orange-400 to-amber-400' };
+    return           { label: 'Tân binh',    emoji: '✨', gradient: 'from-slate-400 to-slate-500' };
+};
+
 const PostCard = ({ post, onLike }) => {
     const navigate = useNavigate();
     const deleteMutation = useDeletePost();
     const { mutate: toggleSave } = useSavePost();
     const { onOpen } = useModalStore();
+    const { user: currentUser } = useAuthStore();
+    const { follow, unfollow, isFollowingLoading } = useFollow();
 
     const handlePostClick = () => navigate(`/user/posts/${post.id}`);
     const likeCount  = Number(post.likeCount ?? post.likesCount ?? post.like_count ?? 0);
     const commentCount = Number(post.commentCount ?? post.commentsCount ?? post.comment_count ?? 0);
+
+    const author = post.author || {};
+    const rep = author.reputation || 0;
+    const badge = getBadge(rep);
+    const isOwnPost = currentUser && String(currentUser.id) === String(author.id);
+
+    const handleFollow = (e) => {
+        e.stopPropagation();
+        if (!currentUser) return navigate('/login');
+        if (author.isFollowing) {
+            unfollow(author.id);
+        } else {
+            follow(author.id);
+        }
+    };
 
     return (
         <article className="group bg-white rounded-2xl border border-slate-100 hover:border-primary-200/60 transition-all duration-300 overflow-hidden"
@@ -43,26 +70,54 @@ const PostCard = ({ post, onLike }) => {
                 {/* ─── Header ─── */}
                 <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3 cursor-pointer group/author"
-                        onClick={e => { e.stopPropagation(); navigate(`/user/profile/${post.author?.id}`); }}>
+                        onClick={e => { e.stopPropagation(); navigate(`/user/profile/${author.id}`); }}>
                         
                         {/* Avatar */}
                         <div className="relative shrink-0">
-                            <div className="h-11 w-11 rounded-full overflow-hidden ring-2 ring-white shadow-md"
-                                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
-                                {post.author?.avatar ? (
-                                    <img src={post.author.avatar} alt="" className="w-full h-full object-cover" />
-                                ) : (
-                                    <img src={`https://ui-avatars.com/api/?name=${post.author?.username || 'U'}&background=6366f1&color=fff&bold=true`} alt="" className="w-full h-full object-cover" />
-                                )}
+                            <div className={`h-11 w-11 rounded-full overflow-hidden ring-2 ring-white shadow-md bg-gradient-to-br ${badge.gradient}`}>
+                                <img 
+                                    src={author.avatar || `https://ui-avatars.com/api/?name=${author.username}&background=6366f1&color=fff&bold=true`} 
+                                    alt="" 
+                                    className="w-full h-full object-cover" 
+                                />
                             </div>
-                            <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 bg-emerald-400 rounded-full border-2 border-white shadow-sm" />
+                            <div className={`absolute -bottom-1 -right-1 bg-gradient-to-r ${badge.gradient} text-white text-[8px] h-4 w-4 flex items-center justify-center rounded-full border border-white shadow-sm z-10`}>
+                                {badge.emoji}
+                            </div>
                         </div>
 
                         {/* Author info */}
-                        <div>
-                            <h4 className="font-bold text-slate-900 text-sm leading-tight group-hover/author:text-primary-600 transition-colors">
-                                {post.author?.username || 'Ẩn danh'}
-                            </h4>
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                                <h4 className="font-bold text-slate-900 text-sm leading-tight group-hover/author:text-primary-600 transition-colors truncate">
+                                    {author.username || 'Ẩn danh'}
+                                </h4>
+                                
+                                {/* Follow action */}
+                                {!isOwnPost && author.id && (
+                                    <button
+                                        onClick={handleFollow}
+                                        disabled={isFollowingLoading}
+                                        className={`group/follow px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border ring-offset-2 hover:ring-2 flex items-center gap-1.5 ${
+                                            author.isFollowing
+                                                ? 'bg-slate-50 text-slate-400 border-slate-100 hover:bg-red-50 hover:text-red-500 hover:border-red-200 ring-red-100'
+                                                : 'bg-primary-50 text-primary-600 border-primary-200 hover:bg-primary-600 hover:text-white ring-primary-100'
+                                        }`}
+                                    >
+                                        {isFollowingLoading && <Loader2 size={10} className="animate-spin shrink-0" />}
+                                        <span className="shrink-0">
+                                            {author.isFollowing ? (
+                                                <>
+                                                    <span className="group-hover/follow:hidden">✓ Đã follow</span>
+                                                    <span className="hidden group-hover/follow:inline">Bỏ follow</span>
+                                                </>
+                                            ) : (
+                                                '+ Follow'
+                                            )}
+                                        </span>
+                                    </button>
+                                )}
+                            </div>
                             <div className="flex items-center gap-1.5 mt-0.5">
                                 <span className="text-xs text-slate-400">
                                     {post.createdAt ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: vi }) : 'Vừa xong'}
@@ -85,7 +140,7 @@ const PostCard = ({ post, onLike }) => {
                 </div>
 
                 {/* ─── Content ─── */}
-                <div className="cursor-pointer pl-14" onClick={handlePostClick}>
+                <div className="cursor-pointer md:pl-14" onClick={handlePostClick}>
                     <h3 className="text-[17px] font-bold text-slate-900 mb-2 leading-snug hover:text-primary-700 transition-colors line-clamp-2">
                         {post.title}
                     </h3>
@@ -99,7 +154,7 @@ const PostCard = ({ post, onLike }) => {
             </div>
 
             {/* ─── Action Bar (below divider) ─── */}
-            <div className="px-5 py-3 flex items-center gap-1">
+            <div className="px-5 py-3 flex items-center gap-1 bg-slate-50/30">
                 {/* Like */}
                 <ActionBtn
                     onClick={e => { e.stopPropagation(); onLike(post.id); }}
@@ -161,3 +216,4 @@ const ActionBtn = ({ onClick, active, activeClass, hoverClass, icon, label, titl
 );
 
 export default PostCard;
+

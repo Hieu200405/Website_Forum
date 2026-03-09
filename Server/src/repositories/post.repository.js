@@ -67,7 +67,7 @@ class PostRepository {
   async findById(id) {
     return await Post.findByPk(id, {
       include: [
-        { model: User, as: 'author', attributes: ['id', 'username', 'role'] },
+        { model: User, as: 'author', attributes: ['id', 'username', 'role', 'reputation', 'avatar'] },
         { model: Category, as: 'category', attributes: ['id', 'name'] }
       ]
     });
@@ -208,25 +208,28 @@ class PostRepository {
         p.user_id as authorId,
         u.username as authorName,
         u.avatar as authorAvatar,
+        u.reputation as authorReputation,
         c.name as categoryName,
         COUNT(DISTINCT l.id) as likeCount,
         COUNT(DISTINCT cm.id) as commentCount,
         MAX(CASE WHEN l.user_id = :userId THEN 1 ELSE 0 END) as isLiked,
-        MAX(CASE WHEN sp.user_id = :userId THEN 1 ELSE 0 END) as isSaved
+        MAX(CASE WHEN sp.user_id = :userId THEN 1 ELSE 0 END) as isSaved,
+        MAX(CASE WHEN f.follower_id = :userId THEN 1 ELSE 0 END) as isFollowingAuthor
       FROM posts p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN categories c ON p.category_id = c.id
       LEFT JOIN likes l ON p.id = l.post_id
       LEFT JOIN comments cm ON p.id = cm.post_id AND cm.status = 'active'
       LEFT JOIN saved_posts sp ON p.id = sp.post_id
+      LEFT JOIN follows f ON p.user_id = f.following_id AND f.follower_id = :userId
       WHERE ${whereClause}
-      GROUP BY p.id, u.username, u.avatar, c.name
+      GROUP BY p.id, u.username, u.avatar, u.reputation, c.name
       ORDER BY ${orderByClause}
       LIMIT :limit OFFSET :offset
     `;
 
     const rows = await sequelize.query(sql, {
-      replacements: { limit, offset, userId: currentUserId, authorId, search: `%${search}%` },
+      replacements: { limit, offset, userId: currentUserId, authorId, search: search ? `%${search}%` : '' },
       type: QueryTypes.SELECT
     });
 

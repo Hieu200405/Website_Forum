@@ -52,15 +52,18 @@ class GetPostsUseCase {
         author: {
           id: row.authorId,
           username: row.authorName || 'Người dùng ẩn danh',
-          avatar: row.authorAvatar
+          avatar: row.authorAvatar,
+          reputation: parseInt(row.authorReputation) || 0,
+          isFollowing: !!parseInt(row.isFollowingAuthor)
         },
         isLiked: !!parseInt(row.isLiked), // Convert to boolean
         isSaved: !!parseInt(row.isSaved)
       }))
     };
 
-    // Save to Cache (Expire after 30 seconds for real-time feel but high throughput)
-    await RedisService.set(cacheKey, JSON.stringify(responseData), 30);
+    // Save to Cache (Logged in users get 3s cache for snappiness, public gets 120s)
+    const expiry = userId ? 3 : 120;
+    await RedisService.set(cacheKey, JSON.stringify(responseData), expiry);
 
     return responseData;
   }

@@ -32,12 +32,17 @@ class GetPostDetailUseCase {
     // 3. Lấy comments
     const comments = await CommentRepository.findAllByPostId(postId);
 
-    // 4. Check Like & Save Status
+    // 4. Check Like, Save & Follow Status
     let isLiked = false;
     let isSaved = false;
+    let isFollowingAuthor = false;
     if (user && user.userId) {
-      isLiked = await LikeRepository.exists(user.userId, postId);
-      isSaved = await SavedPostRepository.exists(user.userId, postId);
+      const Follow = require('../models/follow.model');
+      [isLiked, isSaved, isFollowingAuthor] = await Promise.all([
+        LikeRepository.exists(user.userId, postId),
+        SavedPostRepository.exists(user.userId, postId),
+        Follow.findOne({ where: { follower_id: user.userId, following_id: post.user_id } }).then(r => !!r)
+      ]);
     }
 
     // 5. Format kết quả
@@ -56,7 +61,10 @@ class GetPostDetailUseCase {
       author: {
         id: post.author.id,
         username: post.author.username,
-        role: post.author.role
+        role: post.author.role,
+        avatar: post.author.avatar,
+        reputation: post.author.reputation,
+        isFollowing: isFollowingAuthor
       },
       category: {
         id: post.category.id,
