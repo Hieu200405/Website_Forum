@@ -3,6 +3,7 @@ const PostRepository = require('../repositories/post.repository');
 const UserRepository = require('../repositories/user.repository');
 const LoggingService = require('../services/logging.service');
 const NotificationService = require('../services/notification.service');
+const RedisService = require('../services/redis.service');
 
 class LikePostUseCase {
   /**
@@ -26,7 +27,7 @@ class LikePostUseCase {
     // 3. Kiểm tra đã like chưa
     const hasLiked = await LikeRepository.exists(userId, postId);
     if (hasLiked) {
-      throw { status: 409, message: 'Bạn đã like bài viết này rồi' };
+      return { message: 'Đã like bài viết' };
     }
 
     // 4. Create Like
@@ -41,7 +42,11 @@ class LikePostUseCase {
       await UserRepository.updateReputation(post.user_id, 5);
     }
 
-    // 7. Log
+    // 7. Clear Redis caches (Force refresh for feed and detail)
+    await RedisService.delPattern('posts:feed:*');
+    await RedisService.delPattern(`posts:detail:${postId}:*`);
+    
+    // 8. Log
     await LoggingService.log(userId, 'LIKE_POST', ipAddress, { postId });
 
     // 8. Gửi thông báo
@@ -55,7 +60,14 @@ class LikePostUseCase {
        });
     }
 
-    return { message: 'Đã like bài viết' };
+    // 9. Fetch updated count for Source of Truth
+    const updatedPost = await PostRepository.findById(postId);
+
+    return { 
+      message: 'Đã like bài viết', 
+      likeCount: updatedPost.like_count || 0,
+      isLiked: true
+    };
   }
 }
 

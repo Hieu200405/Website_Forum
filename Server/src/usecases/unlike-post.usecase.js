@@ -2,6 +2,7 @@ const LikeRepository = require('../repositories/like.repository');
 const PostRepository = require('../repositories/post.repository');
 const UserRepository = require('../repositories/user.repository');
 const LoggingService = require('../services/logging.service');
+const RedisService = require('../services/redis.service');
 
 class UnlikePostUseCase {
   /**
@@ -21,7 +22,7 @@ class UnlikePostUseCase {
     // 2. Kiểm tra có like để xóa không
     const hasLiked = await LikeRepository.exists(userId, postId);
     if (!hasLiked) {
-      throw { status: 404, message: 'Bạn chưa like bài viết này' };
+      return { message: 'Đã bỏ like bài viết' };
     }
 
     // 3. Delete Like
@@ -35,10 +36,21 @@ class UnlikePostUseCase {
       await UserRepository.updateReputation(post.user_id, -5);
     }
 
-    // 6. Log
+    // 6. Clear Redis caches (Force refresh for feed and detail)
+    await RedisService.delPattern('posts:feed:*');
+    await RedisService.delPattern(`posts:detail:${postId}:*`);
+
+    // 7. Log
     await LoggingService.log(userId, 'UNLIKE_POST', ipAddress, { postId });
 
-    return { message: 'Đã bỏ like bài viết' };
+    // 7. Get Source of Truth
+    const updatedPost = await PostRepository.findById(postId);
+
+    return { 
+      message: 'Đã bỏ like bài viết', 
+      likeCount: updatedPost ? updatedPost.like_count : 0,
+      isLiked: false
+    };
   }
 }
 

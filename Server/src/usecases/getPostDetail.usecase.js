@@ -48,7 +48,9 @@ class GetPostDetailUseCase {
       status: post.status,
       createdAt: post.created_at,
       likesCount: post.like_count,
+      likeCount: post.like_count,
       commentsCount: post.comment_count, 
+      commentCount: post.comment_count, 
       isLiked,
       isSaved,
       author: {

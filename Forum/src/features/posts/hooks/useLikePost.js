@@ -7,122 +7,152 @@ import useModalStore from '@/components/hooks/useModalStore';
 export const useLikePost = () => {
     const queryClient = useQueryClient();
     const token = useAuthStore((state) => state.token);
-    const isAuthenticated = !!token;
     const { onOpen } = useModalStore();
 
     return useMutation({
         mutationFn: async ({ postId, isLiked }) => {
-            if (!isAuthenticated) {
-                // Return a fake error to stop mutation logic and trigger login modal
-                throw new Error('UNAUTHENTICATED');
-            }
-            if (isLiked) {
-                return unlikePost(postId);
-            } else {
-                return likePost(postId);
-            }
+            if (!token) throw new Error('UNAUTHENTICATED');
+            return isLiked ? unlikePost(postId) : likePost(postId);
         },
         onMutate: async ({ postId, isLiked }) => {
-            if (!isAuthenticated) return;
-
-            // Cancel any outgoing refetches
+            const pid = Number(postId);
+            
+            // 1. Cancel related queries
             await queryClient.cancelQueries({ queryKey: ['posts'] });
+            await queryClient.cancelQueries({ queryKey: ['post', pid] });
+            await queryClient.cancelQueries({ queryKey: ['post', pid.toString()] });
 
-            // Snapshot the previous value
-            const previousPosts = queryClient.getQueryData(['posts']);
+            // 2. Snapshot current state
+            const previousQueries = queryClient.getQueriesData({ queryKey: ['posts'] });
+            const previousPost = queryClient.getQueryData(['post', pid.toString()]);
 
-            // Optimistically update to the new value
-            queryClient.setQueriesData({ queryKey: ['posts'] }, (oldData) => {
-                if (!oldData) return oldData;
+            // 3. Define the update logic for any post list/object
+            const getUpdatedPost = (post) => {
+                const diff = isLiked ? -1 : 1;
                 
-                // Handling infinite query structure or standard array
-                // Assuming standard pagination structure: { data: [...posts], ... } from our API
-                // But PostList uses basic useQuery for now.
+                // Be extremely defensive with naming variations
+                const currentCount = Number(post.likeCount ?? post.likesCount ?? post.like_count ?? 0);
+                const newCount = Math.max(0, currentCount + diff);
                 
-                // We need to support both single page and infinite query structures if we change later.
-                // For now, let's look at PostList: const { data } = useQuery... const posts = data?.data || [];
-                // So the cache structure is the response object { data: [], total: ... }
+                return {
+                    ...post,
+                    likeCount: newCount,
+                    likesCount: newCount,
+                    like_count: newCount,
+                    commentCount: post.commentCount ?? post.commentsCount ?? post.comment_count ?? 0,
+                    commentsCount: post.commentCount ?? post.commentsCount ?? post.comment_count ?? 0,
+                    isLiked: !isLiked,
+                };
+            };
 
-                // Note: We are updating all 'posts' queries.
-                // This might be tricky if pages are different. 
-                // A better approach for exact update is to iterate over all active queries.
-                
-                // If it's a standard paginated response { data: [...] }
-                if (Array.isArray(oldData.data)) {
+            // 4. Perform Optimistic Update on all 'posts' queries
+            queryClient.setQueriesData({ queryKey: ['posts'] }, (old) => {
+                if (!old) return old;
+                // Infinite Query
+                if (old.pages) {
                     return {
-                        ...oldData,
-                        data: oldData.data.map(post => {
-                            if (post.id === postId) {
-                                return {
-                                    ...post,
-                                    isLiked: !isLiked,
-                                    likeCount: isLiked ? (post.likeCount || 1) - 1 : (post.likeCount || 0) + 1,
-                                    likesCount: isLiked ? (post.likesCount || 1) - 1 : (post.likesCount || 0) + 1,
-                                    like_count: isLiked ? (post.like_count || 1) - 1 : (post.like_count || 0) + 1
-                                };
-                            }
-                            return post;
+                        ...old,
+                        pages: old.pages.map(page => {
+                            const updateArr = (arr) => arr.map(p => Number(p.id) === pid ? getUpdatedPost(p) : p);
+                            if (Array.isArray(page.data)) return { ...page, data: updateArr(page.data) };
+                            if (Array.isArray(page)) return updateArr(page);
+                            return page;
                         })
                     };
                 }
-                
-                // If the data is just an array
-                if (Array.isArray(oldData)) {
-                    return oldData.map(post => {
-                        if (post.id === postId) {
-                            return {
-                                ...post,
-                                isLiked: !isLiked,
-                                likeCount: isLiked ? (post.likeCount || 1) - 1 : (post.likeCount || 0) + 1,
-                                likesCount: isLiked ? (post.likesCount || 1) - 1 : (post.likesCount || 0) + 1,
-                                like_count: isLiked ? (post.like_count || 1) - 1 : (post.like_count || 0) + 1
-                            };
-                        }
-                        return post;
-                    });
+                // Standard Array or Object with data array
+                const target = Array.isArray(old.data) ? old.data : (Array.isArray(old) ? old : null);
+                if (target) {
+                    const newList = target.map(p => Number(p.id) === pid ? getUpdatedPost(p) : p);
+                    return Array.isArray(old.data) ? { ...old, data: newList } : newList;
                 }
-
-                return oldData;
+                return old;
             });
 
-            // Cancel and Snapshot the previous single post value
-            await queryClient.cancelQueries({ queryKey: ['post', postId.toString()] });
-            const previousPost = queryClient.getQueryData(['post', postId.toString()]);
-            
-            // Optimistically update the single post
+            // 5. Update Single Post Detail
             if (previousPost) {
-                 queryClient.setQueryData(['post', postId.toString()], {
-                     ...previousPost,
-                     data: {
-                         ...previousPost.data,
-                         isLiked: !isLiked,
-                         likeCount: isLiked ? (previousPost.data.likeCount || 1) - 1 : (previousPost.data.likeCount || 0) + 1,
-                         likesCount: isLiked ? (previousPost.data.likesCount || 1) - 1 : (previousPost.data.likesCount || 0) + 1,
-                         like_count: isLiked ? (previousPost.data.like_count || 1) - 1 : (previousPost.data.like_count || 0) + 1
-                     }
-                 });
+                queryClient.setQueryData(['post', pid.toString()], (old) => {
+                    const current = old?.data || old;
+                    if (!current) return old;
+                    const updated = getUpdatedPost(current);
+                    return old.data ? { ...old, data: updated } : updated;
+                });
             }
 
-            return { previousPosts, previousPost };
+            return { previousQueries, previousPost };
         },
-        onError: (err, newPost, context) => {
+        onSuccess: (serverData, variables) => {
+            // serverData is already the data because of axios interceptor
+            if (!serverData || typeof serverData.isLiked === 'undefined') return;
+
+            const pid = Number(variables.postId);
+
+            // Sync all caches with SOURCE OF TRUTH from server
+            const syncFn = (post) => {
+                if (Number(post.id) !== pid) return post;
+                return { 
+                    ...post, 
+                    isLiked: serverData.isLiked, 
+                    likeCount: serverData.likeCount, 
+                    like_count: serverData.likeCount,
+                    likesCount: serverData.likeCount 
+                };
+            };
+
+            queryClient.setQueriesData({ queryKey: ['posts'] }, (old) => {
+                if (!old) return old;
+                if (old.pages) {
+                    return {
+                        ...old,
+                        pages: old.pages.map(page => {
+                            if (Array.isArray(page.data)) return { ...page, data: page.data.map(syncFn) };
+                            if (Array.isArray(page)) return page.map(syncFn);
+                            return page;
+                        })
+                    };
+                }
+                const target = Array.isArray(old.data) ? old.data : (Array.isArray(old) ? old : null);
+                if (target) {
+                    const newList = target.map(syncFn);
+                    return Array.isArray(old.data) ? { ...old, data: newList } : newList;
+                }
+                return old;
+            });
+
+            queryClient.setQueryData(['post', pid.toString()], (old) => {
+                const current = old?.data || old;
+                if (!current) return old;
+                const updated = { 
+                    ...current, 
+                    isLiked: serverData.isLiked, 
+                    likeCount: serverData.likeCount, 
+                    like_count: serverData.likeCount,
+                    likesCount: serverData.likeCount 
+                };
+                return old.data ? { ...old, data: updated } : updated;
+            });
+        },
+        onError: (err, variables, context) => {
             if (err.message === 'UNAUTHENTICATED') {
-                onOpen('login-required'); // We can impement this modal type or just redirect
+                onOpen('login-required');
                 toast.error('Vui lòng đăng nhập để thực hiện');
-                return;
+            } else {
+                toast.error('Có lỗi xảy ra khi like bài viết');
             }
-            // Rollback
-            if (context?.previousPosts) {
-                queryClient.setQueriesData({ queryKey: ['posts'] }, context.previousPosts);
+
+            if (context?.previousQueries) {
+                context.previousQueries.forEach(([key, old]) => queryClient.setQueryData(key, old));
             }
             if (context?.previousPost) {
-                queryClient.setQueryData(['post', newPost.postId.toString()], context.previousPost);
+                queryClient.setQueryData(['post', variables.postId.toString()], context.previousPost);
             }
-            toast.error('Có lỗi xảy ra khi like bài viết');
         },
-        onSettled: () => {
-             // Invalidate to refetch true data
-             queryClient.invalidateQueries({ queryKey: ['posts'] });
+        onSettled: (_, __, variables) => {
+            const sid = variables.postId.toString();
+            const nid = Number(variables.postId);
+            queryClient.invalidateQueries({ queryKey: ['posts'] });
+            queryClient.invalidateQueries({ queryKey: ['post', sid] });
+            queryClient.invalidateQueries({ queryKey: ['post', nid] });
         }
     });
 };

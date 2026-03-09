@@ -21,14 +21,14 @@
   --system-muted:    #f1f5f9;
 
   --system-border:   rgba(226, 232, 240, 0.9);
-  --system-focus:    #6366f1;
+  --system-focus:    #3b82f6;
 
   --system-text-900: #0f172a;
   --system-text-600: #475569;
   --system-text-400: #94a3b8;
 
   --nav-bg-active:   linear-gradient(135deg, #eef2ff, #ede9fe);
-  --nav-shadow:      inset 3px 0 0 #6366f1;
+  --nav-shadow:      inset 3px 0 0 #3b82f6;
 
   --shadow-card:     0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(99,102,241,0.04);
   --shadow-hover:    0 4px 24px rgba(99,102,241,0.12);
@@ -54,14 +54,14 @@ html.dark {
   --system-muted:    #1e1e35;
 
   --system-border:   rgba(255,255,255,0.07);
-  --system-focus:    #818cf8;
+  --system-focus:    #3b82f6;
 
   --system-text-900: #f1f5f9;
   --system-text-600: #94a3b8;
   --system-text-400: #64748b;
 
   --nav-bg-active:   linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.15));
-  --nav-shadow:      inset 3px 0 0 #818cf8;
+  --nav-shadow:      inset 3px 0 0 #3b82f6;
 
   --shadow-card:     0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(99,102,241,0.08);
   --shadow-hover:    0 4px 24px rgba(99,102,241,0.2);
@@ -156,6 +156,29 @@ html.dark .custom-quill .ql-picker { color: var(--system-text-600) !important; }
    CUSTOM UI CLASSES
 ═══════════════════════════════════════════════════════════ */
 
+/* Quill Editor Fullscreen for CreatePostModal */
+.custom-quill-fullscreen {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.custom-quill-fullscreen .ql-toolbar {
+  border: none !important;
+  border-bottom: 1px solid var(--system-border) !important;
+  background: var(--system-muted) !important;
+  flex-shrink: 0 !important;
+}
+.custom-quill-fullscreen .ql-container {
+  border: none !important;
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  background: var(--system-card) !important;
+}
+.custom-quill-fullscreen .ql-editor {
+  min-height: 100% !important;
+  padding: 1.5rem !important;
+}
+
 /* Glassmorphism */
 .glass {
   background: rgba(var(--system-card), 0.72);
@@ -181,9 +204,9 @@ html.dark .custom-quill .ql-picker { color: var(--system-text-600) !important; }
 .btn-primary {
   font-weight: 600;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
   color: white !important;
-  box-shadow: 0 4px 15px rgba(99,102,241,0.35);
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
   display: inline-flex;
   align-items: center;
   justify-content: center;

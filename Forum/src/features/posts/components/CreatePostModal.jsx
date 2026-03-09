@@ -140,43 +140,46 @@ const CreatePostModal = () => {
     <Modal
       type="create-post"
       title={editPost ? "Chỉnh sửa bài viết" : "Tạo bài viết mới"}
-      className="max-w-2xl"
+      className="max-w-4xl h-[90vh] flex flex-col"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
+        <div className="flex-shrink-0 space-y-4 mb-6">
           <input
             type="text"
             placeholder="Tiêu đề bài viết..."
-            className="w-full text-lg font-bold placeholder:text-slate-400 border-none focus:ring-0 px-0 bg-transparent text-slate-900"
+            className="w-full text-2xl font-extrabold placeholder:text-slate-400 border-none focus:ring-0 px-0 bg-transparent text-slate-900"
             value={formData.title}
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
             }
             autoFocus
           />
+
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <select
+                value={formData.categoryId}
+                onChange={(e) =>
+                  setFormData({ ...formData, categoryId: parseInt(e.target.value) })
+                }
+                className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-slate-50 text-slate-700 text-sm font-medium"
+                disabled={categoriesLoading}
+              >
+                <option value="">-- Chọn danh mục (Tùy chọn) --</option>
+                {categoriesList.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                ))}
+              </select>
+            </div>
+            <div className="text-xs text-slate-400 font-medium hidden sm:block">
+              Markdown & Code Highlighting hỗ trợ
+            </div>
+          </div>
         </div>
 
-        {/* Category Selector */}
-        <div>
-          <select
-            value={formData.categoryId}
-            onChange={(e) =>
-              setFormData({ ...formData, categoryId: parseInt(e.target.value) })
-            }
-            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-slate-700"
-            disabled={categoriesLoading}
-          >
-            <option value="">-- Chọn danh mục (Tùy chọn) --</option>
-            {categoriesList.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="h-px bg-slate-100 w-full my-2"></div>
-        <div className="bg-white rounded-t-lg">
+        <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-inner group focus-within:ring-2 focus-within:ring-primary-500/20 transition-all">
           <ReactQuill
             ref={quillRef}
             modules={modules}
@@ -184,17 +187,20 @@ const CreatePostModal = () => {
             value={formData.content}
             onChange={(content) => setFormData({ ...formData, content })}
             placeholder="Bạn đang nghĩ gì thế? Cùng chia sẻ với mọi người nhé..."
-            className="custom-quill"
+            className="flex-1 flex flex-col custom-quill-fullscreen"
           />
         </div>
 
-        <div className="flex justify-end pt-6">
-          <Button
+        <div className="flex-shrink-0 flex items-center justify-between pt-6 mt-2 border-t border-slate-100">
+           <div className="text-xs text-slate-400">
+              Mẹo: Sử dụng <b>`code`</b> để đánh dấu mã nguồn.
+           </div>
+           <Button
             type="submit"
             isLoading={mutation.isPending}
-            className="w-full sm:w-auto px-8 rounded-full"
+            className="px-10 rounded-xl font-bold text-base shadow-lg shadow-primary-500/25"
           >
-            {editPost ? "Lưu thay đổi" : "Đăng bài"}
+            {editPost ? "Lưu thay đổi" : "Đăng bài ngay"}
           </Button>
         </div>
       </form>
