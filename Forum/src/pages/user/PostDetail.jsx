@@ -14,11 +14,20 @@ import PostCardSkeleton from '@/features/posts/components/PostSkeleton';
 import CommentSection from '@/features/posts/components/CommentSection';
 import PostMenu from '@/features/posts/components/PostMenu';
 import ReadingProgressBar from '@/components/ReadingProgressBar';
-import { ArrowLeft, Heart, MessageSquare, Share2, Bookmark } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { useFollow } from '@/hooks/useFollow';
 import useAuthStore from '@/features/auth/store/authStore';
 import useModalStore from '@/components/hooks/useModalStore';
+import { formatDistanceToNow } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { ArrowLeft, Heart, MessageSquare, Share2, Bookmark } from 'lucide-react';
+
+const getBadge = (rep) => {
+    if (rep >= 1000) return { label: 'Huyền thoại', emoji: '🌟', gradient: 'from-purple-500 via-pink-500 to-amber-400' };
+    if (rep >= 500)  return { label: 'Chuyên gia',  emoji: '🔥', gradient: 'from-blue-500 to-cyan-500' };
+    if (rep >= 100)  return { label: 'Đóng góp tích cực', emoji: '⭐', gradient: 'from-green-500 to-emerald-500' };
+    if (rep >= 10)   return { label: 'Thành viên', emoji: '🌱', gradient: 'from-orange-400 to-amber-400' };
+    return           { label: 'Tân binh',    emoji: '✨', gradient: 'from-slate-400 to-slate-500' };
+};
 
 const UserPostDetail = () => {
   const { id } = useParams();
@@ -26,8 +35,9 @@ const UserPostDetail = () => {
   const { mutate: toggleLike } = useLikePost();
   const { mutate: toggleSave } = useSavePost();
   const deleteMutation = useDeletePost();
-  const { user } = useAuthStore();
+  const { user: currentUser } = useAuthStore();
   const { onOpen } = useModalStore();
+  const { follow, unfollow, isFollowingLoading } = useFollow();
 
   const { data, isLoading, isError } = useQuery({
       queryKey: ['post', id],
@@ -36,6 +46,16 @@ const UserPostDetail = () => {
   });
 
   const post = data?.data;
+  const author = post?.author || {};
+  const badge = getBadge(author.reputation || 0);
+  const isOwnPost = currentUser && String(currentUser.id) === String(author.id);
+
+  const handleFollow = (e) => {
+    e.stopPropagation();
+    if (!currentUser) return navigate('/login');
+    if (author.isFollowing) unfollow(author.id);
+    else follow(author.id);
+  };
 
   if (isLoading) return (
       <div className="max-w-4xl mx-auto pt-10 px-4 pb-10">
@@ -63,7 +83,7 @@ const UserPostDetail = () => {
   return (
       <>
       <ReadingProgressBar />
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto pt-4 px-4 sm:px-6">
           <Helmet>
               <title>{post.title} | Forum</title>
               <meta name="description" content={plainExcerpt} />
@@ -85,50 +105,73 @@ const UserPostDetail = () => {
           <article className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-8">
               {/* Post Header */}
               <div className="p-6 md:p-8 border-b border-slate-50">
-                  <div className="flex items-start justify-between mb-6">
-                      <div className="flex items-center space-x-4">
-                          <div 
-                              className="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-primary-500 text-white flex items-center justify-center font-bold text-xl shadow-md overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all"
-                              onClick={(e) => { e.stopPropagation(); navigate(`/user/profile/${post.author?.id}`); }}
-                          >
-                                {post.author?.username ? (
-                                    <img src={`https://ui-avatars.com/api/?name=${post.author.username}&background=random`} alt="Avatar" className="h-full w-full object-cover" />
-                                ) : (
-                                    <span>{post.author?.username?.[0]?.toUpperCase()}</span>
-                                )}
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-8">
+                      <div className="flex items-start space-x-4 flex-1">
+                          <div className="relative shrink-0">
+                            <div 
+                                className={`h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-gradient-to-br ${badge.gradient} text-white flex items-center justify-center font-bold text-xl shadow-md overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all`}
+                                onClick={(e) => { e.stopPropagation(); navigate(`/user/profile/${author.id}`); }}
+                            >
+                                <img 
+                                    src={author.avatar || `https://ui-avatars.com/api/?name=${author.username}&background=random`} 
+                                    alt="Avatar" 
+                                    className="h-full w-full object-cover" 
+                                />
+                            </div>
+                            <div className={`absolute -bottom-1 -right-1 bg-gradient-to-r ${badge.gradient} text-white text-[9px] h-5 w-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm z-10 font-bold`}>
+                                {badge.emoji}
+                            </div>
                           </div>
-                          <div>
-                              <h1 className="text-xl md:text-2xl font-bold text-slate-900 leading-snug">
+                          <div className="flex-1 min-w-0">
+                              <h1 className="text-xl md:text-2xl font-black text-slate-900 leading-tight mb-2">
                                   {post.title}
                               </h1>
-                              <div className="flex items-center text-sm text-slate-500 mt-1 space-x-3">
-                                  <span 
-                                      className="font-semibold text-primary-600 cursor-pointer hover:underline"
-                                      onClick={(e) => { e.stopPropagation(); navigate(`/user/profile/${post.author?.id}`); }}
-                                  >
-                                      {post.author?.username}
-                                  </span>
-                                  <span>•</span>
-                                  <span>{post.createdAt ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: vi }) : ''}</span>
-                                  <span>•</span>
-                                  <span className="bg-slate-100 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide">{post.category?.name || 'General'}</span>
+                              <div className="flex flex-wrap items-center text-sm text-slate-500 gap-3">
+                                  <div className="flex items-center gap-2">
+                                    <span 
+                                        className="font-black text-primary-600 cursor-pointer hover:underline"
+                                        onClick={(e) => { e.stopPropagation(); navigate(`/user/profile/${author.id}`); }}
+                                    >
+                                        {author.username}
+                                    </span>
+                                    
+                                    {!isOwnPost && author.id && (
+                                        <button
+                                            onClick={handleFollow}
+                                            disabled={isFollowingLoading}
+                                            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border shrink-0 ${
+                                                author.isFollowing
+                                                    ? 'bg-slate-50 text-slate-400 border-slate-100'
+                                                    : 'bg-primary-50 text-primary-600 border-primary-100 hover:bg-primary-600 hover:text-white'
+                                            }`}
+                                        >
+                                            {isFollowingLoading ? '...' : author.isFollowing ? '✓ Đã follow' : '+ Follow'}
+                                        </button>
+                                    )}
+                                  </div>
+                                  <span className="hidden sm:inline text-slate-300 font-light">•</span>
+                                  <span className="text-[13px]">{post.createdAt ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: vi }) : ''}</span>
+                                  <span className="hidden sm:inline text-slate-300 font-light">•</span>
+                                  <span className="bg-slate-100 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-500 border border-slate-200">{post.category?.name || 'Chung'}</span>
                               </div>
                           </div>
                       </div>
                       
-                      {/* Post Menu (Edit/Delete or Report based on ownership) */}
-                      {user && (
-                          <PostMenu 
-                              post={post}
-                              onEdit={() => onOpen('create-post', post)}
-                              onDelete={() => {
-                                  if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
-                                      deleteMutation.mutate(post.id, {
-                                          onSuccess: () => navigate('/user')
-                                      });
-                                  }
-                              }}
-                          />
+                      {/* Post Menu */}
+                      {currentUser && (
+                          <div className="shrink-0 self-end sm:self-start">
+                            <PostMenu 
+                                post={post}
+                                onEdit={() => onOpen('create-post', post)}
+                                onDelete={() => {
+                                    if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+                                        deleteMutation.mutate(post.id, {
+                                            onSuccess: () => navigate('/user')
+                                        });
+                                    }
+                                }}
+                            />
+                          </div>
                       )}
                   </div>
 

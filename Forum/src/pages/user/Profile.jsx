@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getPosts } from '@/features/posts/api/postService';
 import api from '@/lib/axios';
 import { Calendar, FileText, Loader2, Info, Trash2, Pencil, Settings2, Users, Heart, MessageSquare, Zap, Star, Flame, Trophy } from 'lucide-react';
@@ -9,8 +9,8 @@ import { vi } from 'date-fns/locale';
 import useAuthStore from '@/features/auth/store/authStore';
 import { useDeletePost } from '@/features/posts/hooks/useDeletePost';
 import useModalStore from '@/components/hooks/useModalStore';
-import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
+import { useFollow } from '@/hooks/useFollow';
 
 const getUserProfile = async (id) => {
     const response = await api.get(`/users/${id}/profile`);
@@ -48,23 +48,15 @@ const Profile = () => {
     const deleteMutation = useDeletePost();
     const { onOpen } = useModalStore();
 
-    const followMutation = useMutation({
-        mutationFn: async () => { await api.post(`/users/${userId}/follow`); },
-        onSuccess: () => { 
-            toast.success(`Đã theo dõi ${user?.username || 'người dùng'}`); 
-            refetchUser(); 
-        },
-        onError: err => toast.error(err.response?.data?.message || err.message || 'Có lỗi xảy ra')
-    });
+    const { follow, unfollow, isFollowingLoading } = useFollow();
 
-    const unfollowMutation = useMutation({
-        mutationFn: async () => { await api.post(`/users/${userId}/unfollow`); },
-        onSuccess: () => { 
-            toast.success(`Đã bỏ theo dõi ${user?.username}`); 
-            refetchUser(); 
-        },
-        onError: err => toast.error(err.response?.data?.message || err.message || 'Có lỗi xảy ra')
-    });
+    const handleFollowToggle = () => {
+        if (!currentUser) return navigate('/login');
+        if (user.isFollowing) unfollow(user.id);
+        else follow(user.id);
+        // Ensure UI updates quickly after mutation
+        setTimeout(() => refetchUser(), 500);
+    };
 
     let posts = [];
     if (postsResponse?.data?.data && Array.isArray(postsResponse.data.data)) posts = postsResponse.data.data;
@@ -165,8 +157,8 @@ const Profile = () => {
                                     </button>
                                 ) : (
                                     <button
-                                        onClick={() => user.isFollowing ? unfollowMutation.mutate() : followMutation.mutate()}
-                                        disabled={followMutation.isPending || unfollowMutation.isPending}
+                                        onClick={handleFollowToggle}
+                                        disabled={isFollowingLoading}
                                         className={`w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-2.5 font-bold text-sm rounded-xl transition-all shadow-md group ${
                                             user.isFollowing
                                                 ? 'bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 border border-slate-200 hover:border-red-200 shadow-none'
@@ -174,7 +166,7 @@ const Profile = () => {
                                         }`}
                                         style={!user.isFollowing ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
                                     >
-                                        {followMutation.isPending || unfollowMutation.isPending
+                                        {isFollowingLoading
                                             ? <Loader2 className="w-4 h-4 animate-spin" />
                                             : user.isFollowing ? <Users className="w-4 h-4 group-hover:hidden" /> : <Users className="w-4 h-4" />
                                         }
