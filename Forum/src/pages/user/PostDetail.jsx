@@ -225,7 +225,7 @@ const UserPostDetail = () => {
           </article>
 
           {/* Comments Section */}
-          <CommentSection postId={post.id} />
+          <CommentSection postId={post.id} postAuthorId={author.id} />
       </div>
       </>
   );

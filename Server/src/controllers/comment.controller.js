@@ -163,7 +163,12 @@ class CommentController {
       const comment = await Comment.findByPk(commentId);
       if (!comment) return res.status(404).json({ success: false, message: 'Không tìm thấy bình luận' });
 
-      if (comment.user_id !== userId && !['admin', 'moderator'].includes(role)) {
+      // Check if user is the author of the post where this comment resides
+      const Post = require('../models/post.model');
+      const post = await Post.findByPk(comment.post_id);
+      const isPostAuthor = post && post.user_id === userId;
+
+      if (comment.user_id !== userId && !['admin', 'moderator'].includes(role) && !isPostAuthor) {
         return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa bình luận này' });
       }
 

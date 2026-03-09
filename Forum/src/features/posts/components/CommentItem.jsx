@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { Heart, Reply, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Heart, Reply, Trash2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { likeComment, unlikeComment, deleteComment } from '../api/commentService';
 import useAuthStore from '@/features/auth/store/authStore';
 import toast from 'react-hot-toast';
 
-const CommentItem = ({ comment, postId, onReply, depth = 0 }) => {
+const CommentItem = ({ comment, postId, postAuthorId, onReply, depth = 0 }) => {
     const { user } = useAuthStore();
     const queryClient = useQueryClient();
     const [showReplies, setShowReplies] = useState(true);
@@ -15,8 +15,6 @@ const CommentItem = ({ comment, postId, onReply, depth = 0 }) => {
     // Optimistic like state
     const [liked, setLiked]         = useState(comment.isLiked ?? false);
     const [likeCount, setLikeCount] = useState(comment.likeCount ?? comment.like_count ?? 0);
-
-    const invalidate = () => queryClient.invalidateQueries({ queryKey: ['comments', postId] });
 
     const likeMutation = useMutation({
         mutationFn: () => liked ? unlikeComment(comment.id) : likeComment(comment.id),
@@ -35,17 +33,49 @@ const CommentItem = ({ comment, postId, onReply, depth = 0 }) => {
 
     const deleteMutation = useMutation({
         mutationFn: () => deleteComment(comment.id),
-        onSuccess: () => { toast.success('Đã xóa bình luận'); invalidate(); },
-        onError:   () => toast.error('Không thể xóa bình luận'),
+        onMutate: async () => {
+            // 1. Cancel outgoing refetches
+            await queryClient.cancelQueries({ queryKey: ['comments', postId] });
+            // 2. Snapshot previous value
+            const previousComments = queryClient.getQueryData(['comments', postId]);
+            // 3. Optimistically update UI
+            queryClient.setQueryData(['comments', postId], (old) => {
+                if (!old) return [];
+                const data = Array.isArray(old) ? old : (old.data || []);
+                // Filter out the deleted comment and its potential nested replies in flat storage
+                return data.filter(c => c.id !== comment.id);
+            });
+            return { previousComments };
+        },
+        onError: (err, _, context) => {
+            // Rollback
+            if (context?.previousComments) {
+                queryClient.setQueryData(['comments', postId], context.previousComments);
+            }
+            toast.error('Không thể xóa bình luận');
+        },
+        onSuccess: () => {
+            toast.success('Đã xóa bình luận');
+        },
+        onSettled: () => {
+            // Always refetch to ensure sync
+            queryClient.invalidateQueries({ queryKey: ['comments', postId] });
+            queryClient.invalidateQueries({ queryKey: ['post', postId] });
+            queryClient.invalidateQueries({ queryKey: ['posts'] });
+        },
     });
 
-    const canDelete = user && (user.id === comment.author?.id || ['admin', 'moderator'].includes(user.role));
+    const isCommentAuthor = user && String(user.id) === String(comment.author?.id);
+    const isPostAuthor    = user && String(user.id) === String(postAuthorId);
+    const isAdmin         = user && ['admin', 'moderator'].includes(user.role);
+
+    const canDelete = isCommentAuthor || isPostAuthor || isAdmin;
     const isReply   = depth > 0;
     const replies   = comment.replies || [];
 
     return (
         <div className={`${isReply ? 'ml-10 mt-2' : 'mt-4'}`}>
-            <div className="flex gap-3">
+            <div className={`flex gap-3 transition-opacity duration-300 ${deleteMutation.isPending ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
                 {/* Avatar */}
                 <div className="shrink-0">
                     <img
@@ -64,9 +94,16 @@ const CommentItem = ({ comment, postId, onReply, depth = 0 }) => {
                         style={{ background: 'var(--bg-muted)', border: '1px solid var(--border-color)' }}
                     >
                         <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
-                            <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
-                                {comment.author?.username || 'Ẩn danh'}
-                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                                    {comment.author?.username || 'Ẩn danh'}
+                                </span>
+                                {String(comment.author?.id) === String(postAuthorId) && (
+                                    <span className="bg-primary-100 text-primary-700 text-[10px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-wider border border-primary-200">
+                                        Tác giả
+                                    </span>
+                                )}
+                            </div>
                             <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                                 {comment.created_at || comment.createdAt
                                     ? formatDistanceToNow(new Date(comment.created_at || comment.createdAt), { addSuffix: true, locale: vi })
@@ -83,6 +120,7 @@ const CommentItem = ({ comment, postId, onReply, depth = 0 }) => {
                         {/* Like */}
                         <button
                             onClick={() => user ? likeMutation.mutate() : toast.error('Vui lòng đăng nhập')}
+                            disabled={likeMutation.isPending}
                             className={`flex items-center gap-1 text-xs font-bold transition-all ${
                                 liked ? 'text-red-500' : 'text-slate-400 hover:text-red-500'
                             }`}
@@ -105,11 +143,19 @@ const CommentItem = ({ comment, postId, onReply, depth = 0 }) => {
                         {/* Delete */}
                         {canDelete && (
                             <button
-                                onClick={() => window.confirm('Xóa bình luận này?') && deleteMutation.mutate()}
-                                className="flex items-center gap-1 text-xs font-bold text-slate-300 hover:text-red-500 transition-colors ml-auto"
+                                onClick={() => window.confirm('Bạn có chắc chắn muốn xóa bình luận này?') && deleteMutation.mutate()}
+                                disabled={deleteMutation.isPending}
+                                className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-red-500 transition-all ml-auto group/del"
                                 title="Xóa bình luận"
                             >
-                                <Trash2 size={12} />
+                                {deleteMutation.isPending ? (
+                                    <Loader2 size={13} className="animate-spin" />
+                                ) : (
+                                    <>
+                                        <Trash2 size={13} className="group-hover/del:scale-110 transition-transform" />
+                                        <span className="hidden sm:inline">Xóa</span>
+                                    </>
+                                )}
                             </button>
                         )}
                     </div>
@@ -132,6 +178,7 @@ const CommentItem = ({ comment, postId, onReply, depth = 0 }) => {
                             key={reply.id}
                             comment={reply}
                             postId={postId}
+                            postAuthorId={postAuthorId}
                             onReply={onReply}
                             depth={depth + 1}
                         />
