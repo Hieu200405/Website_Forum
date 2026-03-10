@@ -103,6 +103,15 @@ const UserPostDetail = () => {
 
           {/* Main Post Content */}
           <article className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-8">
+              {post.imageUrl && (
+                  <div className="w-full aspect-[21/9] border-b border-slate-50 overflow-hidden">
+                      <img 
+                        src={post.imageUrl} 
+                        alt={post.title} 
+                        className="w-full h-full object-cover" 
+                      />
+                  </div>
+              )}
               {/* Post Header */}
               <div className="p-6 md:p-8 border-b border-slate-50">
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-8">

@@ -113,6 +113,16 @@ const CommentItem = ({ comment, postId, postAuthorId, onReply, depth = 0 }) => {
                         <p className="text-[15px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                             {comment.content}
                         </p>
+                        {comment.imageUrl && (
+                            <div className="mt-3 rounded-xl overflow-hidden border border-slate-100 shadow-sm max-w-sm">
+                                <img 
+                                    src={comment.imageUrl} 
+                                    alt="Attached" 
+                                    className="w-full h-auto cursor-zoom-in hover:brightness-95 transition-all" 
+                                    onClick={() => window.open(comment.imageUrl, '_blank')}
+                                />
+                            </div>
+                        )}
                     </div>
 
                     {/* Action row */}

@@ -141,6 +141,15 @@ const PostCard = ({ post, onLike }) => {
 
                 {/* ─── Content ─── */}
                 <div className="cursor-pointer md:pl-14" onClick={handlePostClick}>
+                    {post.imageUrl && (
+                        <div className="mb-4 rounded-xl overflow-hidden aspect-[16/8] border border-slate-100 group-hover:border-primary-100 transition-colors">
+                            <img 
+                                src={post.imageUrl} 
+                                alt="" 
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                            />
+                        </div>
+                    )}
                     <h3 className="text-[17px] font-bold text-slate-900 mb-2 leading-snug hover:text-primary-700 transition-colors line-clamp-2">
                         {post.title}
                     </h3>

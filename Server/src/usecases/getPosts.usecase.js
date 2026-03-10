@@ -43,6 +43,7 @@ class GetPostsUseCase {
         id: row.id,
         title: row.title,
         content: row.content,
+        imageUrl: row.imageUrl,
         likeCount: parseInt(row.likeCount), 
         commentCount: parseInt(row.commentCount) || 0,
         createdAt: row.createdAt,

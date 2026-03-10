@@ -10,6 +10,8 @@ import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
 
+import { Image, X, Loader2 } from "lucide-react";
+
 const CreatePostModal = () => {
   const { onClose, data: editPost } = useModalStore();
   const queryClient = useQueryClient();
@@ -17,7 +19,11 @@ const CreatePostModal = () => {
     title: editPost?.title || "",
     content: editPost?.content || "",
     categoryId: editPost?.categoryId || editPost?.category?.id || "",
+    imageUrl: editPost?.imageUrl || editPost?.image_url || "",
   });
+
+  const [coverPreview, setCoverPreview] = useState(editPost?.imageUrl || editPost?.image_url || "");
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
 
   // Fetch categories
   const { data: rawCategories = [], isLoading: categoriesLoading } = useQuery({
@@ -33,13 +39,43 @@ const CreatePostModal = () => {
         title: editPost.title || "",
         content: editPost.content || "",
         categoryId: editPost.categoryId || editPost.category?.id || "",
+        imageUrl: editPost.imageUrl || editPost.image_url || "",
       });
+      setCoverPreview(editPost.imageUrl || editPost.image_url || "");
     } else {
-      setFormData({ title: "", content: "", categoryId: "" });
+      setFormData({ title: "", content: "", categoryId: "", imageUrl: "" });
+      setCoverPreview("");
     }
   }, [editPost]);
 
   const quillRef = useRef(null);
+
+  const handleCoverUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setCoverPreview(URL.createObjectURL(file));
+    setIsUploadingCover(true);
+
+    const uploadData = new FormData();
+    uploadData.append("image", file);
+
+    try {
+        const res = await uploadImage(uploadData);
+        setFormData(prev => ({ ...prev, imageUrl: res.url }));
+        toast.success("Tải ảnh bìa thành công");
+    } catch (error) {
+        toast.error("Tải ảnh bìa thất bại");
+        setCoverPreview("");
+    } finally {
+        setIsUploadingCover(false);
+    }
+  };
+
+  const removeCover = () => {
+    setCoverPreview("");
+    setFormData(prev => ({ ...prev, imageUrl: "" }));
+  };
 
   const imageHandler = useCallback(() => {
     const input = document.createElement("input");
@@ -155,8 +191,8 @@ const CreatePostModal = () => {
             autoFocus
           />
 
-          <div className="flex items-center gap-4">
-            <div className="flex-1">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex-1 w-full">
               <select
                 value={formData.categoryId}
                 onChange={(e) =>
@@ -173,10 +209,33 @@ const CreatePostModal = () => {
                 ))}
               </select>
             </div>
-            <div className="text-xs text-slate-400 font-medium hidden sm:block">
-              Markdown & Code Highlighting hỗ trợ
-            </div>
+            
+            <label className="shrink-0 flex items-center gap-2 px-4 h-11 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors text-slate-600 text-sm font-medium">
+                <input type="file" className="hidden" accept="image/*" onChange={handleCoverUpload} disabled={isUploadingCover} />
+                <Image className="w-4 h-4" />
+                {isUploadingCover ? "Đang tải..." : (formData.imageUrl ? "Đổi ảnh bìa" : "Thêm ảnh bìa")}
+            </label>
           </div>
+
+          {coverPreview && (
+              <div className="relative w-full aspect-[21/9] rounded-2xl overflow-hidden border border-slate-200 group">
+                  <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
+                  {!isUploadingCover && (
+                      <button 
+                         type="button" 
+                         onClick={removeCover}
+                         className="absolute top-3 right-3 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                      >
+                          <X className="w-4 h-4" />
+                      </button>
+                  )}
+                  {isUploadingCover && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <Loader2 className="w-8 h-8 text-white animate-spin" />
+                      </div>
+                  )}
+              </div>
+          )}
         </div>
 
         <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-inner group focus-within:ring-2 focus-within:ring-primary-500/20 transition-all">

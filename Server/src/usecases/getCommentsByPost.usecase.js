@@ -13,6 +13,7 @@ class GetCommentsByPostUseCase {
     const result = comments.map(c => ({
       id: c.id,
       content: c.content,
+      imageUrl: c.image_url,
       createdAt: c.created_at,
       parent_id: c.parent_id,
       author: c.author ? {

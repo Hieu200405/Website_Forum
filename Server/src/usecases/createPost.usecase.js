@@ -7,10 +7,10 @@ class CreatePostUseCase {
   /**
    * Tạo bài viết mới
    * @param {number} userId - ID người tạo
-   * @param {object} input - Dữ liệu { title, content, categoryId }
+   * @param {object} input - Dữ liệu { title, content, categoryId, imageUrl }
    * @param {string} ip - IP User
     */
-  static async execute(userId, { title, content, categoryId }, ip) {
+  static async execute(userId, { title, content, categoryId, imageUrl }, ip) {
     // 1. Validate Input cơ bản
     if (!title || title.length > 200) {
       throw { status: 400, message: 'Title is required and must be under 200 characters' };
@@ -63,6 +63,7 @@ class CreatePostUseCase {
       category_id: categoryId,
       title,
       content,
+      image_url: imageUrl || null,
       status
     });
 
@@ -86,6 +87,7 @@ class CreatePostUseCase {
     return {
       id: newPost.id,
       title: newPost.title,
+      imageUrl: newPost.image_url,
       status: newPost.status,
       created_at: newPost.created_at,
       message: isViolation 

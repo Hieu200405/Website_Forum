@@ -8,10 +8,10 @@ class CreateCommentUseCase {
   /**
    * Tạo bình luận mới
    * @param {number} userId - ID người tạo
-   * @param {object} input - { postId, content, parentId }
+   * @param {object} input - { postId, content, parentId, imageUrl }
    * @param {string} ip - IP người dùng
    */
-  static async execute(userId, { postId, content, parentId }, ip, app) {
+  static async execute(userId, { postId, content, parentId, imageUrl }, ip, app) {
     // 1. Validate Input
     if (!content || !content.trim()) {
       throw { status: 400, message: 'Nội dung bình luận không được để trống' };
@@ -50,6 +50,7 @@ class CreateCommentUseCase {
       post_id: postId,
       parent_id: parentId || null,
       content,
+      image_url: imageUrl || null,
       status
     });
 
@@ -86,6 +87,7 @@ class CreateCommentUseCase {
     return {
       id: newComment.id,
       content: newComment.content,
+      imageUrl: newComment.image_url,
       status: newComment.status,
       createdAt: newComment.created_at,
       message: !modResult.isValid 

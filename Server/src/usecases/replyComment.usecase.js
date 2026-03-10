@@ -8,10 +8,10 @@ class ReplyCommentUseCase {
   /**
    * Thao tác trả lời bình luận
    * @param {number} userId 
-   * @param {object} input - { postId, parentCommentId, content }
+   * @param {object} input - { postId, parentCommentId, content, imageUrl }
    * @param {string} ipAddress 
    */
-  static async execute(userId, { postId, parentCommentId, content }, ipAddress, app) {
+  static async execute(userId, { postId, parentCommentId, content, imageUrl }, ipAddress, app) {
     // 1. Validate Input
     if (!content || !content.trim()) {
       throw { status: 400, message: 'Nội dung trả lời không được để trống' };
@@ -63,6 +63,7 @@ class ReplyCommentUseCase {
       post_id: postId,
       parent_id: parentCommentId,
       content,
+      image_url: imageUrl || null,
       status
     });
 
@@ -99,6 +100,7 @@ class ReplyCommentUseCase {
     return {
       id: reply.id,
       content: reply.content,
+      imageUrl: reply.image_url,
       status: reply.status,
       parentId: reply.parent_id,
       createdAt: reply.created_at,
