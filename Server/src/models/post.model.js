@@ -62,6 +62,10 @@ const Post = sequelize.define('Post', {
   hide_reason: {
     type: DataTypes.TEXT,
     allowNull: true
+  },
+  image_url: {
+    type: DataTypes.STRING,
+    allowNull: true,
   }
 }, {
   tableName: 'posts',

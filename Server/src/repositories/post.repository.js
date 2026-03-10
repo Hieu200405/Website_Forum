@@ -69,6 +69,7 @@ class PostRepository {
    */
   async findById(id) {
     return await Post.findByPk(id, {
+      attributes: ['id', 'title', 'content', 'status', 'created_at', 'like_count', 'comment_count', 'image_url', 'user_id', 'category_id'],
       include: [
         {
           model: User,
@@ -204,7 +205,7 @@ class PostRepository {
     let orderByClause = "p.created_at DESC"; // default newest
 
     if (sort === "most_liked") {
-      orderByClause = "likeCount DESC, p.created_at DESC";
+      orderByClause = "COUNT(DISTINCT l.id) DESC, p.created_at DESC";
     }
 
     // Note: userId replacement handles NULL gracefully
@@ -245,6 +246,7 @@ class PostRepository {
         p.id, 
         p.title, 
         p.content,
+        p.image_url as imageUrl,
         p.category_id as categoryId,
         p.created_at as createdAt,
         p.user_id as authorId,
@@ -266,15 +268,13 @@ class PostRepository {
       LEFT JOIN follows f ON p.user_id = f.following_id AND f.follower_id = :userId
       ${joinInteractions}
       WHERE ${whereClause}
-      GROUP BY p.id, p.title, p.content, p.category_id, u.username, u.avatar, u.reputation, c.name
+      GROUP BY p.id, u.id, c.id
       ORDER BY ${orderByClause}
-      LIMIT :limit OFFSET :offset
+      LIMIT ${Number(limit)} OFFSET ${Number(offset)}
     `;
 
     const rows = await sequelize.query(sql, {
       replacements: {
-        limit,
-        offset,
         userId: currentUserId,
         authorId,
         search: search ? `%${search}%` : "",
@@ -286,7 +286,11 @@ class PostRepository {
     // Count Total (để phân trang)
     const countSql = `SELECT COUNT(*) as total FROM posts p WHERE ${whereClause}`;
     const countResult = await sequelize.query(countSql, {
-      replacements: { authorId, search: `%${search}%`, categoryId },
+      replacements: { 
+        authorId, 
+        search: search ? `%${search}%` : "", 
+        categoryId 
+      },
       type: QueryTypes.SELECT,
     });
     const total = countResult[0].total;

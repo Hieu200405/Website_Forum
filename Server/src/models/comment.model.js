@@ -46,6 +46,10 @@ const Comment = sequelize.define(
         key: "id",
       },
     },
+    image_url: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     tableName: "comments",

@@ -50,6 +50,7 @@ class GetPostDetailUseCase {
       id: post.id,
       title: post.title,
       content: post.content,
+      imageUrl: post.image_url,
       status: post.status,
       createdAt: post.created_at,
       likesCount: post.like_count,
@@ -73,10 +74,12 @@ class GetPostDetailUseCase {
       comments: comments.map(c => ({
         id: c.id,
         content: c.content,
+        imageUrl: c.image_url,
         createdAt: c.created_at,
         author: {
           id: c.author.id,
           username: c.author.username,
+          avatar: c.author?.avatar, // Added avatar
           role: c.author.role
         }
       }))

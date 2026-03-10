@@ -35,7 +35,7 @@ class CommentRepository {
         { 
           model: require('../models/user.model'), 
           as: 'author', 
-          attributes: ['id', 'username', 'role'] 
+          attributes: ['id', 'username', 'role', 'avatar'] 
         }
       ]
     });

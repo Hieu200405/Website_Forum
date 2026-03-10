@@ -63,7 +63,7 @@ class PostController {
     try {
       const { id } = req.params;
       const userId = req.user.userId;
-      const { title, content, categoryId } = req.body;
+      const { title, content, categoryId, imageUrl } = req.body;
 
       const post = await require('../repositories/post.repository').findById(id);
       if (!post) return res.status(404).json({ success: false, message: 'Bài viết không tồn tại' });
@@ -75,6 +75,7 @@ class PostController {
       if (title) updateData.title = title;
       if (content) updateData.content = content;
       if (categoryId) updateData.category_id = categoryId;
+      if (imageUrl !== undefined) updateData.image_url = imageUrl;
 
       await require('../models/post.model').update(updateData, { where: { id } });
       res.status(200).json({ success: true, message: 'Cập nhật bài viết thành công' });

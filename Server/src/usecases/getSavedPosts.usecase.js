@@ -38,6 +38,7 @@ class GetSavedPostsUseCase {
       return {
         id: post.id,
         title: post.title,
+        imageUrl: post.image_url,
         createdAt: post.created_at,
         likeCount,
         commentCount,
