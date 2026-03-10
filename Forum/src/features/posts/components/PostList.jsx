@@ -5,7 +5,8 @@ import { getPosts } from '@/features/posts/api/postService';
 import PostCard from './PostCard';
 import PostCardSkeleton from './PostSkeleton';
 import { useLikePost } from '../hooks/useLikePost';
-import { TrendingUp, Clock, Filter } from 'lucide-react';
+import { TrendingUp, Clock, Filter, Sparkles } from 'lucide-react';
+import useAuthStore from '@/features/auth/store/authStore';
 
 // Custom Tab Selector
 const TabButton = ({ active, onClick, icon, label }) => {
@@ -28,7 +29,8 @@ const TabButton = ({ active, onClick, icon, label }) => {
 };
 
 const PostList = ({ searchQuery = "", categoryId = null }) => {
-  const [sort, setSort] = useState('newest');
+  const { user } = useAuthStore();
+  const [sort, setSort] = useState(user ? 'for_you' : 'newest');
   const { ref, inView } = useInView();
 
   const {
@@ -67,6 +69,14 @@ const PostList = ({ searchQuery = "", categoryId = null }) => {
       {/* Filter Tabs */}
       <div className="flex items-center justify-between">
           <div className="flex items-center bg-white p-1.5 rounded-2xl shadow-sm border border-slate-100 w-fit">
+            {user && (
+                <TabButton 
+                    active={sort === 'for_you'} 
+                    onClick={() => setSort('for_you')} 
+                    icon={Sparkles} 
+                    label="Cho bạn" 
+                />
+            )}
             <TabButton 
                 active={sort === 'newest'} 
                 onClick={() => setSort('newest')} 
