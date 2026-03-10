@@ -76,7 +76,7 @@ const CommentSection = ({ postId, postAuthorId }) => {
             const res = await uploadImage(formData);
             setImageUrl(res.url);
             toast.success('Đã tải ảnh lên!');
-        } catch (error) {
+        } catch {
             toast.error('Tải ảnh thất bại');
             setSelectedImage(null);
         } finally {

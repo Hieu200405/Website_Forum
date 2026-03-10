@@ -64,7 +64,7 @@ const CreatePostModal = () => {
         const res = await uploadImage(uploadData);
         setFormData(prev => ({ ...prev, imageUrl: res.url }));
         toast.success("Tải ảnh bìa thành công");
-    } catch (error) {
+    } catch {
         toast.error("Tải ảnh bìa thất bại");
         setCoverPreview("");
     } finally {
