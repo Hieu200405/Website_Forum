@@ -16,7 +16,7 @@ const CreatePostModal = () => {
   const [formData, setFormData] = useState({
     title: editPost?.title || "",
     content: editPost?.content || "",
-    categoryId: editPost?.categoryId || "",
+    categoryId: editPost?.categoryId || editPost?.category?.id || "",
   });
 
   // Fetch categories
@@ -32,7 +32,7 @@ const CreatePostModal = () => {
       setFormData({
         title: editPost.title || "",
         content: editPost.content || "",
-        categoryId: editPost.categoryId || "",
+        categoryId: editPost.categoryId || editPost.category?.id || "",
       });
     } else {
       setFormData({ title: "", content: "", categoryId: "" });

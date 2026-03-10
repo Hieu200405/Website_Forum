@@ -1,12 +1,12 @@
-const sequelize = require('../config/database');
-const Post = require('../models/post.model');
-const User = require('../models/user.model');
-const Category = require('../models/category.model');
+const sequelize = require("../config/database");
+const Post = require("../models/post.model");
+const User = require("../models/user.model");
+const Category = require("../models/category.model");
 
 class PostRepository {
   /**
    * Đếm số bài viết theo trạng thái
-   * @param {string} status 
+   * @param {string} status
    * @returns {Promise<number>}
    */
   async countByStatus(status) {
@@ -15,7 +15,7 @@ class PostRepository {
 
   /**
    * Tạo bài viết mới
-   * @param {object} postData 
+   * @param {object} postData
    * @returns {Promise<Post>}
    */
   async create(postData) {
@@ -24,15 +24,15 @@ class PostRepository {
 
   /**
    * Xóa bài viết (Hard delete)
-   * @param {number} id 
+   * @param {number} id
    * @returns {Promise<boolean>}
    */
   async delete(id) {
     const transaction = await sequelize.transaction();
     try {
-      const Comment = require('../models/comment.model');
-      const Like = require('../models/like.model');
-      const Report = require('../models/report.model');
+      const Comment = require("../models/comment.model");
+      const Like = require("../models/like.model");
+      const Report = require("../models/report.model");
 
       // 1. Delete Reports
       await Report.destroy({ where: { post_id: id }, transaction });
@@ -43,12 +43,15 @@ class PostRepository {
       // 3. Delete Comments
       // Pre-update parent_id to null avoid self-referencing issues if deleting parent comments
       // (Optional depending on DB engine but safer)
-      await Comment.update({ parent_id: null }, { where: { post_id: id }, transaction });
+      await Comment.update(
+        { parent_id: null },
+        { where: { post_id: id }, transaction },
+      );
       await Comment.destroy({ where: { post_id: id }, transaction });
 
       const deleted = await Post.destroy({
         where: { id },
-        transaction
+        transaction,
       });
 
       await transaction.commit();
@@ -61,15 +64,19 @@ class PostRepository {
 
   /**
    * Tìm bài viết theo ID
-   * @param {number} id 
+   * @param {number} id
    * @returns {Promise<Post|null>}
    */
   async findById(id) {
     return await Post.findByPk(id, {
       include: [
-        { model: User, as: 'author', attributes: ['id', 'username', 'role', 'reputation', 'avatar'] },
-        { model: Category, as: 'category', attributes: ['id', 'name'] }
-      ]
+        {
+          model: User,
+          as: "author",
+          attributes: ["id", "username", "role", "reputation", "avatar"],
+        },
+        { model: Category, as: "category", attributes: ["id", "name"] },
+      ],
     });
   }
 
@@ -83,7 +90,13 @@ class PostRepository {
    * @param {string} [params.sortBy='newest'] - 'newest' | 'mostLiked'
    * @returns {Promise<{rows: Post[], count: number}>}
    */
-  async findAll({ status, categoryId, page = 1, limit = 10, sortBy = 'newest' } = {}) {
+  async findAll({
+    status,
+    categoryId,
+    page = 1,
+    limit = 10,
+    sortBy = "newest",
+  } = {}) {
     const offset = (page - 1) * limit;
     const where = {};
 
@@ -95,11 +108,14 @@ class PostRepository {
     }
 
     // Determine Sort Order
-    let order = [['created_at', 'DESC']]; // Default: newest
-    if (sortBy === 'mostLiked') {
-      order = [['like_count', 'DESC'], ['created_at', 'DESC']];
-    } else if (sortBy === 'oldest') {
-      order = [['created_at', 'ASC']];
+    let order = [["created_at", "DESC"]]; // Default: newest
+    if (sortBy === "mostLiked") {
+      order = [
+        ["like_count", "DESC"],
+        ["created_at", "DESC"],
+      ];
+    } else if (sortBy === "oldest") {
+      order = [["created_at", "ASC"]];
     }
 
     return await Post.findAndCountAll({
@@ -108,31 +124,28 @@ class PostRepository {
       offset,
       order,
       include: [
-        { model: User, as: 'author', attributes: ['id', 'username'] },
-        { model: Category, as: 'category', attributes: ['id', 'name'] }
-      ]
+        { model: User, as: "author", attributes: ["id", "username"] },
+        { model: Category, as: "category", attributes: ["id", "name"] },
+      ],
     });
   }
 
   /**
    * Cập nhật trạng thái bài viết
-   * @param {number} id 
-   * @param {string} status 
+   * @param {number} id
+   * @param {string} status
    * @returns {Promise<boolean>}
    */
   async updateStatus(id, status) {
-    const [updated] = await Post.update(
-      { status },
-      { where: { id } }
-    );
+    const [updated] = await Post.update({ status }, { where: { id } });
     return updated > 0;
   }
 
   /**
    * Cập nhật trạng thái bài viết (cho Moderation)
-   * @param {number} id 
-   * @param {string} status 
-   * @param {string} hideReason 
+   * @param {number} id
+   * @param {string} status
+   * @param {string} hideReason
    * @returns {Promise<boolean>}
    */
   async updateModerationStatus(id, status, hideReason = null) {
@@ -140,73 +153,80 @@ class PostRepository {
     if (hideReason !== null) {
       updateData.hide_reason = hideReason;
     }
-    
-    const [updated] = await Post.update(
-      updateData,
-      { where: { id } }
-    );
+
+    const [updated] = await Post.update(updateData, { where: { id } });
     return updated > 0;
   }
 
   /**
    * Tăng lượt like
-   * @param {number} id 
+   * @param {number} id
    * @returns {Promise<void>}
    */
   async increaseLikeCount(id) {
-    await Post.increment('like_count', { where: { id } });
+    await Post.increment("like_count", { where: { id } });
   }
 
   /**
    * Tăng lượt comment
-   * @param {number} id 
+   * @param {number} id
    * @returns {Promise<void>}
    */
   async increaseCommentCount(id) {
-    await Post.increment('comment_count', { where: { id } });
+    await Post.increment("comment_count", { where: { id } });
   }
 
   /**
    * Giảm lượt like (Khi unlike)
-   * @param {number} id 
+   * @param {number} id
    */
   async decreaseLikeCount(id) {
-    await Post.decrement('like_count', { where: { id } });
+    await Post.decrement("like_count", { where: { id } });
   }
 
   /**
    * Lấy danh sách bài viết có sắp xếp (Join Likes & Count)
    * @param {object} params
    */
-  async getPostsWithSort({ page, limit, sort, userId = null, authorId = null, search = null, categoryId = null }) {
+  async getPostsWithSort({
+    page,
+    limit,
+    sort,
+    userId = null,
+    authorId = null,
+    search = null,
+    categoryId = null,
+  }) {
     const offset = (page - 1) * limit;
-    const { QueryTypes } = require('sequelize');
-    const sequelize = require('../config/database');
+    const { QueryTypes } = require("sequelize");
+    const sequelize = require("../config/database");
 
-    let orderByClause = 'p.created_at DESC'; // default newest
+    let orderByClause = "p.created_at DESC"; // default newest
 
-    if (sort === 'most_liked') {
-      orderByClause = 'likeCount DESC, p.created_at DESC';
+    if (sort === "most_liked") {
+      orderByClause = "likeCount DESC, p.created_at DESC";
     }
-    
+
     // Note: userId replacement handles NULL gracefully
     const currentUserId = userId || null;
-    
+
     let whereClause = `p.status = 'active'`;
     if (authorId) {
-       whereClause += ` AND p.user_id = :authorId`;
+      whereClause += ` AND p.user_id = :authorId`;
     }
     if (categoryId) {
-       whereClause += ` AND p.category_id = :categoryId`;
+      whereClause += ` AND p.category_id = :categoryId`;
     }
     if (search) {
-       whereClause += ` AND (p.title LIKE :search OR p.content LIKE :search)`;
+      whereClause += ` AND (p.title LIKE :search OR p.content LIKE :search)`;
     }
 
     const sql = `
       SELECT 
         p.id, 
         p.title, 
+        p.content,
+        p.category_id as categoryId,
         p.created_at as createdAt,
         p.user_id as authorId,
         u.username as authorName,
@@ -226,21 +246,28 @@ class PostRepository {
       LEFT JOIN saved_posts sp ON p.id = sp.post_id
       LEFT JOIN follows f ON p.user_id = f.following_id AND f.follower_id = :userId
       WHERE ${whereClause}
-      GROUP BY p.id, u.username, u.avatar, u.reputation, c.name
+      GROUP BY p.id, p.title, p.content, p.category_id, u.username, u.avatar, u.reputation, c.name
       ORDER BY ${orderByClause}
       LIMIT :limit OFFSET :offset
     `;
 
     const rows = await sequelize.query(sql, {
-      replacements: { limit, offset, userId: currentUserId, authorId, search: search ? `%${search}%` : '', categoryId },
-      type: QueryTypes.SELECT
+      replacements: {
+        limit,
+        offset,
+        userId: currentUserId,
+        authorId,
+        search: search ? `%${search}%` : "",
+        categoryId,
+      },
+      type: QueryTypes.SELECT,
     });
 
     // Count Total (để phân trang)
     const countSql = `SELECT COUNT(*) as total FROM posts p WHERE ${whereClause}`;
-    const countResult = await sequelize.query(countSql, { 
-       replacements: { authorId, search: `%${search}%`, categoryId },
-       type: QueryTypes.SELECT 
+    const countResult = await sequelize.query(countSql, {
+      replacements: { authorId, search: `%${search}%`, categoryId },
+      type: QueryTypes.SELECT,
     });
     const total = countResult[0].total;
 

@@ -42,9 +42,11 @@ class GetPostsUseCase {
       data: result.rows.map(row => ({
         id: row.id,
         title: row.title,
+        content: row.content,
         likeCount: parseInt(row.likeCount), 
         commentCount: parseInt(row.commentCount) || 0,
         createdAt: row.createdAt,
+        categoryId: row.categoryId,
         category: row.categoryName || 'Thảo luận',
         author: {
           id: row.authorId,
