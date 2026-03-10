@@ -9,7 +9,7 @@ class GetPostsUseCase {
     const s = sort || 'newest';
 
     // 2. Validate Sort
-    const validSorts = ['newest', 'most_liked'];
+    const validSorts = ['newest', 'most_liked', 'for_you'];
     const finalSort = validSorts.includes(s) ? s : 'newest';
 
     // 3. Cache Key Strategy

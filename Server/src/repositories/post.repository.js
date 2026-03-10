@@ -210,6 +210,25 @@ class PostRepository {
     // Note: userId replacement handles NULL gracefully
     const currentUserId = userId || null;
 
+    let joinInteractions = "";
+    if (sort === "for_you" && currentUserId) {
+        joinInteractions = `
+          LEFT JOIN (
+            SELECT DISTINCT p2.user_id
+            FROM likes l2
+            INNER JOIN posts p2 ON l2.post_id = p2.id
+            WHERE l2.user_id = :userId
+          ) interacted ON p.user_id = interacted.user_id
+        `;
+        // Weight: Followed (+100), Interacted (+50), Popularity (+1)
+        orderByClause = `
+            (MAX(CASE WHEN f.follower_id = :userId THEN 1 ELSE 0 END) * 100 + 
+             MAX(CASE WHEN interacted.user_id IS NOT NULL THEN 1 ELSE 0 END) * 50 + 
+             COUNT(DISTINCT l.id)) DESC, 
+            p.created_at DESC
+        `;
+    }
+
     let whereClause = `p.status = 'active'`;
     if (authorId) {
       whereClause += ` AND p.user_id = :authorId`;
@@ -245,6 +264,7 @@ class PostRepository {
       LEFT JOIN comments cm ON p.id = cm.post_id AND cm.status = 'active'
       LEFT JOIN saved_posts sp ON p.id = sp.post_id
       LEFT JOIN follows f ON p.user_id = f.following_id AND f.follower_id = :userId
+      ${joinInteractions}
       WHERE ${whereClause}
       GROUP BY p.id, p.title, p.content, p.category_id, u.username, u.avatar, u.reputation, c.name
       ORDER BY ${orderByClause}
