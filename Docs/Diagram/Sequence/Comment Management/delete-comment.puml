@@ -1,0 +1,41 @@
+@startuml
+actor User
+boundary CommentView
+control CommentController
+entity COMMENT
+
+ref over User, CommentView, CommentController, COMMENT : Search Comment
+
+User -> CommentView : Select comment to delete
+activate CommentView
+CommentView --> User : Display confirmation message
+
+alt Confirm
+    User -> CommentView : Click button "Confirm"
+    CommentView -> CommentController : deleteComment(id)
+    activate CommentController
+    CommentController -> COMMENT : Validate comment data
+    activate COMMENT
+
+    alt Valid data
+        COMMENT --> CommentController : Validation success
+        CommentController -> COMMENT : Delete comment
+        COMMENT --> CommentController : Comment deleted
+        CommentController --> CommentView : Success response
+        CommentView --> User : Notify deletion success
+        User -> CommentView : Confirm success notification
+    else Invalid data
+        COMMENT --> CommentController : Validation error
+        CommentController --> CommentView : Error response
+        CommentView --> User : Notify deletion failed
+        User -> CommentView : Confirm error notification
+    end
+    deactivate COMMENT
+    deactivate CommentController
+else Cancel
+    User -> CommentView : Click button "Cancel"
+    break
+    end
+end
+deactivate CommentView
+@enduml

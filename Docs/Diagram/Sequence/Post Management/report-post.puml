@@ -1,0 +1,39 @@
+@startuml
+actor User
+boundary ReportModal
+control ReportController
+entity REPORT
+
+User -> ReportModal : Select function report post
+activate ReportModal
+User -> ReportModal : Enter report information
+User -> ReportModal : Click button "Report"
+ReportModal -> ReportModal : Validate input information
+
+alt Valid input
+    ReportModal -> ReportController : reportPost(data)
+    activate ReportController
+    ReportController -> REPORT : Validate report data
+    activate REPORT
+
+    alt Valid data
+        REPORT --> ReportController : Validation success
+        ReportController -> REPORT : Store report
+        REPORT --> ReportController : Report created
+        ReportController --> ReportModal : Success response
+        ReportModal --> User : Notify report success
+        User -> ReportModal : Confirm success notification
+    else Invalid data
+        REPORT --> ReportController : Validation error
+        ReportController --> ReportModal : Error response
+        ReportModal --> User : Notify invalid data
+        User -> ReportModal : Confirm error notification
+    end
+    deactivate REPORT
+    deactivate ReportController
+else Invalid input
+    ReportModal --> User : Notify invalid input
+    User -> ReportModal : Confirm error notification
+end
+deactivate ReportModal
+@enduml

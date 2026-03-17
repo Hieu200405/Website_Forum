@@ -1,0 +1,35 @@
+@startuml
+actor User
+boundary ModeratePostsView
+control ModerationController
+entity POST
+
+User -> ModeratePostsView : Select function get pending posts
+activate ModeratePostsView
+ModeratePostsView -> ModeratePostsView : Validate input information
+
+alt Valid input
+    ModeratePostsView -> ModerationController : getPendingPosts()
+    activate ModerationController
+    ModerationController -> POST : Query pending posts
+    activate POST
+
+    alt Posts found
+        POST --> ModerationController : Posts list
+        ModerationController --> ModeratePostsView : Success response
+        ModeratePostsView --> User : Display posts list
+        User -> ModeratePostsView : Confirm success notification
+    else No posts found
+        POST --> ModerationController : Empty list
+        ModerationController --> ModeratePostsView : Error response
+        ModeratePostsView --> User : Notify no posts found
+        User -> ModeratePostsView : Confirm error notification
+    end
+    deactivate POST
+    deactivate ModerationController
+else Invalid input
+    ModeratePostsView --> User : Notify invalid input
+    User -> ModeratePostsView : Confirm error notification
+end
+deactivate ModeratePostsView
+@enduml

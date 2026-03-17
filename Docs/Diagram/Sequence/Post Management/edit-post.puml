@@ -1,0 +1,54 @@
+@startuml
+actor User
+boundary EditPostView
+control PostController
+entity POST
+
+ref over User, EditPostView, PostController, POST : Search Post
+
+User -> EditPostView : Select post to update
+activate EditPostView
+EditPostView -> PostController : getPost(id)
+activate PostController
+PostController -> POST : Query existing post
+activate POST
+
+alt Post exists
+    POST --> PostController : Post data
+    PostController --> EditPostView : Post data
+    EditPostView --> User : Display existing data
+    User -> EditPostView : Enter new post detail
+    User -> EditPostView : Click button "Update"
+
+    EditPostView -> EditPostView : Validate input information
+    alt Valid input
+        EditPostView -> PostController : updatePost(id, data)
+        PostController -> POST : Validate post data
+
+        alt Valid data
+            POST --> PostController : Validation success
+            PostController -> POST : Update post
+            POST --> PostController : Post updated
+            PostController --> EditPostView : Success response
+            EditPostView --> User : Notify update success
+            User -> EditPostView : Confirm success notification
+        else Invalid data
+            POST --> PostController : Validation error
+            PostController --> EditPostView : Error response
+            EditPostView --> User : Notify invalid data
+            User -> EditPostView : Confirm error notification
+        end
+    else Invalid input
+        EditPostView --> User : Notify invalid input
+        User -> EditPostView : Confirm error notification
+    end
+else Post not found
+    POST --> PostController : Null
+    PostController --> EditPostView : Error response
+    EditPostView --> User : Notify post not found
+    User -> EditPostView : Confirm error notification
+end
+deactivate POST
+deactivate PostController
+deactivate EditPostView
+@enduml

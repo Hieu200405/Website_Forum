@@ -1,0 +1,53 @@
+@startuml
+actor User
+boundary NotificationDropdown
+control NotificationController
+entity NOTIFICATION
+
+ref over User, NotificationDropdown, NotificationController, NOTIFICATION : Search Notifications
+
+User -> NotificationDropdown : Select notification to mark as read
+activate NotificationDropdown
+NotificationDropdown -> NotificationController : getNotification(id)
+activate NotificationController
+NotificationController -> NOTIFICATION : Query existing notification
+activate NOTIFICATION
+
+alt Notification exists
+    NOTIFICATION --> NotificationController : Notification data
+    NotificationController --> NotificationDropdown : Notification data
+    NotificationDropdown --> User : Display existing data
+    User -> NotificationDropdown : Click button "Mark as Read"
+
+    NotificationDropdown -> NotificationDropdown : Validate input information
+    alt Valid input
+        NotificationDropdown -> NotificationController : markAsRead(id)
+        NotificationController -> NOTIFICATION : Validate notification data
+
+        alt Valid data
+            NOTIFICATION --> NotificationController : Validation success
+            NotificationController -> NOTIFICATION : Update notification status
+            NOTIFICATION --> NotificationController : Notification updated
+            NotificationController --> NotificationDropdown : Success response
+            NotificationDropdown --> User : Notify update success
+            User -> NotificationDropdown : Confirm success notification
+        else Invalid data
+            NOTIFICATION --> NotificationController : Validation error
+            NotificationController --> NotificationDropdown : Error response
+            NotificationDropdown --> User : Notify invalid data
+            User -> NotificationDropdown : Confirm error notification
+        end
+    else Invalid input
+        NotificationDropdown --> User : Notify invalid input
+        User -> NotificationDropdown : Confirm error notification
+    end
+else Notification not found
+    NOTIFICATION --> NotificationController : Null
+    NotificationController --> NotificationDropdown : Error response
+    NotificationDropdown --> User : Notify notification not found
+    User -> NotificationDropdown : Confirm error notification
+end
+deactivate NOTIFICATION
+deactivate NotificationController
+deactivate NotificationDropdown
+@enduml

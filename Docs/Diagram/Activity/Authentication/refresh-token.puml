@@ -1,0 +1,43 @@
+@startuml
+|User|
+|Frontend|
+|Backend|
+
+|User|
+start
+:1 Select protected function;
+|Frontend|
+:2 Validate local token;
+if (Token exists?) then (Yes)
+  |Backend|
+  :3.1 Verify access token;
+  if (Valid?) then (Yes)
+    :4.1 Query user information;
+    if (User valid and active?) then (Yes)
+      |Frontend|
+      :5.1 Display function view;
+      |User|
+      :6.1 Confirm success notification;
+      stop
+    else (No)
+      |Frontend|
+      :5.2 Notify user banned or deleted;
+      |User|
+      :6.2 Confirm error notification;
+      end
+    endif
+  else (No)
+    |Frontend|
+    :4.2 Notify session expired;
+    |User|
+    :5.3 Confirm error notification;
+    end
+  endif
+else (No)
+  |Frontend|
+  :3.2 Notify unauthenticated access;
+  |User|
+  :4.3 Confirm error notification;
+  end
+endif
+@enduml

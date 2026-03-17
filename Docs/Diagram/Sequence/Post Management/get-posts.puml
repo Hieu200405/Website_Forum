@@ -1,0 +1,35 @@
+@startuml
+actor User
+boundary HomeView
+control PostController
+entity POST
+
+User -> HomeView : Select function get posts
+activate HomeView
+HomeView -> HomeView : Validate input information
+
+alt Valid input
+    HomeView -> PostController : getPosts()
+    activate PostController
+    PostController -> POST : Query posts
+    activate POST
+
+    alt Posts found
+        POST --> PostController : Posts list
+        PostController --> HomeView : Success response
+        HomeView --> User : Display posts list
+        User -> HomeView : Confirm success notification
+    else No posts found
+        POST --> PostController : Empty list
+        PostController --> HomeView : Error response
+        HomeView --> User : Notify no posts found
+        User -> HomeView : Confirm error notification
+    end
+    deactivate POST
+    deactivate PostController
+else Invalid input
+    HomeView --> User : Notify invalid input
+    User -> HomeView : Confirm error notification
+end
+deactivate HomeView
+@enduml

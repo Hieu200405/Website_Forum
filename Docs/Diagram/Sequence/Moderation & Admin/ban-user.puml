@@ -1,0 +1,42 @@
+@startuml
+actor User
+boundary ManageUsersView
+control AdminController
+entity USER
+
+ref over User, ManageUsersView, AdminController, USER : Search Users
+
+User -> ManageUsersView : Select user to ban
+activate ManageUsersView
+ManageUsersView --> User : Display confirmation message
+
+alt Confirm
+    User -> ManageUsersView : Click button "Confirm"
+    ManageUsersView -> AdminController : banUser(id)
+    activate AdminController
+    AdminController -> USER : Validate user data
+    activate USER
+
+    alt Valid data
+        USER --> AdminController : Validation success
+        AdminController -> USER : Update user status to banned
+        USER --> AdminController : User banned
+        AdminController --> ManageUsersView : Success response
+        ManageUsersView --> User : Notify ban success
+        User -> ManageUsersView : Confirm success notification
+    else Invalid data
+        USER --> AdminController : Validation error
+        AdminController --> ManageUsersView : Error response
+        ManageUsersView --> User : Notify ban failed
+        User -> ManageUsersView : Confirm error notification
+    end
+    deactivate USER
+    deactivate AdminController
+else Cancel
+    User -> ManageUsersView : Click button "Cancel"
+    break
+        note right of User: User cancelled the ban process
+    end
+end
+deactivate ManageUsersView
+@enduml

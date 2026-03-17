@@ -1,0 +1,35 @@
+@startuml
+actor User
+boundary PostDetailView
+control CommentController
+entity COMMENT
+
+User -> PostDetailView : Select function get comments
+activate PostDetailView
+PostDetailView -> PostDetailView : Validate input information
+
+alt Valid input
+    PostDetailView -> CommentController : getCommentsByPost(postId)
+    activate CommentController
+    CommentController -> COMMENT : Query comments
+    activate COMMENT
+
+    alt Comments found
+        COMMENT --> CommentController : Comments list
+        CommentController --> PostDetailView : Success response
+        PostDetailView --> User : Display comments list
+        User -> PostDetailView : Confirm success notification
+    else No comments found
+        COMMENT --> CommentController : Empty list
+        CommentController --> PostDetailView : Error response
+        PostDetailView --> User : Notify no comments found
+        User -> PostDetailView : Confirm error notification
+    end
+    deactivate COMMENT
+    deactivate CommentController
+else Invalid input
+    PostDetailView --> User : Notify invalid input
+    User -> PostDetailView : Confirm error notification
+end
+deactivate PostDetailView
+@enduml

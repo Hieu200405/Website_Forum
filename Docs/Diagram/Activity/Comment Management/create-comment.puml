@@ -1,0 +1,37 @@
+@startuml
+|User|
+|Frontend|
+|Backend|
+
+|User|
+start
+:1 Select function create comment;
+:2 Enter comment detail;
+:3 Click button "Create";
+|Frontend|
+:4 Validate input information;
+if (Valid?) then (Yes)
+  |Backend|
+  :5.1 Validate comment data;
+  if (Valid?) then (Yes)
+    :6.1 Store comment;
+    |Frontend|
+    :7.1 Notify creation success;
+    |User|
+    :8.1 Confirm success notification;
+    stop
+  else (No)
+    |Frontend|
+    :6.2 Notify invalid data;
+    |User|
+    :7.2 Confirm error notification;
+    end
+  endif
+else (No)
+  |Frontend|
+  :5.2 Notify invalid input;
+  |User|
+  :6.3 Confirm error notification;
+  end
+endif
+@enduml

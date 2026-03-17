@@ -1,0 +1,37 @@
+@startuml
+actor User
+boundary PostView
+control LikeController
+entity LIKE
+
+User -> PostView : Click button "Unlike"
+activate PostView
+PostView -> PostView : Validate input information
+
+alt Valid input
+    PostView -> LikeController : unlikePost(postId)
+    activate LikeController
+    LikeController -> LIKE : Validate like record
+    activate LIKE
+
+    alt Record exists
+        LIKE --> LikeController : Validation success
+        LikeController -> LIKE : Delete like record
+        LIKE --> LikeController : Like deleted
+        LikeController --> PostView : Success response
+        PostView --> User : Notify unlike success
+        User -> PostView : Confirm success notification
+    else Record not found
+        LIKE --> LikeController : Validation error
+        LikeController --> PostView : Error response
+        PostView --> User : Notify invalid record
+        User -> PostView : Confirm error notification
+    end
+    deactivate LIKE
+    deactivate LikeController
+else Invalid input
+    PostView --> User : Notify invalid input
+    User -> PostView : Confirm error notification
+end
+deactivate PostView
+@enduml

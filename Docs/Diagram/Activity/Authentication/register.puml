@@ -1,0 +1,36 @@
+@startuml
+|User|
+|Frontend|
+|Backend|
+
+|User|
+start
+:1 Enter registration information;
+:2 Click button "Register";
+|Frontend|
+:3 Validate input information;
+if (Valid?) then (Yes)
+  |Backend|
+  :4.1 Query existing email;
+  if (Email exists?) then (No)
+    :5.1 Store new user;
+    |Frontend|
+    :6.1 Notify registration success;
+    |User|
+    :7.1 Confirm success notification;
+    stop
+  else (Yes)
+    |Frontend|
+    :5.2 Notify email already exists;
+    |User|
+    :6.2 Confirm error notification;
+    end
+  endif
+else (No)
+  |Frontend|
+  :4.2 Notify invalid input;
+  |User|
+  :5.3 Confirm error notification;
+  end
+endif
+@enduml

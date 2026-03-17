@@ -1,0 +1,54 @@
+@startuml
+actor User
+boundary ManageUsersView
+control AdminController
+entity USER
+
+ref over User, ManageUsersView, AdminController, USER : Search Users
+
+User -> ManageUsersView : Select user to update role
+activate ManageUsersView
+ManageUsersView -> AdminController : getUser(id)
+activate AdminController
+AdminController -> USER : Query existing user
+activate USER
+
+alt User exists
+    USER --> AdminController : User data
+    AdminController --> ManageUsersView : User data
+    ManageUsersView --> User : Display existing data
+    User -> ManageUsersView : Enter new role
+    User -> ManageUsersView : Click button "Update Role"
+
+    ManageUsersView -> ManageUsersView : Validate input information
+    alt Valid input
+        ManageUsersView -> AdminController : changeRole(id, role)
+        AdminController -> USER : Validate user data
+
+        alt Valid data
+            USER --> AdminController : Validation success
+            AdminController -> USER : Update user role
+            USER --> AdminController : User updated
+            AdminController --> ManageUsersView : Success response
+            ManageUsersView --> User : Notify update success
+            User -> ManageUsersView : Confirm success notification
+        else Invalid data
+            USER --> AdminController : Validation error
+            AdminController --> ManageUsersView : Error response
+            ManageUsersView --> User : Notify invalid data
+            User -> ManageUsersView : Confirm error notification
+        end
+    else Invalid input
+        ManageUsersView --> User : Notify invalid input
+        User -> ManageUsersView : Confirm error notification
+    end
+else User not found
+    USER --> AdminController : Null
+    AdminController --> ManageUsersView : Error response
+    ManageUsersView --> User : Notify user not found
+    User -> ManageUsersView : Confirm error notification
+end
+deactivate USER
+deactivate AdminController
+deactivate ManageUsersView
+@enduml

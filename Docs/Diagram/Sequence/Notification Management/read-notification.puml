@@ -1,0 +1,35 @@
+@startuml
+actor User
+boundary NotificationDropdown
+control NotificationController
+entity NOTIFICATION
+
+User -> NotificationDropdown : Select notification to read
+activate NotificationDropdown
+NotificationDropdown -> NotificationDropdown : Validate input information
+
+alt Valid input
+    NotificationDropdown -> NotificationController : getNotification(id)
+    activate NotificationController
+    NotificationController -> NOTIFICATION : Query notification detail
+    activate NOTIFICATION
+
+    alt Notification found
+        NOTIFICATION --> NotificationController : Notification data
+        NotificationController --> NotificationDropdown : Success response
+        NotificationDropdown --> User : Display notification detail
+        User -> NotificationDropdown : Confirm success notification
+    else Notification not found
+        NOTIFICATION --> NotificationController : Null
+        NotificationController --> NotificationDropdown : Error response
+        NotificationDropdown --> User : Notify notification not found
+        User -> NotificationDropdown : Confirm error notification
+    end
+    deactivate NOTIFICATION
+    deactivate NotificationController
+else Invalid input
+    NotificationDropdown --> User : Notify invalid input
+    User -> NotificationDropdown : Confirm error notification
+end
+deactivate NotificationDropdown
+@enduml

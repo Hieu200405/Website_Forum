@@ -1,0 +1,35 @@
+@startuml
+actor User
+boundary LoginView
+control AuthController
+entity USER
+
+User -> LoginView : Enter login information
+activate LoginView
+LoginView -> LoginView : Validate input
+alt Valid input
+    LoginView -> AuthController : login(email, password)
+    activate AuthController
+    AuthController -> USER : Query user by email
+    activate USER
+    USER --> AuthController : User data
+    deactivate USER
+    
+    AuthController -> AuthController : Verify password
+    alt Password matches
+        AuthController -> AuthController : Generate JWT Token
+        AuthController --> LoginView : Success response
+        LoginView --> User : Notify login success
+        User -> LoginView : Confirm success notification
+    else Password incorrect
+        AuthController --> LoginView : Error response
+        LoginView --> User : Notify invalid password
+        User -> LoginView : Confirm error notification
+    end
+    deactivate AuthController
+else Invalid input
+    LoginView --> User : Notify invalid input
+    User -> LoginView : Confirm error notification
+end
+deactivate LoginView
+@enduml

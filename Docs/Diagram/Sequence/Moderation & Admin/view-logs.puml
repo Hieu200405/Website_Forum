@@ -1,0 +1,36 @@
+@startuml
+actor User
+boundary ViewLogsView
+control LogController
+entity SYSTEM_LOG
+
+User -> ViewLogsView : Select function view logs
+activate ViewLogsView
+User -> ViewLogsView : Enter search criteria
+ViewLogsView -> ViewLogsView : Validate input information
+
+alt Valid input
+    ViewLogsView -> LogController : getLogs(criteria)
+    activate LogController
+    LogController -> SYSTEM_LOG : Query system logs
+    activate SYSTEM_LOG
+
+    alt Logs found
+        SYSTEM_LOG --> LogController : Logs list
+        LogController --> ViewLogsView : Success response
+        ViewLogsView --> User : Display logs list
+        User -> ViewLogsView : Confirm success notification
+    else No logs found
+        SYSTEM_LOG --> LogController : Empty list
+        LogController --> ViewLogsView : Error response
+        ViewLogsView --> User : Notify no logs found
+        User -> ViewLogsView : Confirm error notification
+    end
+    deactivate SYSTEM_LOG
+    deactivate LogController
+else Invalid input
+    ViewLogsView --> User : Notify invalid input
+    User -> ViewLogsView : Confirm error notification
+end
+deactivate ViewLogsView
+@enduml

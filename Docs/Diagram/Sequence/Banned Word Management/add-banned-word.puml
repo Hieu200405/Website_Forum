@@ -1,0 +1,39 @@
+@startuml
+actor User
+boundary ManageBannedWordsView
+control BannedWordController
+entity BANNED_WORD
+
+User -> ManageBannedWordsView : Select function add banned word
+activate ManageBannedWordsView
+User -> ManageBannedWordsView : Enter banned word detail
+User -> ManageBannedWordsView : Click button "Add"
+ManageBannedWordsView -> ManageBannedWordsView : Validate input information
+
+alt Valid input
+    ManageBannedWordsView -> BannedWordController : addBannedWord(data)
+    activate BannedWordController
+    BannedWordController -> BANNED_WORD : Validate word data
+    activate BANNED_WORD
+
+    alt Valid data
+        BANNED_WORD --> BannedWordController : Validation success
+        BannedWordController -> BANNED_WORD : Store banned word
+        BANNED_WORD --> BannedWordController : Banned word created
+        BannedWordController --> ManageBannedWordsView : Success response
+        ManageBannedWordsView --> User : Notify addition success
+        User -> ManageBannedWordsView : Confirm success notification
+    else Invalid data
+        BANNED_WORD --> BannedWordController : Validation error
+        BannedWordController --> ManageBannedWordsView : Error response
+        ManageBannedWordsView --> User : Notify invalid data
+        User -> ManageBannedWordsView : Confirm error notification
+    end
+    deactivate BANNED_WORD
+    deactivate BannedWordController
+else Invalid input
+    ManageBannedWordsView --> User : Notify invalid input
+    User -> ManageBannedWordsView : Confirm error notification
+end
+deactivate ManageBannedWordsView
+@enduml

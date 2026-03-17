@@ -1,0 +1,35 @@
+@startuml
+|User|
+|Frontend|
+|Backend|
+
+|User|
+start
+:1 Click button "Unlike";
+|Frontend|
+:2 Validate input information;
+if (Valid?) then (Yes)
+  |Backend|
+  :3.1 Validate like record;
+  if (Exists?) then (Yes)
+    :4.1 Delete like record;
+    |Frontend|
+    :5.1 Notify unlike success;
+    |User|
+    :6.1 Confirm success notification;
+    stop
+  else (No)
+    |Frontend|
+    :4.2 Notify invalid record;
+    |User|
+    :5.2 Confirm error notification;
+    end
+  endif
+else (No)
+  |Frontend|
+  :3.2 Notify invalid input;
+  |User|
+  :4.3 Confirm error notification;
+  end
+endif
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+actor User
+boundary ManageCategoriesView
+control CategoryController
+entity CATEGORY
+
+User -> ManageCategoriesView : Select function get categories
+activate ManageCategoriesView
+ManageCategoriesView -> ManageCategoriesView : Validate input information
+
+    ManageCategoriesView -> CategoryController : getCategories()
+    activate CategoryController
+    CategoryController -> CATEGORY : Query categories
+    activate CATEGORY
+
+    alt Categories found
+        CATEGORY --> CategoryController : Categories list
+        CategoryController --> ManageCategoriesView : Success response
+        ManageCategoriesView --> User : Display categories list
+    else No categories found
+        CATEGORY --> CategoryController : Empty list
+        CategoryController --> ManageCategoriesView : Error response
+        ManageCategoriesView --> User : Notify no categories found
+        User -> ManageCategoriesView : Confirm error notification
+    end
+    deactivate CATEGORY
+    deactivate CategoryController
+deactivate ManageCategoriesView
+@enduml

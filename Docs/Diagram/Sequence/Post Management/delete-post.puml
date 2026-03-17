@@ -1,0 +1,40 @@
+@startuml
+actor User
+boundary PostView
+control PostController
+entity POST
+
+User -> PostView : Select post to delete
+activate PostView
+PostView --> User : Display confirmation message
+
+alt Confirm
+    User -> PostView : Click button "Confirm"
+    PostView -> PostController : deletePost(id)
+    activate PostController
+    PostController -> POST : Validate post data
+    activate POST
+    
+    alt Valid post data
+        POST --> PostController : Validation success
+        PostController -> POST : Delete post
+        POST --> PostController : Post deleted
+        PostController --> PostView : Success response
+        PostView --> User : Notify deletion success
+        User -> PostView : Confirm success notification
+    else Invalid post data
+        POST --> PostController : Validation error
+        PostController --> PostView : Error response
+        PostView --> User : Notify deletion failed
+        User -> PostView : Confirm error notification
+    end
+    deactivate POST
+    deactivate PostController
+else Cancel
+    User -> PostView : Click button "Cancel"
+    break 
+        note right of User: User cancelled the deletion process
+    end
+end
+deactivate PostView
+@enduml

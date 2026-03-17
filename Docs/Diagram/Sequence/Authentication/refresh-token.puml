@@ -1,0 +1,42 @@
+@startuml
+actor User
+boundary AppView
+control AuthController
+entity USER
+
+User -> AppView : Select protected function
+activate AppView
+AppView -> AppView : Validate local token
+
+alt Token exists
+    AppView -> AuthController : verifyAuth()
+    activate AuthController
+    AuthController -> AuthController : Verify access token
+
+    alt Token valid
+        AuthController -> USER : Query user information
+        activate USER
+        USER --> AuthController : User data
+        deactivate USER
+
+        alt User valid and active
+            AuthController --> AppView : Success response
+            AppView --> User : Display function view
+            User -> AppView : Confirm success notification
+        else User invalid or banned
+            AuthController --> AppView : Error response
+            AppView --> User : Notify user banned or deleted
+            User -> AppView : Confirm error notification
+        end
+    else Token invalid
+        AuthController --> AppView : Error response
+        deactivate AuthController
+        AppView --> User : Notify session expired
+        User -> AppView : Confirm error notification
+    end
+else Token not exists
+    AppView --> User : Notify unauthenticated access
+    User -> AppView : Confirm error notification
+end
+deactivate AppView
+@enduml

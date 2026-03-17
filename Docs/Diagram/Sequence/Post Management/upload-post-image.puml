@@ -1,0 +1,39 @@
+@startuml
+actor User
+boundary UploadView
+control UploadController
+entity IMAGE
+
+User -> UploadView : Select function upload image
+activate UploadView
+User -> UploadView : Enter image file
+User -> UploadView : Click button "Upload"
+UploadView -> UploadView : Validate input information
+
+alt Valid input
+    UploadView -> UploadController : uploadImage(file)
+    activate UploadController
+    UploadController -> IMAGE : Validate image data
+    activate IMAGE
+
+    alt Valid image data
+        IMAGE --> UploadController : Validation success
+        UploadController -> IMAGE : Store image
+        IMAGE --> UploadController : Image stored URL
+        UploadController --> UploadView : Success response
+        UploadView --> User : Notify upload success
+        User -> UploadView : Confirm success notification
+    else Invalid image data
+        IMAGE --> UploadController : Validation error
+        UploadController --> UploadView : Error response
+        UploadView --> User : Notify invalid data
+        User -> UploadView : Confirm error notification
+    end
+    deactivate IMAGE
+    deactivate UploadController
+else Invalid input
+    UploadView --> User : Notify invalid input
+    User -> UploadView : Confirm error notification
+end
+deactivate UploadView
+@enduml

@@ -1,0 +1,35 @@
+@startuml
+actor User
+boundary AdminDashboardView
+control AdminController
+entity STATS
+
+User -> AdminDashboardView : Select function get admin stats
+activate AdminDashboardView
+AdminDashboardView -> AdminDashboardView : Validate input information
+
+alt Valid input
+    AdminDashboardView -> AdminController : getAdminStats()
+    activate AdminController
+    AdminController -> STATS : Query admin stats
+    activate STATS
+
+    alt Stats found
+        STATS --> AdminController : Stats data
+        AdminController --> AdminDashboardView : Success response
+        AdminDashboardView --> User : Display stats data
+        User -> AdminDashboardView : Confirm success notification
+    else No stats found
+        STATS --> AdminController : Null / Empty
+        AdminController --> AdminDashboardView : Error response
+        AdminDashboardView --> User : Notify no stats found
+        User -> AdminDashboardView : Confirm error notification
+    end
+    deactivate STATS
+    deactivate AdminController
+else Invalid input
+    AdminDashboardView --> User : Notify invalid input
+    User -> AdminDashboardView : Confirm error notification
+end
+deactivate AdminDashboardView
+@enduml

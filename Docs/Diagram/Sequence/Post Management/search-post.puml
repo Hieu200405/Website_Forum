@@ -1,0 +1,36 @@
+@startuml
+actor User
+boundary SearchView
+control PostController
+entity POST
+
+User -> SearchView : Enter search criteria
+activate SearchView
+User -> SearchView : Click button "Search"
+SearchView -> SearchView : Validate input information
+
+alt Valid input
+    SearchView -> PostController : searchPosts(criteria)
+    activate PostController
+    PostController -> POST : Query posts
+    activate POST
+
+    alt Posts found
+        POST --> PostController : Posts list
+        PostController --> SearchView : Success response
+        SearchView --> User : Display posts list
+        User -> SearchView : Confirm success notification
+    else No posts found
+        POST --> PostController : Empty list
+        PostController --> SearchView : Error response
+        SearchView --> User : Notify no posts found
+        User -> SearchView : Confirm error notification
+    end
+    deactivate POST
+    deactivate PostController
+else Invalid input
+    SearchView --> User : Notify invalid input
+    User -> SearchView : Confirm error notification
+end
+deactivate SearchView
+@enduml

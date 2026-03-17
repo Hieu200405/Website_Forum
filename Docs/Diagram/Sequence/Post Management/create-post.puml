@@ -1,0 +1,40 @@
+@startuml
+actor User
+boundary CreatePostView
+control PostController
+entity POST
+
+User -> CreatePostView : Select function create post
+activate CreatePostView
+CreatePostView --> User : Display post creation form
+User -> CreatePostView : Enter post detail
+User -> CreatePostView : Click button "Create"
+CreatePostView -> CreatePostView : Validate input information
+
+alt Valid input
+    CreatePostView -> PostController : createPost(data)
+    activate PostController
+    PostController -> POST : Validate post data
+    activate POST
+
+    alt Valid data
+        POST --> PostController : Validation success
+        PostController -> POST : Store post
+        POST --> PostController : Post created
+        PostController --> CreatePostView : Success response
+        CreatePostView --> User : Notify creation success
+        User -> CreatePostView : Confirm success notification
+    else Invalid data
+        POST --> PostController : Validation error
+        PostController --> CreatePostView : Error response
+        CreatePostView --> User : Notify invalid data
+        User -> CreatePostView : Confirm error notification
+    end
+    deactivate POST
+    deactivate PostController
+else Invalid input
+    CreatePostView --> User : Notify invalid input
+    User -> CreatePostView : Confirm error notification
+end
+deactivate CreatePostView
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+actor User
+boundary CommentView
+control CommentController
+entity COMMENT
+
+User -> CommentView : Select function create comment
+activate CommentView
+User -> CommentView : Enter comment detail
+User -> CommentView : Click button "Create"
+CommentView -> CommentView : Validate input information
+
+alt Valid input
+    CommentView -> CommentController : createComment(data)
+    activate CommentController
+    CommentController -> COMMENT : Validate comment data
+    activate COMMENT
+
+    alt Valid data
+        COMMENT --> CommentController : Validation success
+        CommentController -> COMMENT : Store comment
+        COMMENT --> CommentController : Comment created
+        CommentController --> CommentView : Success response
+        CommentView --> User : Notify creation success
+        User -> CommentView : Confirm success notification
+    else Invalid data
+        COMMENT --> CommentController : Validation error
+        CommentController --> CommentView : Error response
+        CommentView --> User : Notify invalid data
+        User -> CommentView : Confirm error notification
+    end
+    deactivate COMMENT
+    deactivate CommentController
+else Invalid input
+    CommentView --> User : Notify invalid input
+    User -> CommentView : Confirm error notification
+end
+deactivate CommentView
+@enduml

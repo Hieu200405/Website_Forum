@@ -1,0 +1,34 @@
+@startuml
+|User|
+|Frontend|
+|Backend|
+
+|User|
+start
+:1 Select user to unban;
+|Frontend|
+:2 Display confirmation message;
+|User|
+if (Confirm?) then (Yes)
+  :3.1 Click button "Confirm";
+  |Backend|
+  :4.1 Validate user data;
+  if (Valid?) then (Yes)
+    :5.1 Update user status to active;
+    |Frontend|
+    :6.1 Notify unban success;
+    |User|
+    :7.1 Confirm success notification;
+    stop
+  else (No)
+    |Frontend|
+    :5.2 Notify unban failed;
+    |User|
+    :6.2 Confirm error notification;
+    end
+  endif
+else (No)
+  :3.2 Click button "Cancel";
+  end
+endif
+@enduml

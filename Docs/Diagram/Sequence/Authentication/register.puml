@@ -1,0 +1,39 @@
+@startuml
+actor User
+boundary RegisterView
+control AuthController
+entity USER
+
+User -> RegisterView : Enter registration information
+activate RegisterView
+RegisterView -> RegisterView : Validate input
+alt Valid input
+    RegisterView -> AuthController : register(userData)
+    activate AuthController
+    AuthController -> USER : Query existing email
+    activate USER
+    USER --> AuthController : Result (null)
+    deactivate USER
+
+    alt Email not exists
+        AuthController -> AuthController : Hash password
+        AuthController -> USER : Store new user
+        activate USER
+        USER --> AuthController : User created
+        deactivate USER
+
+        AuthController --> RegisterView : Success response
+        RegisterView --> User : Notify registration success
+        User -> RegisterView : Confirm success notification
+    else Email exists
+        AuthController --> RegisterView : Error response
+        RegisterView --> User : Notify email already exists
+        User -> RegisterView : Confirm error notification
+    end
+    deactivate AuthController
+else Invalid input
+    RegisterView --> User : Notify invalid input
+    User -> RegisterView : Confirm error notification
+end
+deactivate RegisterView
+@enduml

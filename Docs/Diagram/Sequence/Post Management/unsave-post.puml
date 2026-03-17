@@ -1,0 +1,35 @@
+@startuml
+actor User
+boundary PostView
+control PostController
+entity SAVED_POST
+
+User -> PostView : Click button "Unsave"
+activate PostView
+PostView --> User : Display confirmation message
+
+
+
+    PostView -> PostController : unsavePost(postId)
+    activate PostController
+    PostController -> SAVED_POST : Validate saved post
+    activate SAVED_POST
+
+    alt Record exists
+        SAVED_POST --> PostController : Validation success
+        PostController -> SAVED_POST : Delete saved post
+        SAVED_POST --> PostController : Saved post deleted
+        PostController --> PostView : Success response
+        PostView --> User : Notify unsave success
+        User -> PostView : Confirm success notification
+    else Record not found
+        SAVED_POST --> PostController : Validation error
+        PostController --> PostView : Error response
+        PostView --> User : Notify invalid record
+        User -> PostView : Confirm error notification
+    end
+    deactivate SAVED_POST
+    deactivate PostController
+
+deactivate PostView
+@enduml

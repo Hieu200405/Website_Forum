@@ -1,0 +1,42 @@
+@startuml
+actor User
+boundary ManageUsersView
+control AdminController
+entity USER
+
+ref over User, ManageUsersView, AdminController, USER : Search Users
+
+User -> ManageUsersView : Select user to unban
+activate ManageUsersView
+ManageUsersView --> User : Display confirmation message
+
+alt Confirm
+    User -> ManageUsersView : Click button "Confirm"
+    ManageUsersView -> AdminController : unbanUser(id)
+    activate AdminController
+    AdminController -> USER : Validate user data
+    activate USER
+
+    alt Valid data
+        USER --> AdminController : Validation success
+        AdminController -> USER : Update user status to active
+        USER --> AdminController : User unbanned
+        AdminController --> ManageUsersView : Success response
+        ManageUsersView --> User : Notify unban success
+        User -> ManageUsersView : Confirm success notification
+    else Invalid data
+        USER --> AdminController : Validation error
+        AdminController --> ManageUsersView : Error response
+        ManageUsersView --> User : Notify unban failed
+        User -> ManageUsersView : Confirm error notification
+    end
+    deactivate USER
+    deactivate AdminController
+else Cancel
+    User -> ManageUsersView : Click button "Cancel"
+    break
+        note right of User: User cancelled the unban process
+    end
+end
+deactivate ManageUsersView
+@enduml

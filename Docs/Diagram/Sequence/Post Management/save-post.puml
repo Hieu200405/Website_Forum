@@ -1,0 +1,37 @@
+@startuml
+actor User
+boundary PostView
+control PostController
+entity SAVED_POST
+
+User -> PostView : Click button "Save"
+activate PostView
+PostView -> PostView : Validate input information
+
+alt Valid input
+    PostView -> PostController : savePost(postId)
+    activate PostController
+    PostController -> SAVED_POST : Validate post data
+    activate SAVED_POST
+
+    alt Valid data
+        SAVED_POST --> PostController : Validation success
+        PostController -> SAVED_POST : Store saved post
+        SAVED_POST --> PostController : Saved post created
+        PostController --> PostView : Success response
+        PostView --> User : Notify save success
+        User -> PostView : Confirm success notification
+    else Invalid data
+        SAVED_POST --> PostController : Validation error
+        PostController --> PostView : Error response
+        PostView --> User : Notify invalid post
+        User -> PostView : Confirm error notification
+    end
+    deactivate SAVED_POST
+    deactivate PostController
+else Invalid input
+    PostView --> User : Notify invalid input
+    User -> PostView : Confirm error notification
+end
+deactivate PostView
+@enduml
