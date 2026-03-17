@@ -1,0 +1,34 @@
+@startuml
+|User|
+|Frontend|
+|Backend|
+
+|User|
+start
+:1 Select function get posts;
+|Frontend|
+:2 Validate input information;
+if (Valid?) then (Yes)
+  |Backend|
+  :3.1 Query posts;
+  if (Found?) then (Yes)
+    |Frontend|
+    :4.1 Display posts list;
+    |User|
+    :5.1 Confirm success notification;
+    stop
+  else (No)
+    |Frontend|
+    :4.2 Notify no posts found;
+    |User|
+    :5.2 Confirm error notification;
+    end
+  endif
+else (No)
+  |Frontend|
+  :3.2 Notify invalid input;
+  |User|
+  :4.3 Confirm error notification;
+  end
+endif
+@enduml

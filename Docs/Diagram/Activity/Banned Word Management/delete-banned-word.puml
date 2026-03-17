@@ -1,0 +1,37 @@
+3. Xóa từ cấm (Delete Banned Word)
+(Áp dụng Delete Pattern: Ref tới Search, hiển thị Confirm/Cancel, Validate trước khi Delete)
+Activity Diagram:
+@startuml
+|User|
+|Frontend|
+|Backend|
+
+|User|
+start
+:1 Select banned word to delete;
+|Frontend|
+:2 Display confirmation message;
+|User|
+if (Confirm?) then (Yes)
+  :3.1 Click button "Confirm";
+  |Backend|
+  :4.1 Validate banned word data;
+  if (Valid?) then (Yes)
+    :5.1 Delete banned word;
+    |Frontend|
+    :6.1 Notify deletion success;
+    |User|
+    :7.1 Confirm success notification;
+    stop
+  else (No)
+    |Frontend|
+    :5.2 Notify deletion failed;
+    |User|
+    :6.2 Confirm error notification;
+    end
+  endif
+else (No)
+  :3.2 Click button "Cancel";
+  end
+endif
+@enduml

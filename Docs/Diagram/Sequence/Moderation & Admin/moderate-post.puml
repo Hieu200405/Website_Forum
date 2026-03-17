@@ -1,0 +1,54 @@
+@startuml
+actor User
+boundary ModeratePostsView
+control ModerationController
+entity POST
+
+ref over User, ModeratePostsView, ModerationController, POST : Search Pending Posts
+
+User -> ModeratePostsView : Select post to moderate
+activate ModeratePostsView
+ModeratePostsView -> ModerationController : getPost(id)
+activate ModerationController
+ModerationController -> POST : Query existing post
+activate POST
+
+alt Post exists
+    POST --> ModerationController : Post data
+    ModerationController --> ModeratePostsView : Post data
+    ModeratePostsView --> User : Display existing data
+    User -> ModeratePostsView : Select moderation decision
+    User -> ModeratePostsView : Click button "Moderate"
+
+    ModeratePostsView -> ModeratePostsView : Validate input information
+    alt Valid input
+        ModeratePostsView -> ModerationController : moderatePost(id, decision)
+        ModerationController -> POST : Validate post data
+
+        alt Valid data
+            POST --> ModerationController : Validation success
+            ModerationController -> POST : Update post status
+            POST --> ModerationController : Post updated
+            ModerationController --> ModeratePostsView : Success response
+            ModeratePostsView --> User : Notify moderation success
+            User -> ModeratePostsView : Confirm success notification
+        else Invalid data
+            POST --> ModerationController : Validation error
+            ModerationController --> ModeratePostsView : Error response
+            ModeratePostsView --> User : Notify invalid data
+            User -> ModeratePostsView : Confirm error notification
+        end
+    else Invalid input
+        ModeratePostsView --> User : Notify invalid input
+        User -> ModeratePostsView : Confirm error notification
+    end
+else Post not found
+    POST --> ModerationController : Null
+    ModerationController --> ModeratePostsView : Error response
+    ModeratePostsView --> User : Notify post not found
+    User -> ModeratePostsView : Confirm error notification
+end
+deactivate POST
+deactivate ModerationController
+deactivate ModeratePostsView
+@enduml

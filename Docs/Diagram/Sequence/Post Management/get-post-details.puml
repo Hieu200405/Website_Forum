@@ -1,0 +1,35 @@
+@startuml
+actor User
+boundary PostDetailView
+control PostController
+entity POST
+
+User -> PostDetailView : Select post to view
+activate PostDetailView
+PostDetailView -> PostDetailView : Validate input information
+
+alt Valid input
+    PostDetailView -> PostController : getPostDetail(id)
+    activate PostController
+    PostController -> POST : Query post detail
+    activate POST
+
+    alt Post found
+        POST --> PostController : Post data
+        PostController --> PostDetailView : Success response
+        PostDetailView --> User : Display post detail
+        User -> PostDetailView : Confirm success notification
+    else Post not found
+        POST --> PostController : Null
+        PostController --> PostDetailView : Error response
+        PostDetailView --> User : Notify post not found
+        User -> PostDetailView : Confirm error notification
+    end
+    deactivate POST
+    deactivate PostController
+else Invalid input
+    PostDetailView --> User : Notify invalid input
+    User -> PostDetailView : Confirm error notification
+end
+deactivate PostDetailView
+@enduml

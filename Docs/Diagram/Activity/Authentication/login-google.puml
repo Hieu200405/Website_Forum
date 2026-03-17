@@ -1,0 +1,32 @@
+@startuml
+|User|
+|Frontend|
+|Backend|
+
+|User|
+start
+:1 Click button "Login with Google";
+|Frontend|
+:2 Request Google authentication;
+:3 Validate Google token;
+if (Valid?) then (Yes)
+  |Backend|
+  :4.1 Query user information;
+  if (User exists?) then (No)
+    :5.1 Store new user;
+  else (Yes)
+  endif
+  :6.1 Generate JWT token;
+  |Frontend|
+  :7.1 Notify login success;
+  |User|
+  :8.1 Confirm success notification;
+  stop
+else (No)
+  |Frontend|
+  :4.2 Notify authentication failed;
+  |User|
+  :5.2 Confirm error notification;
+  end
+endif
+@enduml

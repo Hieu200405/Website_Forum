@@ -1,0 +1,35 @@
+@startuml
+|User|
+|Frontend|
+|Backend|
+
+|User|
+start
+:1 Select function view logs;
+:2 Enter search criteria;
+|Frontend|
+:3 Validate input information;
+if (Valid?) then (Yes)
+  |Backend|
+  :4.1 Query system logs;
+  if (Found?) then (Yes)
+    |Frontend|
+    :5.1 Display logs list;
+    |User|
+    :6.1 Confirm success notification;
+    stop
+  else (No)
+    |Frontend|
+    :5.2 Notify no logs found;
+    |User|
+    :6.2 Confirm error notification;
+    end
+  endif
+else (No)
+  |Frontend|
+  :4.2 Notify invalid input;
+  |User|
+  :5.3 Confirm error notification;
+  end
+endif
+@enduml

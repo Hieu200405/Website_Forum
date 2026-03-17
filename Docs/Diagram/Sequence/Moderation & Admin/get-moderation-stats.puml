@@ -1,0 +1,35 @@
+@startuml
+actor User
+boundary ModDashboardView
+control ModerationController
+entity STATS
+
+User -> ModDashboardView : Select function get moderation stats
+activate ModDashboardView
+ModDashboardView -> ModDashboardView : Validate input information
+
+alt Valid input
+    ModDashboardView -> ModerationController : getModerationStats()
+    activate ModerationController
+    ModerationController -> STATS : Query moderation stats
+    activate STATS
+
+    alt Stats found
+        STATS --> ModerationController : Stats data
+        ModerationController --> ModDashboardView : Success response
+        ModDashboardView --> User : Display stats data
+        User -> ModDashboardView : Confirm success notification
+    else No stats found
+        STATS --> ModerationController : Null / Empty
+        ModerationController --> ModDashboardView : Error response
+        ModDashboardView --> User : Notify no stats found
+        User -> ModDashboardView : Confirm error notification
+    end
+    deactivate STATS
+    deactivate ModerationController
+else Invalid input
+    ModDashboardView --> User : Notify invalid input
+    User -> ModDashboardView : Confirm error notification
+end
+deactivate ModDashboardView
+@enduml

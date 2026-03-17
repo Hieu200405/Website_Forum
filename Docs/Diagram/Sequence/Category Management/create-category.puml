@@ -1,0 +1,39 @@
+@startuml
+actor User
+boundary ManageCategoriesView
+control CategoryController
+entity CATEGORY
+
+User -> ManageCategoriesView : Select function create category
+activate ManageCategoriesView
+User -> ManageCategoriesView : Enter category detail
+User -> ManageCategoriesView : Click button "Create"
+ManageCategoriesView -> ManageCategoriesView : Validate input information
+
+alt Valid input
+    ManageCategoriesView -> CategoryController : createCategory(data)
+    activate CategoryController
+    CategoryController -> CATEGORY : Validate category data
+    activate CATEGORY
+
+    alt Valid data
+        CATEGORY --> CategoryController : Validation success
+        CategoryController -> CATEGORY : Store category
+        CATEGORY --> CategoryController : Category created
+        CategoryController --> ManageCategoriesView : Success response
+        ManageCategoriesView --> User : Notify creation success
+        User -> ManageCategoriesView : Confirm success notification
+    else Invalid data
+        CATEGORY --> CategoryController : Validation error
+        CategoryController --> ManageCategoriesView : Error response
+        ManageCategoriesView --> User : Notify invalid data
+        User -> ManageCategoriesView : Confirm error notification
+    end
+    deactivate CATEGORY
+    deactivate CategoryController
+else Invalid input
+    ManageCategoriesView --> User : Notify invalid input
+    User -> ManageCategoriesView : Confirm error notification
+end
+deactivate ManageCategoriesView
+@enduml

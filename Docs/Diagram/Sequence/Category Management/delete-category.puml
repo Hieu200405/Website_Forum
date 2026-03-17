@@ -1,0 +1,42 @@
+@startuml
+actor User
+boundary ManageCategoriesView
+control CategoryController
+entity CATEGORY
+
+ref over User, ManageCategoriesView, CategoryController, CATEGORY : Search Category (Get Categories)
+
+User -> ManageCategoriesView : Select category to delete
+activate ManageCategoriesView
+ManageCategoriesView --> User : Display confirmation message
+
+alt Confirm
+    User -> ManageCategoriesView : Click button "Confirm"
+    ManageCategoriesView -> CategoryController : deleteCategory(id)
+    activate CategoryController
+    CategoryController -> CATEGORY : Validate category data
+    activate CATEGORY
+
+    alt Valid data
+        CATEGORY --> CategoryController : Validation success
+        CategoryController -> CATEGORY : Delete category
+        CATEGORY --> CategoryController : Category deleted
+        CategoryController --> ManageCategoriesView : Success response
+        ManageCategoriesView --> User : Notify deletion success
+        User -> ManageCategoriesView : Confirm success notification
+    else Invalid data
+        CATEGORY --> CategoryController : Validation error
+        CategoryController --> ManageCategoriesView : Error response
+        ManageCategoriesView --> User : Notify deletion failed
+        User -> ManageCategoriesView : Confirm error notification
+    end
+    deactivate CATEGORY
+    deactivate CategoryController
+else Cancel
+    User -> ManageCategoriesView : Click button "Cancel"
+    break
+        note right of User: User cancelled the deletion process
+    end
+end
+deactivate ManageCategoriesView
+@enduml

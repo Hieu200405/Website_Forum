@@ -1,0 +1,42 @@
+@startuml
+actor User
+boundary LoginView
+boundary GoogleOAuth
+control AuthController
+entity USER
+
+User -> LoginView : Click button "Login with Google"
+activate LoginView
+LoginView -> GoogleOAuth : Request authentication
+activate GoogleOAuth
+GoogleOAuth --> LoginView : OAuth Token
+deactivate GoogleOAuth
+
+LoginView -> LoginView : Validate Google token
+alt Token valid
+    LoginView -> AuthController : googleLogin(token)
+    activate AuthController
+    AuthController -> USER : Query user information
+    activate USER
+    USER --> AuthController : User record (or null)
+    deactivate USER
+
+    opt User not exists
+        AuthController -> USER : Store new user
+        activate USER
+        USER --> AuthController : User created
+        deactivate USER
+    end
+
+    AuthController -> AuthController : Generate JWT Token
+    AuthController --> LoginView : Success response
+    deactivate AuthController
+
+    LoginView --> User : Notify login success
+    User -> LoginView : Confirm success notification
+else Token invalid
+    LoginView --> User : Notify authentication failed
+    User -> LoginView : Confirm error notification
+end
+deactivate LoginView
+@enduml

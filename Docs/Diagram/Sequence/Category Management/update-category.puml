@@ -1,0 +1,54 @@
+@startuml
+actor User
+boundary ManageCategoriesView
+control CategoryController
+entity CATEGORY
+
+ref over User, ManageCategoriesView, CategoryController, CATEGORY : Search Category (Get Categories)
+
+User -> ManageCategoriesView : Select category to update
+activate ManageCategoriesView
+ManageCategoriesView -> CategoryController : getCategory(id)
+activate CategoryController
+CategoryController -> CATEGORY : Query existing category
+activate CATEGORY
+
+alt Category exists
+    CATEGORY --> CategoryController : Category data
+    CategoryController --> ManageCategoriesView : Category data
+    ManageCategoriesView --> User : Display existing data
+    User -> ManageCategoriesView : Enter new category detail
+    User -> ManageCategoriesView : Click button "Update"
+
+    ManageCategoriesView -> ManageCategoriesView : Validate input information
+    alt Valid input
+        ManageCategoriesView -> CategoryController : updateCategory(id, data)
+        CategoryController -> CATEGORY : Validate category data
+
+        alt Valid data
+            CATEGORY --> CategoryController : Validation success
+            CategoryController -> CATEGORY : Update category
+            CATEGORY --> CategoryController : Category updated
+            CategoryController --> ManageCategoriesView : Success response
+            ManageCategoriesView --> User : Notify update success
+            User -> ManageCategoriesView : Confirm success notification
+        else Invalid data
+            CATEGORY --> CategoryController : Validation error
+            CategoryController --> ManageCategoriesView : Error response
+            ManageCategoriesView --> User : Notify invalid data
+            User -> ManageCategoriesView : Confirm error notification
+        end
+    else Invalid input
+        ManageCategoriesView --> User : Notify invalid input
+        User -> ManageCategoriesView : Confirm error notification
+    end
+else Category not found
+    CATEGORY --> CategoryController : Null
+    CategoryController --> ManageCategoriesView : Error response
+    ManageCategoriesView --> User : Notify category not found
+    User -> ManageCategoriesView : Confirm error notification
+end
+deactivate CATEGORY
+deactivate CategoryController
+deactivate ManageCategoriesView
+@enduml

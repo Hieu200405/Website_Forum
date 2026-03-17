@@ -1,0 +1,36 @@
+@startuml
+|User|
+|Frontend|
+|Backend|
+
+|User|
+start
+:1 Select function report post;
+:2 Enter report information;
+:3 Click button "Report";
+|Frontend|
+:4 Validate input information;
+if (Valid?) then (Yes)
+  |Backend|
+  :5.1 Validate report data;
+  if (Valid?) then (Yes)
+    :6.1 Store report;
+    :7.1 Notify report success;
+    |User|
+    :8.1 Confirm success notification;
+    stop
+  else (No)
+    |Backend|
+    :6.2 Notify invalid data;
+    |User|
+    :7.2 Confirm error notification;
+    end
+  endif
+else (No)
+  |Frontend|
+  :5.2 Notify invalid input;
+  |User|
+  :6.3 Confirm error notification;
+  end
+endif
+@enduml

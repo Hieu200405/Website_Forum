@@ -1,0 +1,37 @@
+@startuml
+|User|
+|Frontend|
+|Backend|
+
+|User|
+start
+:1 Enter login information;
+:2 Click button "Login";
+|Frontend|
+:3 Validate input information;
+if (Valid?) then (Yes)
+  |Backend|
+  :4.1 Query user information;
+  :5.1 Verify password;
+  if (Password matches?) then (Yes)
+    :6.1 Generate JWT token;
+    |Frontend|
+    :7.1 Notify login success;
+    |User|
+    :8.1 Confirm success notification;
+    stop
+  else (No)
+    |Frontend|
+    :6.2 Notify invalid password;
+    |User|
+    :7.2 Confirm error notification;
+    end
+  endif
+else (No)
+  |Frontend|
+  :4.2 Notify invalid input;
+  |User|
+  :5.2 Confirm error notification;
+  end
+endif
+@enduml

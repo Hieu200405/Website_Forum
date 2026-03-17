@@ -1,0 +1,42 @@
+@startuml
+actor User
+boundary ManageBannedWordsView
+control BannedWordController
+entity BANNED_WORD
+
+ref over User, ManageBannedWordsView, BannedWordController, BANNED_WORD : Search Banned Words
+
+User -> ManageBannedWordsView : Select banned word to delete
+activate ManageBannedWordsView
+ManageBannedWordsView --> User : Display confirmation message
+
+alt Confirm
+    User -> ManageBannedWordsView : Click button "Confirm"
+    ManageBannedWordsView -> BannedWordController : deleteBannedWord(id)
+    activate BannedWordController
+    BannedWordController -> BANNED_WORD : Validate banned word data
+    activate BANNED_WORD
+
+    alt Valid data
+        BANNED_WORD --> BannedWordController : Validation success
+        BannedWordController -> BANNED_WORD : Delete banned word
+        BANNED_WORD --> BannedWordController : Banned word deleted
+        BannedWordController --> ManageBannedWordsView : Success response
+        ManageBannedWordsView --> User : Notify deletion success
+        User -> ManageBannedWordsView : Confirm success notification
+    else Invalid data
+        BANNED_WORD --> BannedWordController : Validation error
+        BannedWordController --> ManageBannedWordsView : Error response
+        ManageBannedWordsView --> User : Notify deletion failed
+        User -> ManageBannedWordsView : Confirm error notification
+    end
+    deactivate BANNED_WORD
+    deactivate BannedWordController
+else Cancel
+    User -> ManageBannedWordsView : Click button "Cancel"
+    break
+        note right of User: User cancelled the deletion process
+    end
+end
+deactivate ManageBannedWordsView
+@enduml

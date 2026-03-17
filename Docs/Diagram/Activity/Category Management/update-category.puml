@@ -1,0 +1,50 @@
+@startuml
+|User|
+|Frontend|
+|Backend|
+
+|User|
+start
+:1 Select category to update;
+|Backend|
+:2 Query existing category;
+if (Exists?) then (Yes)
+  |Frontend|
+  :3.1 Display existing data;
+  |User|
+  :4.1 Enter new category detail;
+  :5.1 Click button "Update";
+  |Frontend|
+  :6.1 Validate input information;
+  if (Valid?) then (Yes)
+    |Backend|
+    :7.1 Validate category data;
+    if (Valid?) then (Yes)
+      :8.1 Update category;
+      |Frontend|
+      :9.1 Notify update success;
+      |User|
+      :10.1 Confirm success notification;
+      stop
+    else (No)
+      |Frontend|
+      :8.2 Notify invalid data;
+      |User|
+      :9.2 Confirm error notification;
+      end
+    endif
+  else (No)
+    |Frontend|
+    :7.2 Notify invalid input;
+    |User|
+    :8.3 Confirm error notification;
+    end
+  endif
+else (No)
+  |Frontend|
+  :3.2 Notify category not found;
+  |User|
+  :4.2 Confirm error notification;
+  end
+endif
+@enduml
