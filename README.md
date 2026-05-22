@@ -121,7 +121,7 @@ Run integration tests to verify critical flows (Auth, Post Creation, Moderation)
 
 ```bash
 # Inside the container or local Server directory
-node ../Testing/verify_auth_flow.js
+node ../Testing/integration/verify_auth_flow.js
 ```
 
 ---
