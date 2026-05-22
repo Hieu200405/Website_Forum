@@ -1,12 +1,12 @@
 const path = require('path');
-module.paths.push(path.resolve(__dirname, '../Server/node_modules'));
-require('dotenv').config({ path: path.resolve(__dirname, '../Server/.env') });
+module.paths.push(path.resolve(__dirname, '../../Server/node_modules'));
+require('dotenv').config({ path: path.resolve(__dirname, '../../Server/.env') });
 
-const sequelize = require('../Server/src/config/database');
-const PostRepository = require('../Server/src/repositories/post.repository');
-const Category = require('../Server/src/models/category.model');
-const User = require('../Server/src/models/user.model');
-const ROLES = require('../Server/src/constants/roles');
+const sequelize = require('../../Server/src/config/database');
+const PostRepository = require('../../Server/src/repositories/post.repository');
+const Category = require('../../Server/src/models/category.model');
+const User = require('../../Server/src/models/user.model');
+const ROLES = require('../../Server/src/constants/roles');
 
 async function runTests() {
     try {

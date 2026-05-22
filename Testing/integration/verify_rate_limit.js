@@ -1,6 +1,6 @@
 const path = require('path');
-module.paths.push(path.resolve(__dirname, '../Server/node_modules'));
-require('dotenv').config({ path: path.resolve(__dirname, '../Server/.env') });
+module.paths.push(path.resolve(__dirname, '../../Server/node_modules'));
+require('dotenv').config({ path: path.resolve(__dirname, '../../Server/.env') });
 
 const request = require('supertest');
 const express = require('express');
@@ -8,7 +8,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
 // Import Modules
-const serverSrc = path.join(__dirname, '../Server/src');
+const serverSrc = path.join(__dirname, '../../Server/src');
 const sequelize = require(path.join(serverSrc, 'config/database'));
 const authRoute = require(path.join(serverSrc, 'routes/auth.route'));
 const postRoute = require(path.join(serverSrc, 'routes/post.route'));

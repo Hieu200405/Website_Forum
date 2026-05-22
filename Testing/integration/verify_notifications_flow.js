@@ -1,6 +1,6 @@
 const path = require('path');
-module.paths.push(path.resolve(__dirname, '../Server/node_modules'));
-require('dotenv').config({ path: path.resolve(__dirname, '../Server/.env') });
+module.paths.push(path.resolve(__dirname, '../../Server/node_modules'));
+require('dotenv').config({ path: path.resolve(__dirname, '../../Server/.env') });
 
 const request = require('supertest');
 const express = require('express');
@@ -8,11 +8,11 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
 // Import Modules
-const sequelize = require('../Server/src/config/database');
-const notificationRoute = require('../Server/src/routes/notification.route');
-const Notification = require('../Server/src/models/notification.model');
-const User = require('../Server/src/models/user.model');
-const ROLES = require('../Server/src/constants/roles');
+const sequelize = require('../../Server/src/config/database');
+const notificationRoute = require('../../Server/src/routes/notification.route');
+const Notification = require('../../Server/src/models/notification.model');
+const User = require('../../Server/src/models/user.model');
+const ROLES = require('../../Server/src/constants/roles');
 
 // Setup App
 const app = express();

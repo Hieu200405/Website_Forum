@@ -1,13 +1,13 @@
 const path = require('path');
-module.paths.push(path.resolve(__dirname, '../Server/node_modules'));
-require('dotenv').config({ path: path.resolve(__dirname, '../Server/.env') });
+module.paths.push(path.resolve(__dirname, '../../Server/node_modules'));
+require('dotenv').config({ path: path.resolve(__dirname, '../../Server/.env') });
 
 const request = require('supertest');
 const express = require('express');
 const cors = require('cors');
 
 // Import Modules
-const authRoute = require('../Server/src/routes/auth.route');
+const authRoute = require('../../Server/src/routes/auth.route');
 
 // Setup App
 const app = express();

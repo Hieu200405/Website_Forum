@@ -1,6 +1,6 @@
 const path = require('path');
-module.paths.push(path.resolve(__dirname, '../Server/node_modules'));
-require('dotenv').config({ path: path.resolve(__dirname, '../Server/.env') });
+module.paths.push(path.resolve(__dirname, '../../Server/node_modules'));
+require('dotenv').config({ path: path.resolve(__dirname, '../../Server/.env') });
 
 const request = require('supertest');
 const express = require('express');
@@ -8,14 +8,14 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
 // Import App Modules
-const sequelize = require('../Server/src/config/database');
-const postRoute = require('../Server/src/routes/post.route');
-const Post = require('../Server/src/models/post.model');
-const Category = require('../Server/src/models/category.model');
-const User = require('../Server/src/models/user.model');
-const Comment = require('../Server/src/models/comment.model');
-const ROLES = require('../Server/src/constants/roles');
-const PostRepository = require('../Server/src/repositories/post.repository');
+const sequelize = require('../../Server/src/config/database');
+const postRoute = require('../../Server/src/routes/post.route');
+const Post = require('../../Server/src/models/post.model');
+const Category = require('../../Server/src/models/category.model');
+const User = require('../../Server/src/models/user.model');
+const Comment = require('../../Server/src/models/comment.model');
+const ROLES = require('../../Server/src/constants/roles');
+const PostRepository = require('../../Server/src/repositories/post.repository');
 
 // Setup mock app
 const app = express();

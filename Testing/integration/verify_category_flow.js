@@ -1,20 +1,20 @@
 const path = require('path');
 // Hack: Add Server/node_modules to search path so we can resolve packages installed in Server/
-module.paths.push(path.resolve(__dirname, '../Server/node_modules'));
+module.paths.push(path.resolve(__dirname, '../../Server/node_modules'));
 
-require('dotenv').config({ path: path.resolve(__dirname, '../Server/.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../../Server/.env') });
 const request = require('supertest');
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
 // Import App Modules (Relative from Testing/ folder to Server/src/)
-const sequelize = require('../Server/src/config/database');
-const categoryRoute = require('../Server/src/routes/category.route');
-const SystemLog = require('../Server/src/models/systemLog.model');
-const Category = require('../Server/src/models/category.model');
-const User = require('../Server/src/models/user.model');
-const ROLES = require('../Server/src/constants/roles');
+const sequelize = require('../../Server/src/config/database');
+const categoryRoute = require('../../Server/src/routes/category.route');
+const SystemLog = require('../../Server/src/models/systemLog.model');
+const Category = require('../../Server/src/models/category.model');
+const User = require('../../Server/src/models/user.model');
+const ROLES = require('../../Server/src/constants/roles');
 
 // Setup mock app
 const app = express();

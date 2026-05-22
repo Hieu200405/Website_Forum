@@ -1,7 +1,7 @@
 const path = require('path');
 // Add Server/node_modules
-module.paths.push(path.resolve(__dirname, '../Server/node_modules'));
-require('dotenv').config({ path: path.resolve(__dirname, '../Server/.env') });
+module.paths.push(path.resolve(__dirname, '../../Server/node_modules'));
+require('dotenv').config({ path: path.resolve(__dirname, '../../Server/.env') });
 
 const request = require('supertest');
 const express = require('express');
@@ -10,13 +10,13 @@ const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 
 // Import Modules
-const sequelize = require('../Server/src/config/database');
-const postRoute = require('../Server/src/routes/post.route');
-const CategoryRepository = require('../Server/src/repositories/category.repository');
-const UserRepository = require('../Server/src/repositories/user.repository');
-const SystemLog = require('../Server/src/models/systemLog.model');
-const Post = require('../Server/src/models/post.model');
-const ROLES = require('../Server/src/constants/roles');
+const sequelize = require('../../Server/src/config/database');
+const postRoute = require('../../Server/src/routes/post.route');
+const CategoryRepository = require('../../Server/src/repositories/category.repository');
+const UserRepository = require('../../Server/src/repositories/user.repository');
+const SystemLog = require('../../Server/src/models/systemLog.model');
+const Post = require('../../Server/src/models/post.model');
+const ROLES = require('../../Server/src/constants/roles');
 
 // Setup mock app
 const app = express();
@@ -55,7 +55,7 @@ async function setup() {
         role: ROLES.USER
     };
     // Direct Create (bypassing repo logic for speed, or use repo)
-    const UserModel = require('../Server/src/models/user.model');
+    const UserModel = require('../../Server/src/models/user.model');
     user = await UserModel.create(userData);
     token = createToken(user.id, user.role);
 

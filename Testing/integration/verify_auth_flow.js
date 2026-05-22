@@ -1,10 +1,10 @@
 const request = require('supertest');
 const express = require('express');
 const cors = require('cors');
-const sequelize = require('../Server/src/config/database');
-const authRoute = require('../Server/src/routes/auth.route');
-const SystemLog = require('../Server/src/models/systemLog.model');
-const User = require('../Server/src/models/user.model');
+const sequelize = require('../../Server/src/config/database');
+const authRoute = require('../../Server/src/routes/auth.route');
+const SystemLog = require('../../Server/src/models/systemLog.model');
+const User = require('../../Server/src/models/user.model');
 
 // Setup mock app
 const app = express();
