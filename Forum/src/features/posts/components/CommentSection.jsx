@@ -110,7 +110,7 @@ const CommentSection = ({ postId, postAuthorId }) => {
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mt-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center">
+            <h3 data-testid="comments-header" className="text-lg font-bold text-slate-900 mb-6 flex items-center">
                 Bình luận <span className="ml-2 bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-sm">{comments.length}</span>
             </h3>
 
@@ -129,6 +129,7 @@ const CommentSection = ({ postId, postAuthorId }) => {
                     <div className="flex-1 space-y-3">
                         <div className="relative group">
                             <textarea
+                                data-testid="comment-input"
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
                                 placeholder={replyTo ? "Viết câu trả lời..." : "Viết bình luận của bạn..."}
@@ -141,7 +142,8 @@ const CommentSection = ({ postId, postAuthorId }) => {
                                     <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={isPending} />
                                     <Image className="w-4 h-4" />
                                 </label>
-                                <button 
+                                <button
+                                    data-testid="comment-submit"
                                     type="submit"
                                     disabled={(!content.trim() && !imageUrl) || isPending}
                                     className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-primary-500/30"

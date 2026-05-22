@@ -28,7 +28,7 @@ const uploadAvatar = async (file) => {
     return res.url || res.data?.url;
 };
 
-const InputField = ({ label, id, type = 'text', value, onChange, placeholder, hint, extra }) => (
+const InputField = ({ label, id, type = 'text', value, onChange, placeholder, hint, extra, inputProps = {} }) => (
     <div>
         <label htmlFor={id} className="block text-sm font-semibold text-slate-700 mb-1.5">{label}</label>
         {hint && <p className="text-xs text-slate-400 mb-2">{hint}</p>}
@@ -40,6 +40,7 @@ const InputField = ({ label, id, type = 'text', value, onChange, placeholder, hi
                 onChange={onChange}
                 placeholder={placeholder}
                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition placeholder:text-slate-400"
+                {...inputProps}
             />
             {extra}
         </div>
@@ -195,15 +196,17 @@ const Settings = () => {
                     </div>
                 </div>
 
-                <InputField 
+                <InputField
                     id="username" label="Tên hiển thị" value={infoForm.username}
                     onChange={e => setInfoForm(p => ({...p, username: e.target.value}))}
                     placeholder="Tên người dùng (4-30 ký tự)"
+                    inputProps={{ 'data-testid': 'settings-username' }}
                 />
 
                 <div>
                     <label htmlFor="bio" className="block text-sm font-semibold text-slate-700 mb-1.5">Tiểu sử</label>
                     <textarea
+                        data-testid="settings-bio"
                         id="bio"
                         rows={3}
                         value={infoForm.bio}
@@ -217,6 +220,7 @@ const Settings = () => {
 
                 <div className="flex justify-end">
                     <button
+                        data-testid="settings-save-info"
                         type="submit"
                         disabled={updateMutation.isPending || uploading}
                         className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition disabled:opacity-60"
@@ -241,6 +245,7 @@ const Settings = () => {
                     <label className="block text-sm font-semibold text-slate-700 mb-1.5">Mật khẩu hiện tại</label>
                     <div className="relative">
                         <input
+                            data-testid="settings-current-password"
                             type={showPassCurrent ? 'text' : 'password'}
                             value={passForm.currentPassword}
                             onChange={e => setPassForm(p => ({...p, currentPassword: e.target.value}))}
@@ -257,6 +262,7 @@ const Settings = () => {
                     <label className="block text-sm font-semibold text-slate-700 mb-1.5">Mật khẩu mới</label>
                     <div className="relative">
                         <input
+                            data-testid="settings-new-password"
                             type={showPassNew ? 'text' : 'password'}
                             value={passForm.newPassword}
                             onChange={e => setPassForm(p => ({...p, newPassword: e.target.value}))}
@@ -273,6 +279,7 @@ const Settings = () => {
                     <label className="block text-sm font-semibold text-slate-700 mb-1.5">Xác nhận mật khẩu mới</label>
                     <div className="relative">
                         <input
+                            data-testid="settings-confirm-password"
                             type="password"
                             value={passForm.confirmPassword}
                             onChange={e => setPassForm(p => ({...p, confirmPassword: e.target.value}))}
@@ -292,6 +299,7 @@ const Settings = () => {
 
                 <div className="flex justify-end">
                     <button
+                        data-testid="settings-save-password"
                         type="submit"
                         disabled={updateMutation.isPending || !passForm.currentPassword || !passForm.newPassword}
                         className="flex items-center gap-2 px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl transition disabled:opacity-50"

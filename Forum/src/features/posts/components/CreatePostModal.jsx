@@ -181,6 +181,7 @@ const CreatePostModal = () => {
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
         <div className="flex-shrink-0 space-y-4 mb-6">
           <input
+            data-testid="create-post-title"
             type="text"
             placeholder="Tiêu đề bài viết..."
             className="w-full text-2xl font-extrabold placeholder:text-slate-400 border-none focus:ring-0 px-0 bg-transparent text-slate-900"
@@ -194,6 +195,7 @@ const CreatePostModal = () => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex-1 w-full">
               <select
+                data-testid="create-post-category"
                 value={formData.categoryId}
                 onChange={(e) =>
                   setFormData({ ...formData, categoryId: parseInt(e.target.value) })
@@ -241,6 +243,7 @@ const CreatePostModal = () => {
         <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-inner group focus-within:ring-2 focus-within:ring-primary-500/20 transition-all">
           <ReactQuill
             ref={quillRef}
+            data-testid="create-post-content"
             modules={modules}
             theme="snow"
             value={formData.content}
@@ -255,6 +258,7 @@ const CreatePostModal = () => {
               Mẹo: Sử dụng <b>`code`</b> để đánh dấu mã nguồn.
            </div>
            <Button
+            data-testid="create-post-submit"
             type="submit"
             isLoading={mutation.isPending}
             className="px-10 rounded-xl font-bold text-base shadow-lg shadow-primary-500/25"

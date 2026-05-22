@@ -33,7 +33,7 @@ const ReportedPosts = () => {
         <div className="space-y-6">
             <h1 className="text-2xl font-bold text-slate-800">Quản lý báo cáo vi phạm</h1>
             
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div data-testid="moderator-reports-list" className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 {isLoading ? (
                     <div className="p-8 text-center text-slate-500">Đang tải...</div>
                 ) : reports.length === 0 ? (
@@ -73,14 +73,16 @@ const ReportedPosts = () => {
                                     </div>
 
                                     <div className="flex items-center space-x-2 ml-4">
-                                        <button 
+                                        <button
+                                            data-testid={`moderator-hide-${report.post_id}`}
                                             onClick={() => handleAction(report.post_id, 'hide')}
                                             className="flex items-center space-x-1 px-3 py-2 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition font-medium text-sm"
                                         >
                                             <Ban className="w-4 h-4" />
                                             <span>Ẩn</span>
                                         </button>
-                                        <button 
+                                        <button
+                                            data-testid={`moderator-delete-${report.post_id}`}
                                             onClick={() => handleAction(report.post_id, 'delete')}
                                             className="flex items-center space-x-1 px-3 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition font-medium text-sm"
                                         >
