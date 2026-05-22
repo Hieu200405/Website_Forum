@@ -133,5 +133,3 @@ node ../Testing/verify_auth_flow.js
 - **Images Not Loading**: Check Cloudinary credentials and ensure the `image_url` column exists in `posts`/`comments` tables.
 
 ---
-
-_Made with ❤️ by Antigravity for the Modern Web._
