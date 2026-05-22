@@ -1,0 +1,13 @@
+flowchart LR
+    Start([Moderator module start]) --> ActionChoice{Choose Action}
+
+    ActionChoice --> ModeratePosts[Moderate Pending Posts\nApprove/Reject]
+    ActionChoice --> HandleReports[Handle Reported Posts]
+    ActionChoice --> ViewModStats[View Moderation Stats]
+
+    ModeratePosts --> EndCheck{End ?}
+    HandleReports --> EndCheck
+    ViewModStats --> EndCheck
+
+    EndCheck -->|No| ActionChoice
+    EndCheck -->|Yes| End([Moderator module end])

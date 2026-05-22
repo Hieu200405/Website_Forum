@@ -1,0 +1,14 @@
+flowchart LR
+    Start([User module start]) --> ViewFeed[View Personalized Feed\nTrending/Newest]
+    ViewFeed --> ActionChoice{Choose Action?}
+
+    ActionChoice --> CreatePost[Create/Edit Post]
+    ActionChoice --> PostInteraction[Post Interaction Module]
+    ActionChoice --> ProfileSettings[Profile & Settings]
+
+    CreatePost --> EndCheck{End ?}
+    PostInteraction --> EndCheck
+    ProfileSettings --> EndCheck
+
+    EndCheck -->|No| ViewFeed
+    EndCheck -->|Yes| End([User module end])

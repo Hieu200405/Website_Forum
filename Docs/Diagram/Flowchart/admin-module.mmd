@@ -1,0 +1,15 @@
+flowchart LR
+    Start([Admin module start]) --> ActionChoice{Choose Action}
+
+    ActionChoice --> ManageUsers[Manage Users\nBan/Unban/Role]
+    ActionChoice --> ManageCategories[Manage Categories\nCreate/Update/Delete]
+    ActionChoice --> ManageBannedWords[Manage Banned Words]
+    ActionChoice --> ViewLogs[View System Logs & Stats]
+
+    ManageUsers --> EndCheck{End ?}
+    ManageCategories --> EndCheck
+    ManageBannedWords --> EndCheck
+    ViewLogs --> EndCheck
+
+    EndCheck -->|No| ActionChoice
+    EndCheck -->|Yes| End([Admin module end])

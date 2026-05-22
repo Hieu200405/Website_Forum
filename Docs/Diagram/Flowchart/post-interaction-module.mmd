@@ -1,0 +1,18 @@
+flowchart LR
+    Start([Post Interaction module start]) --> FilterSort[Search/Sort/Filter Posts]
+    FilterSort --> ReadPost[Read Post Details]
+    ReadPost --> ActionChoice{Interact?}
+
+    ActionChoice -->|Comment| ManageComments[Create/Reply/Delete Comment]
+    ActionChoice -->|Like| ManageLikes[Like/Unlike Post]
+    ActionChoice -->|Save| ManageSaves[Save/Unsave Post]
+    ActionChoice -->|Report| ReportPost[Report Post]
+    ActionChoice -->|None| EndCheck{End ?}
+
+    ManageComments --> EndCheck
+    ManageLikes --> EndCheck
+    ManageSaves --> EndCheck
+    ReportPost --> EndCheck
+
+    EndCheck -->|No| FilterSort
+    EndCheck -->|Yes| End([Post Interaction module end])
