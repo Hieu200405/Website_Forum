@@ -1,0 +1,16 @@
+flowchart LR
+    Start([Start]) --> ViewHome[View Home / Feeds]
+    ViewHome --> Login[Log in]
+    Login --> CheckRole{Check Role}
+
+    CheckRole -->|Is Admin| AdminModule[Admin Module]
+    CheckRole -->|Is Moderator| ModModule[Moderator Module]
+    CheckRole -->|Is User| UserModule[User Module]
+
+    AdminModule --> LogOff[Log off]
+    ModModule --> LogOff
+    UserModule --> LogOff
+
+    LogOff --> EndCheck{End ?}
+    EndCheck -->|No| Start
+    EndCheck -->|Yes| End([End])

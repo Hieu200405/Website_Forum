@@ -1,0 +1,18 @@
+graph LR
+    Start([Authentication module start]) --> Login[Input Credentials<br/>Username/Password]
+    Login --> Valid{Credentials<br/>Valid?}
+
+%% If credentials fail
+    Valid -- N --> End([Authentication module end])
+
+%% If credentials pass
+    Valid -- Y --> GenJWT[Generate JWT<br/>Sign with Secret]
+    GenJWT --> SaveSession[Store/Update Session<br/>in Database/Redis]
+    SaveSession --> Success{Success?}
+
+%% Loop back if DB update fails or retry is needed
+    Success -- N --> GenJWT
+
+%% Finish
+    Success -- Y --> Return[Return JWT to Client]
+    Return --> End
