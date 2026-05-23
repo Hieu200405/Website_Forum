@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:unit": "vitest run --config vitest.config.js",
+    "test:unit:watch": "vitest --config vitest.config.js",
+    "test:unit:coverage": "vitest run --config vitest.config.js --coverage",
+    "test:unit:workbook": "node ../Testing/unit/scripts/generate-unit-workbook.js"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +39,8 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "vitest": "^2.1.9",
+    "xlsx-populate": "^1.21.0"
   }
 }
