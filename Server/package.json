@@ -39,6 +39,7 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.9",
     "nodemon": "^3.1.11",
     "vitest": "^2.1.9",
     "xlsx-populate": "^1.21.0"
