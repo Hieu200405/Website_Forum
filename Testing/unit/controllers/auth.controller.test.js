@@ -55,4 +55,59 @@ describe('AuthController', () => {
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'google fail' }));
   });
+
+  it('register maps unknown error to 500 default message', async () => {
+    vi.spyOn(RegisterUseCase, 'execute').mockRejectedValue({});
+    const req = createReq({ body: { username: 'u' } });
+    const res = createRes();
+
+    await AuthController.register(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Lỗi server' });
+  });
+
+  it('login maps unknown error to 500 default message', async () => {
+    vi.spyOn(LoginUseCase, 'execute').mockRejectedValue({});
+    const req = createReq({ body: { email: 'a@b.com', password: 'pw' } });
+    const res = createRes();
+
+    await AuthController.login(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Lỗi hệ thống' });
+  });
+
+  it('googleLogin returns 200 on success', async () => {
+    vi.spyOn(GoogleLoginUseCase, 'execute').mockResolvedValue({ accessToken: 'ok' });
+    const req = createReq({ body: { token: 'x' } });
+    const res = createRes();
+
+    await AuthController.googleLogin(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ accessToken: 'ok' });
+  });
+
+  it('register preserves provided error status/message', async () => {
+    vi.spyOn(RegisterUseCase, 'execute').mockRejectedValue({ status: 409, message: 'dup' });
+    const req = createReq({ body: { username: 'u' } });
+    const res = createRes();
+
+    await AuthController.register(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.json).toHaveBeenCalledWith({ success: false, message: 'dup' });
+  });
+
+  it('googleLogin uses default message when error has none', async () => {
+    vi.spyOn(GoogleLoginUseCase, 'execute').mockRejectedValue({ status: 500 });
+    const req = createReq({ body: { token: 'x' } });
+    const res = createRes();
+
+    await AuthController.googleLogin(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Lỗi hệ thống khi đăng nhập Google' }));
+  });
 });

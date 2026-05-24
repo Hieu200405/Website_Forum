@@ -73,4 +73,57 @@ describe('PostController', () => {
     expect(res.status).toHaveBeenCalledWith(404);
     expect(updateSpy).not.toHaveBeenCalled();
   });
+
+  it('create maps active status to 201', async () => {
+    vi.spyOn(CreatePostUseCase, 'execute').mockResolvedValue({ status: 'active' });
+    const req = createReq({ user: { userId: 1 }, body: { title: 't', content: 'c', categoryId: 2 } });
+    const res = createRes();
+
+    await PostController.create(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+  });
+
+  it('delete returns 404 when post missing', async () => {
+    vi.spyOn(PostRepository, 'findById').mockResolvedValue(null);
+    const req = createReq({ user: { userId: 1, role: 'admin' }, params: { id: '10' } });
+    const res = createRes();
+
+    await PostController.delete(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it('delete returns 200 when owner deletes post', async () => {
+    vi.spyOn(PostRepository, 'findById').mockResolvedValue({ id: 10, user_id: 1 });
+    vi.spyOn(PostRepository, 'delete').mockResolvedValue(true);
+    const req = createReq({ user: { userId: 1, role: 'user' }, params: { id: '10' } });
+    const res = createRes();
+
+    await PostController.delete(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('update returns 403 when not owner', async () => {
+    vi.spyOn(PostRepository, 'findById').mockResolvedValue({ id: 10, user_id: 9 });
+    const req = createReq({ user: { userId: 1 }, params: { id: '10' }, body: { title: 'x' } });
+    const res = createRes();
+
+    await PostController.update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+  });
+
+  it('update returns 200 when owner updates', async () => {
+    vi.spyOn(PostRepository, 'findById').mockResolvedValue({ id: 10, user_id: 1 });
+    vi.spyOn(Post, 'update').mockResolvedValue([1]);
+    const req = createReq({ user: { userId: 1 }, params: { id: '10' }, body: { title: 'new', imageUrl: null } });
+    const res = createRes();
+
+    await PostController.update(req, res);
+
+    expect(Post.update).toHaveBeenCalledWith({ title: 'new', image_url: null }, { where: { id: '10' } });
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
 });

@@ -87,4 +87,54 @@ describe('CommentController', () => {
 
     expect(res.status).toHaveBeenCalledWith(403);
   });
+
+  it('likeComment returns created=false message when already liked', async () => {
+    vi.spyOn(Comment, 'findByPk').mockResolvedValue({ id: 12 });
+    vi.spyOn(CommentLike, 'findOrCreate').mockResolvedValue([{}, false]);
+    vi.spyOn(CommentLike, 'count').mockResolvedValue(4);
+    const req = createReq({ user: { userId: 1 }, params: { id: '12' } });
+    const res = createRes();
+
+    await CommentController.likeComment(req, res);
+
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      liked: true,
+      likeCount: 4,
+      message: 'Bạn đã thích bình luận này rồi',
+    }));
+  });
+
+  it('deleteComment returns 404 when comment missing', async () => {
+    vi.spyOn(Comment, 'findByPk').mockResolvedValue(null);
+    const req = createReq({ user: { userId: 1, role: 'admin' }, params: { id: '10' } });
+    const res = createRes();
+
+    await CommentController.deleteComment(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it('deleteComment deletes when post author', async () => {
+    const destroy = vi.fn().mockResolvedValue(undefined);
+    vi.spyOn(Comment, 'findByPk').mockResolvedValue({ user_id: 9, post_id: 4, destroy });
+    vi.spyOn(Post, 'findByPk').mockResolvedValue({ user_id: 1 });
+    const req = createReq({ user: { userId: 1, role: 'user' }, params: { id: '10' } });
+    const res = createRes();
+
+    await CommentController.deleteComment(req, res);
+
+    expect(destroy).toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith({ success: true, message: 'Đã xóa bình luận' });
+  });
+
+  it('create maps thrown error status and fallback message', async () => {
+    vi.spyOn(CreateCommentUseCase, 'execute').mockRejectedValue({ status: 422 });
+    const req = createReq({ user: { userId: 2 }, body: { content: '' }, app: {} });
+    const res = createRes();
+
+    await CommentController.create(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(422);
+    expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Error creating comment' });
+  });
 });
