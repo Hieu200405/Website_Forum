@@ -177,7 +177,7 @@ const ManageUsers = () => {
                                                 <UserX className="w-3.5 h-3.5" /> Khóa
                                             </button>
                                         ) : (
-                                            <span className="text-xs text-slate-300 mr-2">Không thể khóa</span>
+                                            <span className="text-xs text-slate-400 mr-2">Không thể khóa</span>
                                         )}
                                     </td>
                                 </tr>

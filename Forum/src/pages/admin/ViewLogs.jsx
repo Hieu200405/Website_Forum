@@ -124,7 +124,7 @@ const ViewLogs = () => {
                                         <div className="text-xs text-slate-400 font-medium whitespace-nowrap">
                                             {formatDistanceToNow(new Date(log.created_at), { addSuffix: true, locale: vi })}
                                         </div>
-                                        <div className="text-[10px] text-slate-300 mt-0.5">
+                                        <div className="text-[10px] text-slate-400 mt-0.5">
                                             {format(new Date(log.created_at), 'HH:mm dd/MM')}
                                         </div>
                                     </div>
