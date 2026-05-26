@@ -12,6 +12,8 @@ services:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - forum_net
 
   redis:
     image: redis:alpine
@@ -21,6 +23,8 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - forum_net
 
   backend:
     build:
@@ -49,6 +53,10 @@ services:
     depends_on:
       - db
       - redis
+    networks:
+      - forum_net
+    labels:
+      - "logging=alloy"
 
   frontend:
     build:
@@ -59,7 +67,14 @@ services:
       - "80:80"
     depends_on:
       - backend
+    networks:
+      - forum_net
 
 volumes:
   db_data:
   redis_data:
+
+networks:
+  forum_net:
+    name: forum_net
+    driver: bridge
