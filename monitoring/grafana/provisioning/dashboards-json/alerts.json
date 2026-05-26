@@ -1,0 +1,37 @@
+{
+  "uid": "forum-alerts",
+  "title": "Forum Alerts",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "15s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "alertlist",
+      "title": "Currently firing alerts",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 10 },
+      "datasource": { "uid": "alertmanager", "type": "alertmanager" },
+      "options": {
+        "viewMode": "list",
+        "groupMode": "default",
+        "showInstances": true,
+        "stateFilter": { "firing": true, "pending": true }
+      }
+    },
+    {
+      "id": 2,
+      "type": "logs",
+      "title": "Recent backend error logs",
+      "gridPos": { "x": 0, "y": 10, "w": 24, "h": 12 },
+      "datasource": { "uid": "loki", "type": "loki" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service=\"forum_backend\"} | json | level=\"error\""
+        }
+      ],
+      "options": { "showTime": true, "wrapLogMessage": true }
+    }
+  ]
+}
