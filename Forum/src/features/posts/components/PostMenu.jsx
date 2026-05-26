@@ -28,7 +28,8 @@ const PostMenu = ({ post, onEdit, onDelete }) => {
 
   return (
     <div className="relative" ref={menuRef}>
-      <button 
+      <button
+        data-testid={`post-menu-toggle-${post.id}`}
         onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
         className="p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-600 rounded-full transition-colors"
       >
@@ -55,7 +56,8 @@ const PostMenu = ({ post, onEdit, onDelete }) => {
                 </button>
             </>
            ) : (
-                <button 
+                <button
+                    data-testid={`post-report-${post.id}`}
                     onClick={(e) => { e.stopPropagation(); setIsOpen(false); onOpen('report-post', { postId: post.id }); }}
                     className="w-full text-left px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-red-600 flex items-center space-x-2"
                 >

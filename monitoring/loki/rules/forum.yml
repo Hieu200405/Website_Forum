@@ -1,0 +1,12 @@
+groups:
+  - name: forum-logs
+    rules:
+      - alert: LogErrorSpike
+        expr: |
+          sum(rate({service="forum_backend"} | json | level="error" [5m])) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Error log rate > 6/min for 2m"
+          description: "forum_backend is logging error-level entries faster than 6/min for 2 minutes."

@@ -166,6 +166,7 @@ const PostCard = ({ post, onLike }) => {
             <div className="px-5 py-3 flex items-center gap-1 bg-slate-50/30">
                 {/* Like */}
                 <ActionBtn
+                    dataTestId={`post-like-${post.id}`}
                     onClick={e => { e.stopPropagation(); onLike(post.id); }}
                     active={post.isLiked}
                     activeClass="text-red-500 bg-red-50"
@@ -199,6 +200,7 @@ const PostCard = ({ post, onLike }) => {
 
                 {/* Save */}
                 <ActionBtn
+                    dataTestId={`post-save-${post.id}`}
                     onClick={e => { e.stopPropagation(); toggleSave({ postId: post.id, isSaved: post.isSaved }); }}
                     active={post.isSaved}
                     activeClass="text-primary-600 bg-primary-50"
@@ -211,8 +213,9 @@ const PostCard = ({ post, onLike }) => {
     );
 };
 
-const ActionBtn = ({ onClick, active, activeClass, hoverClass, icon, label, title }) => (
+const ActionBtn = ({ onClick, active, activeClass, hoverClass, icon, label, title, dataTestId }) => (
     <button
+        data-testid={dataTestId}
         onClick={onClick}
         title={title}
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold transition-all duration-200 ${

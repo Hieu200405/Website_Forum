@@ -56,8 +56,9 @@ const LoginForm = () => {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700">Email</label>
-        <Input 
-          type="email" 
+        <Input
+          data-testid="login-email"
+          type="email"
           value={formData.email}
           onChange={(e) => setFormData({...formData, email: e.target.value})}
           placeholder="admin@example.com"
@@ -66,17 +67,19 @@ const LoginForm = () => {
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700">Mật khẩu</label>
-        <Input 
-          type="password" 
+        <Input
+          data-testid="login-password"
+          type="password"
           value={formData.password}
           onChange={(e) => setFormData({...formData, password: e.target.value})}
           placeholder="••••••••"
           required
         />
       </div>
-      <Button 
-        type="submit" 
-        className="w-full" 
+      <Button
+        data-testid="login-submit"
+        type="submit"
+        className="w-full"
         isLoading={mutation.isPending || googleMutation.isPending}
       >
         Đăng nhập

@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const pinoHttp = require('pino-http');
+const { recordHttpRequest, metricsHandler } = require('./middlewares/metrics.middleware');
 const sequelize = require('./config/database');
 const authRoute = require('./routes/auth.route');
 const adminRoute = require('./routes/admin.route');
@@ -31,6 +33,16 @@ app.set('io', io);
 
 app.use(cors());
 app.use(express.json());
+app.use(pinoHttp({
+  level: process.env.LOG_LEVEL || 'info',
+  customLogLevel: (req, res, err) => {
+    if (err || res.statusCode >= 500) return 'error';
+    if (res.statusCode >= 400) return 'warn';
+    return 'info';
+  },
+}));
+app.use(recordHttpRequest);
+app.get('/metrics', metricsHandler);
 
 // ─── Swagger API Docs ──────────────────────────────────────────
 const swaggerUiOptions = {

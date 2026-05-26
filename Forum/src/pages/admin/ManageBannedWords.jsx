@@ -59,15 +59,17 @@ const ManageBannedWords = () => {
 
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                 <form onSubmit={handleAdd} className="flex gap-4 mb-8">
-                    <input 
-                        type="text" 
+                    <input
+                        data-testid="admin-bannedword-input"
+                        type="text"
                         value={newWord}
                         onChange={(e) => setNewWord(e.target.value)}
                         placeholder="Nhập từ cấm mới..."
                         className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none"
                     />
-                    <Button 
-                        type="submit" 
+                    <Button
+                        data-testid="admin-bannedword-add"
+                        type="submit"
                         disabled={addMutation.isPending || !newWord.trim()}
                         className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
                     >
@@ -85,7 +87,8 @@ const ManageBannedWords = () => {
                         {words.map(item => (
                             <div key={item.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 group">
                                 <span className="font-medium text-slate-700">{item.word}</span>
-                                <button 
+                                <button
+                                    data-testid={`admin-bannedword-delete-${item.id}`}
                                     onClick={() => handleDelete(item.id)}
                                     disabled={deleteMutation.isPending}
                                     className="text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"

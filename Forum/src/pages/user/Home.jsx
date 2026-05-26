@@ -108,6 +108,7 @@ const UserHome = () => {
                 <div className="relative group">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary-500 transition-colors pointer-events-none" />
                     <input
+                        data-testid="home-search-input"
                         type="text"
                         className="w-full pl-11 pr-10 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition-all font-medium text-slate-700"
                         placeholder="Tìm kiếm bài viết, chủ đề, tác giả..."
@@ -116,6 +117,7 @@ const UserHome = () => {
                     />
                     {searchInput && (
                         <button
+                            data-testid="home-search-clear"
                             className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                             onClick={() => setSearchInput('')}
                         >
@@ -127,6 +129,7 @@ const UserHome = () => {
                 {/* Create post prompt */}
                 {user && (
                     <div
+                        data-testid="home-open-create-post"
                         className="bg-white rounded-2xl p-4 border border-slate-100 hover:border-primary-200/60 transition-all cursor-pointer group"
                         style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
                         onClick={() => import('@/components/hooks/useModalStore').then(({ default: useModal }) => useModal.getState().onOpen('create-post'))}

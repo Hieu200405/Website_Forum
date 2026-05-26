@@ -151,12 +151,14 @@ const Profile = () => {
                             <div className="flex shrink-0">
                                 {isOwnProfile ? (
                                     <button onClick={() => navigate('/user/settings')}
+                                        data-testid="profile-edit-button"
                                         className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-50 hover:bg-primary-50 text-slate-600 hover:text-primary-700 border border-slate-200 hover:border-primary-300 font-bold text-sm rounded-xl transition-all shadow-sm">
                                         <Settings2 className="w-4 h-4" />
                                         Chỉnh sửa hồ sơ
                                     </button>
                                 ) : (
                                     <button
+                                        data-testid="profile-follow-toggle"
                                         onClick={handleFollowToggle}
                                         disabled={isFollowingLoading}
                                         className={`w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-2.5 font-bold text-sm rounded-xl transition-all shadow-md group ${

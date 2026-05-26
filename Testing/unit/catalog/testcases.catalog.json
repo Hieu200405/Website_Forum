@@ -1,0 +1,28 @@
+{
+  "project": {
+    "name": "Website_Forum Backend",
+    "code": "WF-BE",
+    "creator": "Tran Nguyen Duy Minh",
+    "reviewer": "Tran Nguyen Duy Minh",
+    "documentVersion": "v1.0"
+  },
+  "functions": [
+    {
+      "code": "F001",
+      "sheetName": "F001_login.execute",
+      "className": "LoginUseCase",
+      "functionName": "execute",
+      "source": "src/usecases/login.usecase.js",
+      "precondition": "User repository mock available",
+      "requirement": "Login with valid credentials returns token and user info",
+      "testcases": [
+        {
+          "id": "UTCID01",
+          "type": "N",
+          "condition": "Valid email/password",
+          "confirm": "Returns accessToken and user payload"
+        }
+      ]
+    }
+  ]
+}

@@ -30,7 +30,8 @@ const RegisterForm = () => {
     <form onSubmit={handleSubmit} className="space-y-4">
        <div>
         <label className="block text-sm font-medium text-gray-700">Tên đăng nhập</label>
-        <Input 
+        <Input
+          data-testid="register-username"
           value={formData.username}
           onChange={(e) => setFormData({...formData, username: e.target.value})}
           placeholder="username"
@@ -39,8 +40,9 @@ const RegisterForm = () => {
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700">Email</label>
-        <Input 
-          type="email" 
+        <Input
+          data-testid="register-email"
+          type="email"
           value={formData.email}
           onChange={(e) => setFormData({...formData, email: e.target.value})}
           placeholder="email@example.com"
@@ -49,17 +51,19 @@ const RegisterForm = () => {
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700">Mật khẩu</label>
-        <Input 
-          type="password" 
+        <Input
+          data-testid="register-password"
+          type="password"
           value={formData.password}
           onChange={(e) => setFormData({...formData, password: e.target.value})}
           placeholder="••••••••"
           required
         />
       </div>
-      <Button 
-        type="submit" 
-        className="w-full" 
+      <Button
+        data-testid="register-submit"
+        type="submit"
+        className="w-full"
         isLoading={mutation.isPending}
       >
         Đăng ký
