@@ -37,7 +37,7 @@ describe('metrics middleware', () => {
     listeners.finish();
 
     const output = await metricsModule.register.metrics();
-    expect(output).toContain('http_requests_total{method="GET",route="/api/health",status_code="200"} 1');
+    expect(output).toContain('http_requests_total{method="GET",route="/api/health",status_code="200",service="forum_backend"} 1');
     expect(output).toContain('http_request_duration_seconds_bucket');
   });
 

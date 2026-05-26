@@ -1,6 +1,7 @@
 const promClient = require('prom-client');
 
 const register = new promClient.Registry();
+register.setDefaultLabels({ service: 'forum_backend' });
 promClient.collectDefaultMetrics({ register });
 
 const httpRequestsTotal = new promClient.Counter({
