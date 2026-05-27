@@ -1,4 +1,4 @@
-import { Page, expect } from 'playwright/test';
+import { Page, expect } from '@playwright/test';
 
 export const creds = {
   admin: { email: 'admin@gmail.com', password: '12345678' },

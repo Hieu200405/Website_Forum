@@ -1,4 +1,4 @@
-import { test, expect } from 'playwright/test';
+import { test, expect } from '@playwright/test';
 import { loginAsUser } from '../fixtures/auth';
 
 test('[TC_POST-15] open post detail from feed', async ({ page }) => {
