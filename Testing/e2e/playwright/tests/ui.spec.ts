@@ -1,4 +1,4 @@
-import { test, expect } from 'playwright/test';
+import { test, expect } from '@playwright/test';
 import { loginAsUser } from '../fixtures/auth';
 
 test('[TC_UI-9] protected route redirects unauthenticated user to login', async ({ page }) => {

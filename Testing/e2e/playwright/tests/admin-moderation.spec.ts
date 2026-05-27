@@ -1,4 +1,4 @@
-import { test, expect, Page } from 'playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { loginAsAdmin, loginAsModerator, loginAsUser } from '../fixtures/auth';
 
 async function findUserRow(page: Page, emails: string[]) {

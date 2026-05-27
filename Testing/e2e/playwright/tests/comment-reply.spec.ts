@@ -1,4 +1,4 @@
-import { test, expect } from 'playwright/test';
+import { test, expect } from '@playwright/test';
 import { loginAsUser } from '../fixtures/auth';
 
 test('[TC_CMT-4] unauthenticated cannot submit comment', async ({ page }) => {

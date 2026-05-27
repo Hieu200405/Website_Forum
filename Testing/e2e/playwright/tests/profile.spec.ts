@@ -1,4 +1,4 @@
-import { test, expect } from 'playwright/test';
+import { test, expect } from '@playwright/test';
 import { loginAsUser } from '../fixtures/auth';
 
 test('[TC_USR-7] password mismatch shows validation state', async ({ page }) => {

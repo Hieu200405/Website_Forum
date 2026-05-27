@@ -1,4 +1,4 @@
-import { test, expect } from 'playwright/test';
+import { test, expect } from '@playwright/test';
 import { creds, loginAs } from '../fixtures/auth';
 
 function uniqueStamp() {
